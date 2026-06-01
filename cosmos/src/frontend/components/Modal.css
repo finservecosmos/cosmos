@@ -1,0 +1,109 @@
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 20px;
+  animation: fadeIn 0.15s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-box {
+  background: var(--bg-surface); border-radius: 14px;
+  box-shadow: var(--shadow-lg); width: 100%;
+  animation: slideUp 0.2s ease;
+  max-height: 90vh; overflow-y: auto;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-sm { max-width: 400px; }
+.modal-md { max-width: 560px; }
+.modal-lg { max-width: 760px; }
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+}
+.modal-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0; }
+.modal-close {
+  background: none; border: none; font-size: 16px; cursor: pointer;
+  color: var(--text-muted); padding: 4px 8px; border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.modal-close:hover { background: var(--bg-muted); color: var(--text-primary); }
+.modal-body { padding: 20px 24px 24px; }
+
+/* Form styles inside modals */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.form-field:last-child { margin-bottom: 0; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.form-input, .form-select, .form-textarea {
+  padding: 10px 14px; border: 1.5px solid var(--border-input);
+  border-radius: 8px; font-size: 14px; color: var(--text-primary);
+  background: var(--bg-input); outline: none; font-family: inherit;
+  transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-input.error, .form-select.error { border-color: #c0392b; }
+.form-error { font-size: 11px; color: #c0392b; margin-top: 2px; }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+.btn-cancel { padding: 9px 18px; background: none; border: 1.5px solid var(--border-input); border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: border-color 0.15s; }
+.btn-cancel:hover { border-color: var(--accent); color: var(--accent); }
+.btn-submit { padding: 9px 20px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.btn-submit:hover { background: var(--accent-hover); }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-danger { padding: 9px 18px; background: #c0392b; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+/* Interactive and Ordered Grid System for Modals */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-input);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.form-grid input:disabled,
+.form-grid select:disabled,
+.form-grid textarea:disabled {
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  border-color: var(--border);
+}
+
+/* Expand textarea or notes to take up full row span */
+.form-grid-full {
+  grid-column: 1 / -1;
+}

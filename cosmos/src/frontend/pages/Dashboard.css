@@ -1,0 +1,137 @@
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dashboard-page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+}
+
+.dashboard-page-subtitle {
+  margin: 4px 0 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.dashboard-range-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.range-tab {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid #e8e8e8;
+  background: #fff;
+  color: #555;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.range-tab:hover {
+  border-color: #c0392b;
+}
+
+.range-tab.active {
+  background: #c0392b;
+  color: #fff;
+  border-color: #c0392b;
+}
+
+/* Stat cards row */
+.stat-cards-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Middle row */
+.dashboard-mid-row {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+}
+
+.chart-card {
+  background: #fff;
+  border: 1px solid #ebebeb;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.chart-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 4px;
+}
+
+.chart-subtitle {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+}
+
+.chart-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.chart-menu-btn:hover {
+  color: #555;
+}
+
+.chart-menu-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Bottom row */
+.dashboard-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .dashboard-mid-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-bottom-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .stat-cards-row {
+    flex-direction: column;
+  }
+}

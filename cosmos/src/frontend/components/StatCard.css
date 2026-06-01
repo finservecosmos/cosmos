@@ -1,0 +1,92 @@
+.stat-card {
+  background: #fff;
+  border: 1px solid #ebebeb;
+  border-radius: 12px;
+  padding: 20px 22px;
+  flex: 1;
+  min-width: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.stat-card--clickable {
+  cursor: pointer;
+}
+
+.stat-card--clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card--highlight {
+  border-color: #c0392b;
+  box-shadow: 0 0 0 1px #c0392b22;
+}
+
+.stat-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.stat-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.stat-card-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+}
+
+.stat-card-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.stat-card-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.stat-card--highlight .stat-card-value {
+  color: #c0392b;
+}
+
+.stat-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-trend {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.stat-trend.up {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+.stat-trend.down {
+  color: #c0392b;
+  background: #fde8e8;
+}
+
+.stat-sub {
+  font-size: 12px;
+  color: #999;
+}
