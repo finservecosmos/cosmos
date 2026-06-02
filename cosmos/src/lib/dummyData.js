@@ -50,6 +50,10 @@ export const dummyClients = [
   { id: 'C006', name: 'Sunita Rao',      phone: '9834567890', email: 'sunita@email.com',  loan_type: 'Personal Loan', amount: 400000,   status: 'Approved',    file_no: '#8901', date: '2023-10-12', associate: 'Meena Sharma' },
   { id: 'C007', name: 'Kiran Mehta',     phone: '9856789012', email: 'kiran@email.com',   loan_type: 'Business Loan', amount: 5000000,  status: 'Closed',      file_no: '#7201', date: '2023-09-05', associate: 'Sunita Rao'   },
   { id: 'C008', name: 'Deepa Iyer',      phone: '9890123456', email: 'deepa@email.com',   loan_type: 'Gold Loan',     amount: 250000,   status: 'Disbursed',   file_no: '#9401', date: '2023-10-25', associate: 'Ravi Patel'   },
+  { id: 'C009', name: 'Manikandan K.',    phone: '9812233445', email: 'manikandan@email.com',  loan_type: 'Home Loan',     amount: 150000,   status: 'Processing',  file_no: '#CF-78220', date: '2023-10-20', associate: 'Meena Sharma' },
+  { id: 'C010', name: 'Blue Bells Enterprise', phone: '9845566778', email: 'bluebells@email.com', loan_type: 'Business Loan', amount: 60000,    status: 'Processing',  file_no: '#CF-78225', date: '2023-10-22', associate: 'Ravi Patel'   },
+  { id: 'C011', name: 'Malar',            phone: '9867788990', email: 'malar@email.com',      loan_type: 'Personal Loan', amount: 100000,   status: 'Processing',  file_no: '#CF-78229', date: '2023-10-24', associate: 'Meena Sharma' },
+  { id: 'C012', name: 'Selvam Retailers', phone: '9890011223', email: 'selvam@email.com',     loan_type: 'Gold Loan',     amount: 20000,    status: 'Disbursed',   file_no: '#CF-78231', date: '2023-10-25', associate: 'Ravi Patel'   },
 ]
 
 // ── Associates ───────────────────────────────────────────────
@@ -71,6 +75,12 @@ export const dummyPayments = [
   { id: 'P006', client: 'Kiran Mehta',     file_no: '#7201', type: 'EMI',          amount: 85000,   bank: 'ICICI Bank',  date: '2023-10-24', status: 'Failed'    },
   { id: 'P007', client: 'Deepa Iyer',      file_no: '#9401', type: 'Disbursement', amount: 250000,  bank: 'SBI',         date: '2023-10-25', status: 'Completed' },
   { id: 'P008', client: 'Sunita Rao',      file_no: '#8901', type: 'EMI',          amount: 12000,   bank: 'HDFC Bank',   date: '2023-10-26', status: 'Pending'   },
+  { id: 'P009', client: 'Manikandan K.',    file_no: '#CF-78220', type: 'Collection',   amount: 80000,   bank: 'ICICI Bank',  date: '2023-10-24', status: 'Completed' },
+  { id: 'P010', client: 'Manikandan K.',    file_no: '#CF-78220', type: 'Collection',   amount: 70000,   bank: 'ICICI Bank',  date: '2023-10-25', status: 'Pending'   },
+  { id: 'P011', client: 'Blue Bells Enterprise', file_no: '#CF-78225', type: 'Collection', amount: 60000,  bank: 'SBI',        date: '2023-10-25', status: 'Pending'   },
+  { id: 'P012', client: 'Malar',            file_no: '#CF-78229', type: 'Collection',   amount: 50000,   bank: 'HDFC Bank',   date: '2023-10-26', status: 'Completed' },
+  { id: 'P013', client: 'Malar',            file_no: '#CF-78229', type: 'Collection',   amount: 50000,   bank: 'HDFC Bank',   date: '2023-10-26', status: 'Pending'   },
+  { id: 'P014', client: 'Selvam Retailers', file_no: '#CF-78231', type: 'Collection',   amount: 20000,   bank: 'Axis Bank',   date: '2023-10-27', status: 'Completed' },
 ]
 
 // ── Invoices ─────────────────────────────────────────────────

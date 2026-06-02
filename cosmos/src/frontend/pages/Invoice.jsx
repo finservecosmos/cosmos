@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import DashboardLayout from '../components/DashboardLayout'
 import Modal from '../components/Modal'
 import { useAppState } from '../../context/AppStateContext'
@@ -16,11 +17,33 @@ const emptyInvoice = {
 export default function Invoice() {
   const { invoices, addInvoice } = useAppState()
   const { addToast } = useToast()
+  const location = useLocation()
+  
   const [search, setSearch]       = useState('')
   const [statusFilter, setStatus] = useState('All')
   const [modalOpen, setModalOpen] = useState(false)
   const [formData, setFormData]   = useState(emptyInvoice)
   const [selectedInvoice, setSelectedInvoice] = useState(null)
+
+  // Prefill check on load
+  useEffect(() => {
+    if (location.state?.prefillClient) {
+      setFormData({
+        ...emptyInvoice,
+        client: location.state.prefillClient,
+        file_no: location.state.prefillFileNo || '',
+        amount: location.state.prefillAmount || 0,
+        service: 'Loan Processing Payout Collection',
+        date: new Date().toISOString().slice(0, 10),
+        due: new Date(new Date().getTime() + 7*24*60*60*1000).toISOString().slice(0, 10),
+        status: 'Pending'
+      })
+      setModalOpen(true)
+      
+      // Clean up local navigation history state to prevent recurring popup on refreshes
+      window.history.replaceState({}, document.title)
+    }
+  }, [location])
 
   const filtered = invoices.filter((inv) => {
     const q = search.toLowerCase()

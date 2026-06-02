@@ -128,6 +128,8 @@ export function AppStateProvider({ children }) {
   const addAssociate    = (a) => setAssociates(p => [{ ...a, id: `A${String(p.length+1).padStart(3,'0')}` }, ...p])
   const updateAssociate = (a) => setAssociates(p => p.map(x => x.id === a.id ? a : x))
   const addPayment    = (pay) => setPayments(p => [{ ...pay, id: `P${String(p.length+1).padStart(3,'0')}` }, ...p])
+  const updatePayment = (pay) => setPayments(p => p.map(x => x.id === pay.id ? pay : x))
+  const removePayment = (id)  => setPayments(p => p.filter(x => x.id !== id))
   const addInvoice    = (inv) => setInvoices(p => [{ ...inv, id: `INV-${String(p.length+1).padStart(3,'0')}` }, ...p])
   const addProduct    = (pr)  => setProducts(p => [{ ...pr, id: `PS${String(p.length+1).padStart(3,'0')}` }, ...p])
   const updateProduct = (pr)  => setProducts(p => p.map(x => x.id === pr.id ? pr : x))
@@ -225,7 +227,7 @@ export function AppStateProvider({ children }) {
     <AppStateContext.Provider value={{
       clients, addClient, updateClient,
       associates: computedAssociates, addAssociate, updateAssociate,
-      payments, addPayment,
+      payments, addPayment, updatePayment, removePayment,
       invoices, addInvoice,
       products, addProduct, updateProduct,
       reminders, addReminder, updateReminder, deleteReminder,
