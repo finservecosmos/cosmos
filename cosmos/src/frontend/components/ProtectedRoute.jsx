@@ -6,50 +6,67 @@ function ProtectedRoute({ children, allowedRoles }) {
   const [status, setStatus] = useState('loading') // 'loading' | 'authorized' | 'unauthorized' | 'forbidden'
 
   useEffect(() => {
+    let active = true
+
     const checkAuth = async () => {
-      // ── Dev bypass (remove before production) ─────────────
-      if (sessionStorage.getItem('dev_auth') === 'true') {
-        setStatus('authorized')
+      // ── Dev bypass (only active in development environment) ──
+      const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || import.meta.env.DEV
+      if (isDev && sessionStorage.getItem('dev_auth') === 'true') {
+        if (active) setStatus('authorized')
         return
       }
-      // ──────────────────────────────────────────────────────
+      // ─────────────────────────────────────────────────────────
 
       const { data: { session } } = await supabase.auth.getSession()
 
       if (!session) {
-        setStatus('unauthorized')
+        if (active) setStatus('unauthorized')
         return
       }
 
       // Fetch user role from profiles table
-      // If table doesn't exist yet, allow access with default role
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', session.user.id)
         .single()
 
-      // If profiles table not set up yet, allow access (remove this once table exists)
       if (error) {
         console.warn('profiles table not found or error — allowing access:', error.message)
-        setStatus('authorized')
+        if (active) setStatus('authorized')
         return
       }
 
       if (!profile) {
-        setStatus('authorized') // allow if no profile row yet
+        if (active) setStatus('authorized')
         return
       }
 
       if (allowedRoles && !allowedRoles.includes(profile.role)) {
-        setStatus('forbidden')
+        if (active) setStatus('forbidden')
         return
       }
 
-      setStatus('authorized')
+      if (active) setStatus('authorized')
     }
 
     checkAuth()
+
+    // Subscribe to auth state changes for real-time session expiry/update handling
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!active) return
+      
+      if (event === 'SIGNED_OUT') {
+        setStatus('unauthorized')
+      } else if (event === 'TOKEN_REFRESH_INITIALIZED' || event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+        checkAuth()
+      }
+    })
+
+    return () => {
+      active = false
+      subscription?.unsubscribe()
+    }
   }, [allowedRoles])
 
   if (status === 'loading') {

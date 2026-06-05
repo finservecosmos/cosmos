@@ -21,6 +21,8 @@ function LoginPage() {
   const [resetEmail, setResetEmail] = useState('')
   const [resetError, setResetError] = useState('')
   const [resetLoading, setResetLoading] = useState(false)
+  const [bioModalOpen, setBioModalOpen] = useState(false)
+  const [bioState, setBioState] = useState('idle') // 'idle' | 'scanning' | 'success'
 
   useEffect(() => {
     document.title = 'Login | Cosmos'
@@ -106,6 +108,22 @@ function LoginPage() {
     setResetOpen(false)
   }
 
+  const handleBiometricLogin = () => {
+    setBioModalOpen(true)
+    setBioState('scanning')
+
+    setTimeout(() => {
+      setBioState('success')
+      
+      setTimeout(() => {
+        setBioModalOpen(false)
+        sessionStorage.setItem('dev_auth', 'true')
+        addToast('Biometric authentication verified!', 'success')
+        navigate('/dashboard')
+      }, 1200)
+    }, 2000)
+  }
+
   return (
     <div className="login-wrapper">
       <div className="login-container">
@@ -186,6 +204,26 @@ function LoginPage() {
               <button type="submit" className="login-btn" disabled={loading}>
                 {loading ? 'Logging in...' : 'Log in'}
               </button>
+
+              <div className="login-divider">
+                <span>OR SECURE PASSKEY</span>
+              </div>
+
+              <button 
+                type="button" 
+                className="biometric-btn"
+                onClick={handleBiometricLogin}
+                disabled={loading}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="biometric-btn-icon">
+                  <path d="M12 10a2 2 0 0 0-2 2v3a2 2 0 0 0 4 0v-3a2 2 0 0 0-2-2z" />
+                  <path d="M14 10a4.5 4.5 0 0 0-4.5 4.5V17" />
+                  <path d="M18.5 10a8.5 8.5 0 0 0-13 0v4.5" />
+                  <path d="M8 10a4 4 0 0 1 8 0v2.5" />
+                  <path d="M6 10a6 6 0 0 1 12 0v1.5" />
+                </svg>
+                Sign in with Passkey / Face ID
+              </button>
             </form>
           </div>
         </div>
@@ -213,6 +251,41 @@ function LoginPage() {
             <button type="button" className="btn-submit" onClick={handleResetPassword} disabled={resetLoading}>
               {resetLoading ? 'Sending...' : 'Send reset link'}
             </button>
+          </div>
+        </Modal>
+      )}
+
+      {bioModalOpen && (
+        <Modal 
+          title="Biometric Authentication" 
+          onClose={() => {
+            if (bioState !== 'success') {
+              setBioModalOpen(false)
+            }
+          }} 
+          size="sm"
+        >
+          <div className="biometric-modal-content">
+            <div className={`biometric-scanner-ring ${bioState}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="scanner-fingerprint">
+                <path d="M12 10a2 2 0 0 0-2 2v3a2 2 0 0 0 4 0v-3a2 2 0 0 0-2-2z" />
+                <path d="M14 10a4.5 4.5 0 0 0-4.5 4.5V17" />
+                <path d="M18.5 10a8.5 8.5 0 0 0-13 0v4.5" />
+                <path d="M8 10a4 4 0 0 1 8 0v2.5" />
+                <path d="M6 10a6 6 0 0 1 12 0v1.5" />
+              </svg>
+              {bioState === 'scanning' && <div className="scanner-laser" />}
+            </div>
+            
+            <h3 className="biometric-modal-title">
+              {bioState === 'scanning' && 'Scanning biometric data...'}
+              {bioState === 'success' && 'Verification Complete'}
+            </h3>
+            
+            <p className="biometric-modal-desc">
+              {bioState === 'scanning' && 'Please place your finger on the sensor or scan your face.'}
+              {bioState === 'success' && 'Welcome back, Cosmos User!'}
+            </p>
           </div>
         </Modal>
       )}

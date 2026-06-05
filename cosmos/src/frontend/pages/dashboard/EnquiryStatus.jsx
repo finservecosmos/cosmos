@@ -3,6 +3,7 @@ import DashboardLayout from '../../components/DashboardLayout'
 import Modal from '../../components/Modal'
 import { useAppState } from '../../../context/AppStateContext'
 import { useToast } from '../../../context/ToastContext'
+import useConfirm from '../../hooks/useConfirm'
 import '../DataPage.css'
 
 /* ─── Constants ─────────────────────────────────────────────── */
@@ -130,9 +131,7 @@ const emptyEnquiry = {
 export default function EnquiryStatus() {
   const { enquiries, addEnquiry, updateEnquiry, removeEnquiry, addClient, associates } = useAppState()
   const { addToast } = useToast()
-
-  // Confirm delete overlay
-  const [confirmDelete, setConfirmDelete] = useState(null) // holds the enquiry to delete
+  const confirm = useConfirm()
 
   // Qualified lead to client record conversion overlay
   const [convertingLead, setConvertingLead] = useState(null)
@@ -260,11 +259,18 @@ export default function EnquiryStatus() {
     setFromDate(''); setToDate('')
   }
 
-  const handleDeleteConfirmed = () => {
-    if (!confirmDelete) return
-    removeEnquiry(confirmDelete.id)
-    addToast('Enquiry removed successfully.', 'success')
-    setConfirmDelete(null)
+  const handleDelete = async (enquiry) => {
+    const ok = await confirm({
+      title: 'Remove Enquiry?',
+      message: `Are you sure you want to remove the enquiry for ${enquiry.client_name} (${enquiry.loan_type} of ${formatAmount(enquiry.loan_amount)})? This action cannot be undone.`,
+      confirmLabel: 'Yes, Remove',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+    })
+    if (ok) {
+      removeEnquiry(enquiry.id)
+      addToast('Enquiry removed successfully.', 'success')
+    }
   }
 
   // Handle lead conversion
@@ -573,7 +579,7 @@ export default function EnquiryStatus() {
                             <button
                               className="popover-item"
                               style={{ width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13, color: '#dc2626' }}
-                              onClick={() => { setConfirmDelete(e); setActiveMenuId(null) }}
+                              onClick={() => { handleDelete(e); setActiveMenuId(null) }}
                             >
                               🗑️ Remove Enquiry
                             </button>
@@ -650,82 +656,6 @@ export default function EnquiryStatus() {
           </Modal>
         )}
 
-        {/* ── Confirm Delete Overlay ── */}
-        {confirmDelete && (
-          <div style={{
-            position: 'fixed', inset: 0, zIndex: 1000,
-            background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(3px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}
-            onClick={() => setConfirmDelete(null)}
-          >
-            <div
-              onClick={(ev) => ev.stopPropagation()}
-              style={{
-                background: '#fff', borderRadius: 16, width: 420, maxWidth: '90vw',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden'
-              }}
-            >
-              {/* Red top bar */}
-              <div style={{ background: '#fef2f2', padding: '24px 24px 16px', borderBottom: '1px solid #fecaca' }}>
-                <div style={{
-                  width: 48, height: 48, borderRadius: '50%', background: '#fee2e2',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 22, marginBottom: 12
-                }}>🗑️</div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: '#111827' }}>Remove Enquiry?</div>
-                <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>This action cannot be undone.</div>
-              </div>
-
-              {/* Body */}
-              <div style={{ padding: '20px 24px' }}>
-                <div style={{
-                  background: '#f9fafb', borderRadius: 10, padding: '14px 16px',
-                  border: '1px solid #f0f0f0', marginBottom: 20
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{
-                      width: 38, height: 38, borderRadius: '50%',
-                      background: avatarColor(confirmDelete.client_name),
-                      color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontWeight: 700, fontSize: 13, flexShrink: 0
-                    }}>
-                      {avatarLetters(confirmDelete.client_name)}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 14, color: '#111827' }}>{confirmDelete.client_name}</div>
-                      <div style={{ fontSize: 12, color: '#9ca3af' }}>
-                        {confirmDelete.loan_type} • {formatAmount(confirmDelete.loan_amount)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button
-                    onClick={() => setConfirmDelete(null)}
-                    style={{
-                      flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid #e5e7eb',
-                      background: '#fff', color: '#374151', fontWeight: 600, fontSize: 14, cursor: 'pointer'
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleDeleteConfirmed}
-                    style={{
-                      flex: 1, padding: '10px 0', borderRadius: 8, border: 'none',
-                      background: '#dc2626', color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer',
-                      boxShadow: '0 2px 8px rgba(220,38,38,0.3)'
-                    }}
-                  >
-                    Yes, Remove
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ── Convert Lead to Client Confirmation Overlay ── */}
         {convertingLead && (

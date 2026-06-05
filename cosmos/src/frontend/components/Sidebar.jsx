@@ -69,7 +69,7 @@ const menuItems = [
   },
 ]
 
-function Sidebar() {
+function Sidebar({ isOpen, onClose }) {
   const navigate = useNavigate()
   const { user } = useUser()
   const [paymentsOpen, setPaymentsOpen] = useState(false)
@@ -81,7 +81,7 @@ function Sidebar() {
   }
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${isOpen ? ' mobile-open' : ''}`}>
       {/* Brand */}
       <div className="sidebar-brand">
         <img src={cosmosLogo} alt="Cosmos Finery" className="sidebar-logo" />
@@ -117,6 +117,7 @@ function Sidebar() {
                         <li key={child.path}>
                           <NavLink
                             to={child.path}
+                            onClick={onClose}
                             className={({ isActive }) =>
                               'sidebar-subitem' + (isActive ? ' active' : '')
                             }
@@ -131,6 +132,7 @@ function Sidebar() {
               ) : (
                 <NavLink
                   to={item.path}
+                  onClick={onClose}
                   className={({ isActive }) =>
                     'sidebar-item' + (isActive ? ' active' : '')
                   }
@@ -149,7 +151,7 @@ function Sidebar() {
             <p className="sidebar-menu-label" style={{ marginTop: 16 }}>ADMIN</p>
             <ul>
               <li>
-                <NavLink to="/admin/users" className={({ isActive }) => 'sidebar-item' + (isActive ? ' active' : '')}>
+                <NavLink to="/admin/users" onClick={onClose} className={({ isActive }) => 'sidebar-item' + (isActive ? ' active' : '')}>
                   <span className="sidebar-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
@@ -160,7 +162,7 @@ function Sidebar() {
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/admin/roles" className={({ isActive }) => 'sidebar-item' + (isActive ? ' active' : '')}>
+                <NavLink to="/admin/roles" onClick={onClose} className={({ isActive }) => 'sidebar-item' + (isActive ? ' active' : '')}>
                   <span className="sidebar-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -170,7 +172,7 @@ function Sidebar() {
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/admin/audit-log" className={({ isActive }) => 'sidebar-item' + (isActive ? ' active' : '')}>
+                <NavLink to="/admin/audit-log" onClick={onClose} className={({ isActive }) => 'sidebar-item' + (isActive ? ' active' : '')}>
                   <span className="sidebar-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -181,7 +183,7 @@ function Sidebar() {
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/admin/settings" className={({ isActive }) => 'sidebar-item' + (isActive ? ' active' : '')}>
+                <NavLink to="/admin/settings" onClick={onClose} className={({ isActive }) => 'sidebar-item' + (isActive ? ' active' : '')}>
                   <span className="sidebar-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="3" />

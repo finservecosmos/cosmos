@@ -3,6 +3,7 @@ import DashboardLayout from '../../components/DashboardLayout'
 import Modal from '../../components/Modal'
 import { useAppState } from '../../../context/AppStateContext'
 import { useToast } from '../../../context/ToastContext'
+import useConfirm from '../../hooks/useConfirm'
 import './AdminPages.css'
 
 const roleBadge = {
@@ -14,8 +15,9 @@ const roleBadge = {
 const defaultForm = { id: null, name: '', email: '', role: 'staff', status: 'active' }
 
 function UserManagement() {
-  const { users, addUser, updateUser } = useAppState()
+  const { users, addUser, updateUser, removeUser } = useAppState()
   const { addToast } = useToast()
+  const confirm = useConfirm()
   const [searchTerm, setSearchTerm] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [formData, setFormData] = useState(defaultForm)
@@ -60,6 +62,20 @@ function UserManagement() {
   const toggleStatus = (user) => {
     updateUser({ ...user, status: user.status === 'active' ? 'inactive' : 'active' })
     addToast(`User ${user.status === 'active' ? 'deactivated' : 'activated'}.`, 'success')
+  }
+
+  const handleDeleteUser = async (user) => {
+    const ok = await confirm({
+      title: 'Delete User Account?',
+      message: `Are you sure you want to permanently delete the user account for ${user.name} (${user.email})? This action cannot be undone.`,
+      confirmLabel: 'Delete User',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+    })
+    if (ok) {
+      removeUser(user.id)
+      addToast('User deleted successfully.', 'success')
+    }
   }
 
   return (
@@ -117,6 +133,9 @@ function UserManagement() {
                         <button className="admin-action-btn" onClick={() => openEditModal(u)}>Edit</button>
                         <button className="admin-action-btn danger" onClick={() => toggleStatus(u)}>
                           {u.status === 'active' ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button className="admin-action-btn" style={{ color: '#c0392b' }} onClick={() => handleDeleteUser(u)}>
+                          Delete
                         </button>
                       </div>
                     </td>

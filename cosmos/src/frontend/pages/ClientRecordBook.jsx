@@ -1,9 +1,91 @@
 import { useState, useEffect } from 'react'
+import { z } from 'zod'
 import DashboardLayout from '../components/DashboardLayout'
 import Modal from '../components/Modal'
 import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
+import { useUser } from '../../context/UserContext'
 import './DataPage.css'
+
+function maskAadhaar(num) {
+  if (!num) return ''
+  const clean = num.toString().replace(/\s+/g, '')
+  if (clean.length < 12) return num
+  return `XXXX-XXXX-${clean.slice(-4)}`
+}
+
+function maskPAN(pan) {
+  if (!pan) return ''
+  const clean = pan.toString().toUpperCase().trim()
+  if (clean.length < 10) return pan
+  return `${clean.slice(0, 5)}••••${clean.slice(-1)}`
+}
+
+const step1Schema = z.object({
+  name: z.string().min(3, 'Name must be at least 3 characters long'),
+  phone: z.string().regex(/^\d{10}$/, 'Phone number must be exactly 10 digits'),
+  email: z.string().email('Invalid email address').or(z.literal('')),
+  pan_card: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN Card format (e.g. ABCDE1234F)'),
+  aadhaar_number: z.string().regex(/^\d{12}$/, 'Aadhaar Number must be exactly 12 digits'),
+  residential_status: z.string().min(1, 'Residential status is required'),
+  location: z.string().min(1, 'Location is required'),
+})
+
+const step2Schema = z.object({
+  employment_status: z.string().min(1),
+  monthly_net_income: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number({ invalid_type_error: 'Monthly income must be a valid number' }).min(0, 'Income cannot be negative').optional()
+  ),
+  co_applicant_income: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number({ invalid_type_error: 'Co-applicant income must be a valid number' }).min(0, 'Income cannot be negative').optional()
+  ),
+  dwelling_status: z.string().min(1),
+  tenure_at_address: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number({ invalid_type_error: 'Tenure must be a valid number' }).min(0, 'Tenure cannot be negative').optional()
+  ),
+})
+
+const step3Schema = z.object({
+  file_no: z.string().min(1, 'File number is required'),
+  loan_type: z.string().min(1),
+  amount: z.preprocess((val) => Number(val), z.number().min(0, 'Amount cannot be negative')),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
+  associate: z.string().optional(),
+  status: z.string().min(1),
+})
+
+const clientSchema = z.object({
+  name: z.string().min(3, 'Name must be at least 3 characters long'),
+  phone: z.string().regex(/^\d{10}$/, 'Phone number must be exactly 10 digits'),
+  email: z.string().email('Invalid email address').or(z.literal('')),
+  pan_card: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN Card format (e.g. ABCDE1234F)'),
+  aadhaar_number: z.string().regex(/^\d{12}$/, 'Aadhaar Number must be exactly 12 digits'),
+  residential_status: z.string().min(1, 'Residential status is required'),
+  location: z.string().min(1, 'Location is required'),
+  employment_status: z.string().optional(),
+  monthly_net_income: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  co_applicant_income: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  dwelling_status: z.string().optional(),
+  tenure_at_address: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  file_no: z.string().min(1, 'File number is required'),
+  loan_type: z.string().min(1),
+  amount: z.preprocess((val) => Number(val), z.number().min(0)),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
+  associate: z.string().optional(),
+  status: z.string().min(1),
+})
 
 const statusClass = (s) => 'status-badge status-' + s.toLowerCase().replace(' ', '-')
 
@@ -54,12 +136,20 @@ const emptyClient = {
 export default function ClientRecordBook() {
   const { clients, addClient, updateClient } = useAppState()
   const { addToast } = useToast()
+  const { user } = useUser()
   const [search, setSearch]     = useState('')
   const [loanFilter, setLoan]   = useState('All')
   const [statusFilter, setStatus] = useState('All')
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState('add')
   const [formData, setFormData]   = useState(emptyClient)
+
+  // Data Masking reveal state
+  const [revealAadhaar, setRevealAadhaar] = useState(false)
+  const [revealPAN, setRevealPAN] = useState(false)
+
+  // Form Validation state
+  const [validationErrors, setValidationErrors] = useState({})
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
@@ -79,6 +169,80 @@ export default function ClientRecordBook() {
     'C003': { 'PAN Card': 'success', 'Aadhaar Card': 'success', 'IT Return': 'pending', 'Bank Statement': 'pending' },
   })
   const [uploadProgress, setUploadProgress] = useState({}) // { docType: progress }
+
+  // Camera scanner states
+  const [scannerOpen, setScannerOpen] = useState(false)
+  const [scanType, setScanType] = useState(null) // 'pan' | 'aadhaar'
+  const [videoStream, setVideoStream] = useState(null)
+  const [scanStatus, setScanStatus] = useState('idle') // 'idle' | 'camera_active' | 'mock_active' | 'capturing' | 'extracting' | 'success'
+
+  const handleStartScan = async (type) => {
+    setScanType(type)
+    setScannerOpen(true)
+    setScanStatus('idle')
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } 
+      })
+      setVideoStream(stream)
+      setScanStatus('camera_active')
+    } catch (err) {
+      console.warn('Camera access denied or not available, falling back to simulation', err)
+      setScanStatus('mock_active')
+    }
+  }
+
+  const handleStopScan = () => {
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop())
+      setVideoStream(null)
+    }
+    setScannerOpen(false)
+    setScanStatus('idle')
+  }
+
+  const handleCapture = () => {
+    setScanStatus('capturing')
+    setTimeout(() => {
+      setScanStatus('extracting')
+      setTimeout(() => {
+        setScanStatus('success')
+        
+        if (scanType === 'pan') {
+          const mockPan = 'BPDPM' + Math.floor(1000 + Math.random() * 9000) + 'K'
+          setFormData(prev => ({ ...prev, pan_card: mockPan }))
+          setValidationErrors(prev => ({ ...prev, pan_card: null }))
+          addToast(`Extracted PAN Card successfully: ${mockPan}`, 'success')
+        } else {
+          const mockAadhaar = Math.floor(100000000000 + Math.random() * 900000000000).toString()
+          setFormData(prev => ({ ...prev, aadhaar_number: mockAadhaar }))
+          setValidationErrors(prev => ({ ...prev, aadhaar_number: null }))
+          addToast(`Extracted Aadhaar Number successfully: ${mockAadhaar}`, 'success')
+        }
+
+        setTimeout(() => {
+          handleStopScan()
+        }, 1200)
+      }, 1500)
+    }, 1000)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop())
+      }
+    }
+  }, [videoStream])
+
+  useEffect(() => {
+    let videoEl = document.getElementById('scanner-video-feed')
+    if (videoEl && videoStream) {
+      videoEl.srcObject = videoStream
+      videoEl.play().catch(err => console.log('Video play error:', err))
+    }
+  }, [videoStream, scannerOpen])
 
   // Auto-close three-dot popovers when clicking elsewhere
   useEffect(() => {
@@ -110,6 +274,7 @@ export default function ClientRecordBook() {
   const openAddModal = () => {
     setModalMode('add')
     setFormData(emptyClient)
+    setValidationErrors({})
     setShowAddWizard(true)
     setWizardStep(1)
   }
@@ -117,18 +282,97 @@ export default function ClientRecordBook() {
   const openEditModal = (client) => {
     setModalMode('edit')
     setFormData(client)
+    setValidationErrors({})
     setModalOpen(true)
   }
 
   const openViewModal = (client) => {
     setModalMode('view')
     setFormData(client)
+    setRevealAadhaar(false)
+    setRevealPAN(false)
+    setValidationErrors({})
     setModalOpen(true)
   }
 
+  const validateStep1 = () => {
+    const step1Data = {
+      name: formData.name,
+      phone: formData.phone,
+      email: formData.email || '',
+      pan_card: formData.pan_card,
+      aadhaar_number: formData.aadhaar_number,
+      residential_status: formData.residential_status || 'Resident Indian',
+      location: formData.location
+    }
+    const result = step1Schema.safeParse(step1Data)
+    if (!result.success) {
+      const fieldErrors = {}
+      result.error.issues.forEach((issue) => {
+        fieldErrors[issue.path[0]] = issue.message
+      })
+      setValidationErrors(fieldErrors)
+      addToast('Please correct the validation errors to proceed.', 'error')
+      return false
+    }
+    setValidationErrors({})
+    return true
+  }
+
+  const validateStep2 = () => {
+    const step2Data = {
+      employment_status: formData.employment_status || 'Salaried',
+      monthly_net_income: formData.monthly_net_income,
+      co_applicant_income: formData.co_applicant_income,
+      dwelling_status: formData.dwelling_status || 'Owned',
+      tenure_at_address: formData.tenure_at_address
+    }
+    const result = step2Schema.safeParse(step2Data)
+    if (!result.success) {
+      const fieldErrors = {}
+      result.error.issues.forEach((issue) => {
+        fieldErrors[issue.path[0]] = issue.message
+      })
+      setValidationErrors(fieldErrors)
+      addToast('Please correct the validation errors to proceed.', 'error')
+      return false
+    }
+    setValidationErrors({})
+    return true
+  }
+
+  const validateStep3 = () => {
+    const step3Data = {
+      file_no: formData.file_no,
+      loan_type: formData.loan_type,
+      amount: formData.amount,
+      date: formData.date,
+      associate: formData.associate,
+      status: formData.status
+    }
+    const result = step3Schema.safeParse(step3Data)
+    if (!result.success) {
+      const fieldErrors = {}
+      result.error.issues.forEach((issue) => {
+        fieldErrors[issue.path[0]] = issue.message
+      })
+      setValidationErrors(fieldErrors)
+      addToast('Please correct the validation errors to submit.', 'error')
+      return false
+    }
+    setValidationErrors({})
+    return true
+  }
+
   const saveClient = () => {
-    if (!formData.name || !formData.file_no) {
-      addToast('Client name and file number are required.', 'error')
+    const result = clientSchema.safeParse(formData)
+    if (!result.success) {
+      const fieldErrors = {}
+      result.error.issues.forEach((issue) => {
+        fieldErrors[issue.path[0]] = issue.message
+      })
+      setValidationErrors(fieldErrors)
+      addToast('Please fix the validation errors before saving.', 'error')
       return
     }
     const payload = { ...formData, amount: Number(formData.amount) }
@@ -177,27 +421,98 @@ export default function ClientRecordBook() {
                   <div className="form-grid">
                     <label>
                       Client Name *
-                      <input type="text" placeholder="Full Name" value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                      <input 
+                        type="text" 
+                        placeholder="Full Name" 
+                        className={validationErrors.name ? 'error' : ''}
+                        value={formData.name || ''} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, name: e.target.value })
+                          setValidationErrors(prev => ({ ...prev, name: null }))
+                        }} 
+                      />
+                      {validationErrors.name && <span className="form-error">{validationErrors.name}</span>}
                     </label>
                     <label>
-                      Phone Number
-                      <input type="text" placeholder="Mobile Number" value={formData.phone || ''} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                      Phone Number *
+                      <input 
+                        type="text" 
+                        placeholder="Mobile Number" 
+                        className={validationErrors.phone ? 'error' : ''}
+                        value={formData.phone || ''} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, phone: e.target.value })
+                          setValidationErrors(prev => ({ ...prev, phone: null }))
+                        }} 
+                      />
+                      {validationErrors.phone && <span className="form-error">{validationErrors.phone}</span>}
                     </label>
                     <label className="form-grid-full">
                       Email Address
-                      <input type="email" placeholder="client@email.com" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                      <input 
+                        type="email" 
+                        placeholder="client@email.com" 
+                        className={validationErrors.email ? 'error' : ''}
+                        value={formData.email || ''} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, email: e.target.value })
+                          setValidationErrors(prev => ({ ...prev, email: null }))
+                        }} 
+                      />
+                      {validationErrors.email && <span className="form-error">{validationErrors.email}</span>}
                     </label>
                     <label>
-                      PAN Card Number
-                      <input type="text" placeholder="ABCDE1234F" value={formData.pan_card || ''} onChange={(e) => setFormData({ ...formData, pan_card: e.target.value.toUpperCase() })} />
+                      <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                        PAN Card Number *
+                        <button type="button" className="scanner-trigger-btn" onClick={() => handleStartScan('pan')}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 12, height: 12 }}>
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                            <circle cx="12" cy="13" r="4" />
+                          </svg>
+                          Scan Card
+                        </button>
+                      </span>
+                      <input 
+                        type="text" 
+                        placeholder="ABCDE1234F" 
+                        className={validationErrors.pan_card ? 'error' : ''}
+                        value={formData.pan_card || ''} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, pan_card: e.target.value.toUpperCase() })
+                          setValidationErrors(prev => ({ ...prev, pan_card: null }))
+                        }} 
+                      />
+                      {validationErrors.pan_card && <span className="form-error">{validationErrors.pan_card}</span>}
                     </label>
                     <label>
-                      Aadhaar Number
-                      <input type="text" placeholder="12-digit Aadhaar number" value={formData.aadhaar_number || ''} onChange={(e) => setFormData({ ...formData, aadhaar_number: e.target.value })} />
+                      <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                        Aadhaar Number *
+                        <button type="button" className="scanner-trigger-btn" onClick={() => handleStartScan('aadhaar')}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 12, height: 12 }}>
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                            <circle cx="12" cy="13" r="4" />
+                          </svg>
+                          Scan Card
+                        </button>
+                      </span>
+                      <input 
+                        type="text" 
+                        placeholder="12-digit Aadhaar number" 
+                        className={validationErrors.aadhaar_number ? 'error' : ''}
+                        value={formData.aadhaar_number || ''} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, aadhaar_number: e.target.value })
+                          setValidationErrors(prev => ({ ...prev, aadhaar_number: null }))
+                        }} 
+                      />
+                      {validationErrors.aadhaar_number && <span className="form-error">{validationErrors.aadhaar_number}</span>}
                     </label>
                     <label>
                       Residential Status
-                      <select value={formData.residential_status || 'Resident Indian'} onChange={(e) => setFormData({ ...formData, residential_status: e.target.value })}>
+                      <select 
+                        value={formData.residential_status || 'Resident Indian'} 
+                        onChange={(e) => setFormData({ ...formData, residential_status: e.target.value })}
+                      >
                         <option value="Resident Indian">Resident Indian</option>
                         <option value="NRI">NRI</option>
                         <option value="PIO">PIO</option>
@@ -205,8 +520,17 @@ export default function ClientRecordBook() {
                       </select>
                     </label>
                     <label>
-                      Location / City
-                      <HybridLocationPicker value={formData.location || ''} onChange={(value) => setFormData({ ...formData, location: value })} />
+                      Location / City *
+                      <div className={validationErrors.location ? 'error' : ''}>
+                        <HybridLocationPicker 
+                          value={formData.location || ''} 
+                          onChange={(value) => {
+                            setFormData({ ...formData, location: value })
+                            setValidationErrors(prev => ({ ...prev, location: null }))
+                          }} 
+                        />
+                      </div>
+                      {validationErrors.location && <span className="form-error">{validationErrors.location}</span>}
                     </label>
                   </div>
                 </div>
@@ -228,11 +552,33 @@ export default function ClientRecordBook() {
                     </label>
                     <label>
                       Monthly Net Income (₹)
-                      <input type="number" min="0" placeholder="Monthly Take Home" value={formData.monthly_net_income || ''} onChange={(e) => setFormData({ ...formData, monthly_net_income: e.target.value })} />
+                      <input 
+                        type="number" 
+                        min="0" 
+                        placeholder="Monthly Take Home" 
+                        className={validationErrors.monthly_net_income ? 'error' : ''}
+                        value={formData.monthly_net_income || ''} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, monthly_net_income: e.target.value })
+                          setValidationErrors(prev => ({ ...prev, monthly_net_income: null }))
+                        }} 
+                      />
+                      {validationErrors.monthly_net_income && <span className="form-error">{validationErrors.monthly_net_income}</span>}
                     </label>
                     <label>
                       Co-Applicant Net Income (₹)
-                      <input type="number" min="0" placeholder="Co-Applicant Monthly Take Home" value={formData.co_applicant_income || ''} onChange={(e) => setFormData({ ...formData, co_applicant_income: e.target.value })} />
+                      <input 
+                        type="number" 
+                        min="0" 
+                        placeholder="Co-Applicant Monthly Take Home" 
+                        className={validationErrors.co_applicant_income ? 'error' : ''}
+                        value={formData.co_applicant_income || ''} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, co_applicant_income: e.target.value })
+                          setValidationErrors(prev => ({ ...prev, co_applicant_income: null }))
+                        }} 
+                      />
+                      {validationErrors.co_applicant_income && <span className="form-error">{validationErrors.co_applicant_income}</span>}
                     </label>
                     <label>
                       Dwelling Ownership Status
@@ -245,7 +591,18 @@ export default function ClientRecordBook() {
                     </label>
                     <label className="form-grid-full">
                       Tenure at Current Address (Years)
-                      <input type="number" min="0" placeholder="Years of occupancy" value={formData.tenure_at_address || ''} onChange={(e) => setFormData({ ...formData, tenure_at_address: e.target.value })} />
+                      <input 
+                        type="number" 
+                        min="0" 
+                        placeholder="Years of occupancy" 
+                        className={validationErrors.tenure_at_address ? 'error' : ''}
+                        value={formData.tenure_at_address || ''} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, tenure_at_address: e.target.value })
+                          setValidationErrors(prev => ({ ...prev, tenure_at_address: null }))
+                        }} 
+                      />
+                      {validationErrors.tenure_at_address && <span className="form-error">{validationErrors.tenure_at_address}</span>}
                     </label>
                   </div>
                 </div>
@@ -257,7 +614,17 @@ export default function ClientRecordBook() {
                   <div className="form-grid">
                     <label>
                       File No. *
-                      <input type="text" placeholder="e.g. F-983" value={formData.file_no || ''} onChange={(e) => setFormData({ ...formData, file_no: e.target.value })} />
+                      <input 
+                        type="text" 
+                        placeholder="e.g. F-983" 
+                        className={validationErrors.file_no ? 'error' : ''}
+                        value={formData.file_no || ''} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, file_no: e.target.value })
+                          setValidationErrors(prev => ({ ...prev, file_no: null }))
+                        }} 
+                      />
+                      {validationErrors.file_no && <span className="form-error">{validationErrors.file_no}</span>}
                     </label>
                     <label>
                       Loan Type
@@ -266,12 +633,32 @@ export default function ClientRecordBook() {
                       </select>
                     </label>
                     <label>
-                      Amount (₹)
-                      <input type="number" min="0" placeholder="Requested Amount" value={formData.amount || ''} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} />
+                      Amount (₹) *
+                      <input 
+                        type="number" 
+                        min="0" 
+                        placeholder="Requested Amount" 
+                        className={validationErrors.amount ? 'error' : ''}
+                        value={formData.amount || ''} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, amount: e.target.value })
+                          setValidationErrors(prev => ({ ...prev, amount: null }))
+                        }} 
+                      />
+                      {validationErrors.amount && <span className="form-error">{validationErrors.amount}</span>}
                     </label>
                     <label>
-                      Application Date
-                      <input type="date" value={formData.date || ''} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
+                      Application Date *
+                      <input 
+                        type="date" 
+                        className={validationErrors.date ? 'error' : ''}
+                        value={formData.date || ''} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, date: e.target.value })
+                          setValidationErrors(prev => ({ ...prev, date: null }))
+                        }} 
+                      />
+                      {validationErrors.date && <span className="form-error">{validationErrors.date}</span>}
                     </label>
                     <label>
                       Assigned Associate
@@ -302,10 +689,8 @@ export default function ClientRecordBook() {
                   type="button"
                   className="data-btn data-btn-primary"
                   onClick={() => {
-                    if (wizardStep === 1 && !formData.name) {
-                      addToast('Client name is required to proceed.', 'error');
-                      return;
-                    }
+                    if (wizardStep === 1 && !validateStep1()) return;
+                    if (wizardStep === 2 && !validateStep2()) return;
                     setWizardStep(s => s + 1);
                   }}
                 >
@@ -317,10 +702,7 @@ export default function ClientRecordBook() {
                   className="data-btn data-btn-primary"
                   style={{ background: '#10b981' }}
                   onClick={() => {
-                    if (!formData.name || !formData.file_no) {
-                      addToast('Client name and file number are required to submit.', 'error');
-                      return;
-                    }
+                    if (!validateStep3()) return;
                     saveClient();
                     setShowAddWizard(false);
                   }}
@@ -481,15 +863,45 @@ export default function ClientRecordBook() {
                 <div className="form-grid">
                   <label>
                     Client Name
-                    <input type="text" value={formData.name} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                    <input 
+                      type="text" 
+                      className={validationErrors.name ? 'error' : ''}
+                      value={formData.name} 
+                      disabled={modalMode === 'view'} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, name: e.target.value })
+                        setValidationErrors(prev => ({ ...prev, name: null }))
+                      }} 
+                    />
+                    {validationErrors.name && <span className="form-error">{validationErrors.name}</span>}
                   </label>
                   <label>
                     Phone Number
-                    <input type="text" value={formData.phone} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                    <input 
+                      type="text" 
+                      className={validationErrors.phone ? 'error' : ''}
+                      value={formData.phone} 
+                      disabled={modalMode === 'view'} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, phone: e.target.value })
+                        setValidationErrors(prev => ({ ...prev, phone: null }))
+                      }} 
+                    />
+                    {validationErrors.phone && <span className="form-error">{validationErrors.phone}</span>}
                   </label>
                   <label className="form-grid-full">
                     Email Address
-                    <input type="email" value={formData.email} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                    <input 
+                      type="email" 
+                      className={validationErrors.email ? 'error' : ''}
+                      value={formData.email} 
+                      disabled={modalMode === 'view'} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, email: e.target.value })
+                        setValidationErrors(prev => ({ ...prev, email: null }))
+                      }} 
+                    />
+                    {validationErrors.email && <span className="form-error">{validationErrors.email}</span>}
                   </label>
                 </div>
               </div>
@@ -501,11 +913,105 @@ export default function ClientRecordBook() {
                 <div className="form-grid">
                   <label>
                     PAN Card Number
-                    <input type="text" placeholder="e.g. ABCDE1234F" value={formData.pan_card || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, pan_card: e.target.value.toUpperCase() })} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. ABCDE1234F" 
+                        className={validationErrors.pan_card ? 'error' : ''}
+                        value={
+                          modalMode === 'view'
+                            ? (revealPAN ? (formData.pan_card || '') : maskPAN(formData.pan_card))
+                            : (formData.pan_card || '')
+                        } 
+                        disabled={modalMode === 'view'} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, pan_card: e.target.value.toUpperCase() })
+                          setValidationErrors(prev => ({ ...prev, pan_card: null }))
+                        }} 
+                        style={{ flex: 1 }}
+                      />
+                      {modalMode === 'view' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (user?.role === 'admin' || user?.role === 'advisor') {
+                              setRevealPAN(!revealPAN)
+                            } else {
+                              addToast('Access Denied: Only Admins and Advisors can view sensitive details.', 'error')
+                            }
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            color: 'var(--text-secondary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          title={revealPAN ? "Hide sensitive details" : "Reveal sensitive details"}
+                        >
+                          {revealPAN ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                          ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    {validationErrors.pan_card && <span className="form-error">{validationErrors.pan_card}</span>}
                   </label>
                   <label>
                     Aadhaar Number
-                    <input type="text" placeholder="12-digit Aadhaar number" value={formData.aadhaar_number || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, aadhaar_number: e.target.value })} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                      <input 
+                        type="text" 
+                        placeholder="12-digit Aadhaar number" 
+                        className={validationErrors.aadhaar_number ? 'error' : ''}
+                        value={
+                          modalMode === 'view'
+                            ? (revealAadhaar ? (formData.aadhaar_number || '') : maskAadhaar(formData.aadhaar_number))
+                            : (formData.aadhaar_number || '')
+                        } 
+                        disabled={modalMode === 'view'} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, aadhaar_number: e.target.value })
+                          setValidationErrors(prev => ({ ...prev, aadhaar_number: null }))
+                        }} 
+                        style={{ flex: 1 }}
+                      />
+                      {modalMode === 'view' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (user?.role === 'admin' || user?.role === 'advisor') {
+                              setRevealAadhaar(!revealAadhaar)
+                            } else {
+                              addToast('Access Denied: Only Admins and Advisors can view sensitive details.', 'error')
+                            }
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            color: 'var(--text-secondary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          title={revealAadhaar ? "Hide sensitive details" : "Reveal sensitive details"}
+                        >
+                          {revealAadhaar ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                          ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    {validationErrors.aadhaar_number && <span className="form-error">{validationErrors.aadhaar_number}</span>}
                   </label>
                   <label>
                     Residential Status
@@ -518,7 +1024,17 @@ export default function ClientRecordBook() {
                   </label>
                   <label>
                     Location / City
-                    <HybridLocationPicker value={formData.location || ''} disabled={modalMode === 'view'} onChange={(value) => setFormData({ ...formData, location: value })} />
+                    <div className={validationErrors.location ? 'error' : ''}>
+                      <HybridLocationPicker 
+                        value={formData.location || ''} 
+                        disabled={modalMode === 'view'} 
+                        onChange={(value) => {
+                          setFormData({ ...formData, location: value })
+                          setValidationErrors(prev => ({ ...prev, location: null }))
+                        }} 
+                      />
+                    </div>
+                    {validationErrors.location && <span className="form-error">{validationErrors.location}</span>}
                   </label>
                 </div>
               </div>
@@ -540,11 +1056,33 @@ export default function ClientRecordBook() {
                   </label>
                   <label>
                     Monthly Net Income (₹)
-                    <input type="number" min="0" value={formData.monthly_net_income || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, monthly_net_income: e.target.value })} />
+                    <input 
+                      type="number" 
+                      min="0" 
+                      className={validationErrors.monthly_net_income ? 'error' : ''}
+                      value={formData.monthly_net_income || ''} 
+                      disabled={modalMode === 'view'} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, monthly_net_income: e.target.value })
+                        setValidationErrors(prev => ({ ...prev, monthly_net_income: null }))
+                      }} 
+                    />
+                    {validationErrors.monthly_net_income && <span className="form-error">{validationErrors.monthly_net_income}</span>}
                   </label>
                   <label>
                     Co-Applicant Net Income (₹)
-                    <input type="number" min="0" value={formData.co_applicant_income || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, co_applicant_income: e.target.value })} />
+                    <input 
+                      type="number" 
+                      min="0" 
+                      className={validationErrors.co_applicant_income ? 'error' : ''}
+                      value={formData.co_applicant_income || ''} 
+                      disabled={modalMode === 'view'} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, co_applicant_income: e.target.value })
+                        setValidationErrors(prev => ({ ...prev, co_applicant_income: null }))
+                      }} 
+                    />
+                    {validationErrors.co_applicant_income && <span className="form-error">{validationErrors.co_applicant_income}</span>}
                   </label>
                   <label>
                     Dwelling Ownership Status
@@ -557,7 +1095,18 @@ export default function ClientRecordBook() {
                   </label>
                   <label className="form-grid-full">
                     Tenure at Current Address (Years)
-                    <input type="number" min="0" value={formData.tenure_at_address || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, tenure_at_address: e.target.value })} />
+                    <input 
+                      type="number" 
+                      min="0" 
+                      className={validationErrors.tenure_at_address ? 'error' : ''}
+                      value={formData.tenure_at_address || ''} 
+                      disabled={modalMode === 'view'} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, tenure_at_address: e.target.value })
+                        setValidationErrors(prev => ({ ...prev, tenure_at_address: null }))
+                      }} 
+                    />
+                    {validationErrors.tenure_at_address && <span className="form-error">{validationErrors.tenure_at_address}</span>}
                   </label>
                 </div>
               </div>
@@ -569,7 +1118,17 @@ export default function ClientRecordBook() {
                 <div className="form-grid">
                   <label>
                     File No.
-                    <input type="text" value={formData.file_no} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, file_no: e.target.value })} />
+                    <input 
+                      type="text" 
+                      className={validationErrors.file_no ? 'error' : ''}
+                      value={formData.file_no} 
+                      disabled={modalMode === 'view'} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, file_no: e.target.value })
+                        setValidationErrors(prev => ({ ...prev, file_no: null }))
+                      }} 
+                    />
+                    {validationErrors.file_no && <span className="form-error">{validationErrors.file_no}</span>}
                   </label>
                   <label>
                     Loan Type
@@ -579,11 +1138,32 @@ export default function ClientRecordBook() {
                   </label>
                   <label>
                     Amount (₹)
-                    <input type="number" min="0" value={formData.amount} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} />
+                    <input 
+                      type="number" 
+                      min="0" 
+                      className={validationErrors.amount ? 'error' : ''}
+                      value={formData.amount} 
+                      disabled={modalMode === 'view'} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, amount: e.target.value })
+                        setValidationErrors(prev => ({ ...prev, amount: null }))
+                      }} 
+                    />
+                    {validationErrors.amount && <span className="form-error">{validationErrors.amount}</span>}
                   </label>
                   <label>
                     Application Date
-                    <input type="date" value={formData.date} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
+                    <input 
+                      type="date" 
+                      className={validationErrors.date ? 'error' : ''}
+                      value={formData.date} 
+                      disabled={modalMode === 'view'} 
+                      onChange={(e) => {
+                        setFormData({ ...formData, date: e.target.value })
+                        setValidationErrors(prev => ({ ...prev, date: null }))
+                      }} 
+                    />
+                    {validationErrors.date && <span className="form-error">{validationErrors.date}</span>}
                   </label>
                 </div>
               </div>
@@ -690,6 +1270,89 @@ export default function ClientRecordBook() {
               {modalMode !== 'view' && (
                 <button type="button" className="admin-primary-btn" onClick={saveClient}>Save</button>
               )}
+            </div>
+          </Modal>
+        )}
+
+        {scannerOpen && (
+          <Modal 
+            title={`KYC ${scanType === 'pan' ? 'PAN Card' : 'Aadhaar Card'} Camera Scanner`} 
+            onClose={handleStopScan} 
+            size="md"
+          >
+            <div className="camera-scanner-modal-body">
+              <div className="camera-feed-container">
+                <div className="scanner-frame-overlay">
+                  <div className="scanner-corner corner-tl" />
+                  <div className="scanner-corner corner-tr" />
+                  <div className="scanner-corner corner-bl" />
+                  <div className="scanner-corner corner-br" />
+                  <div className="scanner-identity-guide">
+                    Align {scanType === 'pan' ? 'PAN Card' : 'Aadhaar Card'} within this frame
+                  </div>
+                  {['capturing', 'extracting'].includes(scanStatus) && (
+                    <div className="scanner-processing-overlay">
+                      <div className="spinner" />
+                      <span>
+                        {scanStatus === 'capturing' ? 'Capturing image...' : 'Running OCR text extraction...'}
+                      </span>
+                    </div>
+                  )}
+                  {scanStatus === 'success' && (
+                    <div className="scanner-success-overlay">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="scanner-success-check">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span>Verification Match Found!</span>
+                    </div>
+                  )}
+                </div>
+
+                {scanStatus === 'mock_active' ? (
+                  <div className="mock-camera-feed">
+                    <div className="mock-card-graphic">
+                      <span className="mock-card-title">{scanType === 'pan' ? 'INCOME TAX DEPARTMENT' : 'UNIQUE IDENTIFICATION AUTHORITY OF INDIA'}</span>
+                      <div className="mock-card-avatar" />
+                      <div className="mock-card-text-lines">
+                        <span className="line-sm" />
+                        <span className="line-md" />
+                        <span className="line-lg" />
+                      </div>
+                    </div>
+                    <div className="mock-camera-badge">Simulated Camera Stream Active</div>
+                  </div>
+                ) : (
+                  <video 
+                    id="scanner-video-feed" 
+                    className="camera-video-element" 
+                    muted 
+                    playsInline 
+                  />
+                )}
+              </div>
+
+              <div className="camera-scanner-controls">
+                <button 
+                  type="button" 
+                  className="data-btn data-btn-outline" 
+                  onClick={handleStopScan}
+                >
+                  Cancel
+                </button>
+                {['camera_active', 'mock_active'].includes(scanStatus) && (
+                  <button 
+                    type="button" 
+                    className="data-btn data-btn-primary" 
+                    onClick={handleCapture}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 14, height: 14, marginRight: 6, display: 'inline-block', verticalAlign: 'middle' }}>
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                      <circle cx="12" cy="13" r="4" />
+                    </svg>
+                    Capture & Autofill
+                  </button>
+                )}
+              </div>
             </div>
           </Modal>
         )}

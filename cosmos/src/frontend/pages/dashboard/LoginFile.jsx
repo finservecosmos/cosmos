@@ -4,6 +4,7 @@ import DashboardLayout from '../../components/DashboardLayout'
 import Modal from '../../components/Modal'
 import { useAppState } from '../../../context/AppStateContext'
 import { useToast } from '../../../context/ToastContext'
+import useConfirm from '../../hooks/useConfirm'
 import '../DataPage.css'
 
 /* ─── Constants ─────────────────────────────────────────────── */
@@ -357,8 +358,7 @@ export default function LoginFile() {
     return () => document.removeEventListener('click', handler)
   }, [])
 
-  const [confirmDelete, setConfirmDelete] = useState(null)
-  const [confirmDone, setConfirmDone]       = useState(null)
+  const confirm = useConfirm()
 
   /* ── Filtering ── */
   const filtered = files.filter((f) => {
@@ -432,23 +432,38 @@ export default function LoginFile() {
     setModalOpen(false)
   }
 
-  const handleMarkDone = (f) => {
-    const updated = advanceStage(f)
-    updateLoginFile(updated)
-    const stageName = STAGES[f.currentStageIndex]
-    if (updated.done) {
-      addToast(`${f.client} — all stages completed!`, 'success')
-    } else {
-      addToast(`${stageName} marked done. Now at ${STAGES[updated.currentStageIndex]}.`, 'success')
+  const handleMarkDoneRequest = async (f) => {
+    const ok = await confirm({
+      title: 'Mark Stage as Done?',
+      message: `This will complete "${STAGES[f.currentStageIndex]}" and advance to the next stage for ${f.client}.`,
+      confirmLabel: 'Yes, Mark Done',
+      cancelLabel: 'Cancel',
+      variant: 'info',
+    })
+    if (ok) {
+      const updated = advanceStage(f)
+      updateLoginFile(updated)
+      const stageName = STAGES[f.currentStageIndex]
+      if (updated.done) {
+        addToast(`${f.client} — all stages completed!`, 'success')
+      } else {
+        addToast(`${stageName} marked done. Now at ${STAGES[updated.currentStageIndex]}.`, 'success')
+      }
     }
-    setConfirmDone(null)
   }
 
-  const handleDeleteConfirmed = () => {
-    if (!confirmDelete) return
-    removeLoginFile(confirmDelete.id)
-    addToast('File removed successfully.', 'success')
-    setConfirmDelete(null)
+  const handleDelete = async (f) => {
+    const ok = await confirm({
+      title: 'Remove File?',
+      message: `Are you sure you want to remove the file for ${f.client}? This action cannot be undone.`,
+      confirmLabel: 'Yes, Remove',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+    })
+    if (ok) {
+      removeLoginFile(f.id)
+      addToast('File removed successfully.', 'success')
+    }
   }
 
   const updateEditStage = (stageName, field, value) => {
@@ -602,8 +617,8 @@ export default function LoginFile() {
               setActiveMenuId={setActiveMenuId}
               onView={(file) => { openViewModal(file); setActiveMenuId(null) }}
               onEdit={(file) => { openEditModal(file); setActiveMenuId(null) }}
-              onRemove={(file) => { setConfirmDelete(file); setActiveMenuId(null) }}
-              onMarkDone={(file) => { setConfirmDone(file); setActiveMenuId(null) }}
+              onRemove={(file) => { handleDelete(file); setActiveMenuId(null) }}
+              onMarkDone={(file) => { handleMarkDoneRequest(file); setActiveMenuId(null) }}
             />
           ))
         )}
@@ -766,80 +781,7 @@ export default function LoginFile() {
             </div>
           </Modal>
         )}
-
-        {/* Confirm Mark as Done */}
-        {confirmDone && (
-          <ConfirmDialog
-            variant="success"
-            title="Mark Stage as Done?"
-            message={`This will complete "${STAGES[confirmDone.currentStageIndex]}" and advance to the next stage.`}
-            file={confirmDone}
-            onCancel={() => setConfirmDone(null)}
-            onConfirm={() => handleMarkDone(confirmDone)}
-            confirmLabel="Yes, Mark Done"
-          />
-        )}
-
-        {/* Confirm Delete */}
-        {confirmDelete && (
-          <ConfirmDialog
-            variant="danger"
-            title="Remove File?"
-            message="This action cannot be undone."
-            file={confirmDelete}
-            onCancel={() => setConfirmDelete(null)}
-            onConfirm={handleDeleteConfirmed}
-            confirmLabel="Yes, Remove"
-          />
-        )}
       </div>
     </DashboardLayout>
-  )
-}
-
-/* ─── Confirm Dialog ────────────────────────────────────────── */
-function ConfirmDialog({ variant, title, message, file, onCancel, onConfirm, confirmLabel }) {
-  const isSuccess = variant === 'success'
-  return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.45)',
-      backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }} onClick={onCancel}>
-      <div onClick={ev => ev.stopPropagation()} style={{
-        background: '#fff', borderRadius: 16, width: 420, maxWidth: '90vw',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden',
-      }}>
-        <div style={{
-          background: isSuccess ? '#f0fdf4' : '#fef2f2',
-          padding: '24px 24px 16px',
-          borderBottom: `1px solid ${isSuccess ? '#bbf7d0' : '#fecaca'}`,
-        }}>
-          <div style={{ fontSize: 17, fontWeight: 700, color: '#111827' }}>{title}</div>
-          <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>{message}</div>
-        </div>
-        <div style={{ padding: '20px 24px' }}>
-          <div style={{
-            background: '#f9fafb', borderRadius: 10, padding: '14px 16px',
-            border: '1px solid #f0f0f0', marginBottom: 20,
-          }}>
-            <div style={{ fontWeight: 600, fontSize: 14, color: '#111827' }}>{file.client}</div>
-            <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>
-              {file.loan_type} · {file.client_id}
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={onCancel} style={{
-              flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid #e5e7eb',
-              background: '#fff', color: '#374151', fontWeight: 600, fontSize: 14, cursor: 'pointer',
-            }}>Cancel</button>
-            <button onClick={onConfirm} style={{
-              flex: 1, padding: '10px 0', borderRadius: 8, border: 'none',
-              background: isSuccess ? '#16a34a' : '#dc2626', color: '#fff',
-              fontWeight: 600, fontSize: 14, cursor: 'pointer',
-            }}>{confirmLabel}</button>
-          </div>
-        </div>
-      </div>
-    </div>
   )
 }

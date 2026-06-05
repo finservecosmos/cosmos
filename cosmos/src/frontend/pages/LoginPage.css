@@ -310,3 +310,141 @@
   }
 }
 
+/* ── Biometric Styling ── */
+.login-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1.5px solid var(--border);
+}
+
+.login-divider span {
+  padding: 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.biometric-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-input);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.biometric-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.biometric-btn-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+}
+
+.biometric-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.biometric-scanner-ring {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid var(--border-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: var(--text-secondary);
+  background: var(--bg-muted);
+  overflow: hidden;
+  transition: border-color 0.3s, color 0.3s, background-color 0.3s;
+}
+
+.biometric-scanner-ring.scanning {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+.biometric-scanner-ring.success {
+  border-color: #16a34a;
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.08);
+}
+
+.scanner-fingerprint {
+  width: 50px;
+  height: 50px;
+  z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+.biometric-scanner-ring.success .scanner-fingerprint {
+  transform: scale(1.1);
+}
+
+.scanner-laser {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, transparent, var(--accent), transparent);
+  box-shadow: 0 0 8px var(--accent);
+  z-index: 3;
+  animation: laserScan 2s infinite ease-in-out;
+}
+
+@keyframes laserScan {
+  0%, 100% {
+    top: 10%;
+  }
+  50% {
+    top: 90%;
+  }
+}
+
+.biometric-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.biometric-modal-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  text-align: center;
+  max-width: 260px;
+}
+
+

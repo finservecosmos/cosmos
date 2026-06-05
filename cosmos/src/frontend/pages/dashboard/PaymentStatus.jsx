@@ -4,6 +4,7 @@ import Modal from '../../components/Modal'
 import { useAppState } from '../../../context/AppStateContext'
 import { useToast } from '../../../context/ToastContext'
 import { useNavigate } from 'react-router-dom'
+import useConfirm from '../../hooks/useConfirm'
 import '../DataPage.css'
 
 /* ─── Currency Formatter ────────────────────────────────────── */
@@ -31,6 +32,7 @@ export default function PaymentStatus() {
   const { payments, addPayment, updatePayment, removePayment } = useAppState()
   const { addToast } = useToast()
   const navigate = useNavigate()
+  const confirm = useConfirm()
 
   /* ─── Toolbar State Filters ───────────────────────────────── */
   const [search, setSearch]             = useState('')
@@ -53,7 +55,6 @@ export default function PaymentStatus() {
   const [selectedDetails, setSelectedDetails]   = useState(null)
   const [updatePaymentRecord, setUpdatePayment] = useState(null)
   const [editCustomer, setEditCustomer]         = useState(null)
-  const [deleteConfirm, setDeleteConfirm]       = useState(null)
   const [editPaymentsLocal, setEditPaymentsLocal] = useState([])
   
   // New Payment Fields
@@ -341,6 +342,20 @@ export default function PaymentStatus() {
     printWindow.document.close()
     addToast('PDF Report window opened.', 'success')
     setDownloadOpen(false)
+  }
+
+  const handleDeleteLedger = async (item) => {
+    const ok = await confirm({
+      title: `Remove Payout Ledger — ${item.client}`,
+      message: `WARNING: This action cannot be undone. This will permanently delete all ${item.payments.length} transactions (collections, payouts, fees) registered for ${item.client} (File: ${item.file_no}) from the ledger database.`,
+      confirmLabel: 'Confirm Delete All',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+    })
+    if (ok) {
+      item.payments.forEach(p => removePayment(p.id))
+      addToast(`Successfully removed ledger history and all transactions for ${item.client}!`, 'success')
+    }
   }
 
   /* ─── Add Payment Trigger Form ────────────────────────────── */
@@ -1394,7 +1409,7 @@ export default function PaymentStatus() {
                             className="ps-action-item"
                             style={{ color: '#dc2626' }}
                             onClick={() => {
-                              setDeleteConfirm(item)
+                              handleDeleteLedger(item)
                               setActiveMenuId(null)
                             }}
                           >
@@ -1582,42 +1597,6 @@ export default function PaymentStatus() {
           </Modal>
         )}
 
-        {/* ─── Modal C: Delete Customer Payout Ledger Confirmation ─── */}
-        {deleteConfirm && (
-          <Modal
-            title={`Remove Payout Ledger — ${deleteConfirm.client}`}
-            onClose={() => setDeleteConfirm(null)}
-          >
-            <div className="ps-modal-body-payout">
-              <div style={{ background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '10px', padding: '16px', color: '#b91c1c', fontSize: '13.5px', fontWeight: '600', lineHeight: 1.5 }}>
-                ⚠️ <strong>WARNING:</strong> This action cannot be undone. This will permanently delete <strong>all {deleteConfirm.payments.length} transactions</strong> (collections, payouts, fees) registered for <strong>{deleteConfirm.client}</strong> (File: {deleteConfirm.file_no}) from the ledger database.
-              </div>
-
-              <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
-                <button
-                  type="button"
-                  className="data-btn data-btn-outline"
-                  style={{ flex: 1 }}
-                  onClick={() => setDeleteConfirm(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="ps-btn-apply"
-                  style={{ flex: 1, padding: '10px 0', background: '#dc2626' }}
-                  onClick={() => {
-                    deleteConfirm.payments.forEach(p => removePayment(p.id))
-                    addToast(`Successfully removed ledger history and all transactions for ${deleteConfirm.client}!`, 'success')
-                    setDeleteConfirm(null)
-                  }}
-                >
-                  Confirm Delete All
-                </button>
-              </div>
-            </div>
-          </Modal>
-        )}
 
         {/* ─── Modal D: Edit Customer Payout Ledger Grid ───────────── */}
         {editCustomer && (

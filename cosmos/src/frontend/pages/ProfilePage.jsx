@@ -32,6 +32,23 @@ function ProfilePage() {
   const handlePhotoUpload = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Validate file size (Max 2MB)
+    const maxSizeBytes = 2 * 1024 * 1024
+    if (file.size > maxSizeBytes) {
+      addToast('File size exceeds the 2MB limit. Please upload a smaller file.', 'error')
+      e.target.value = '' // Clear input value
+      return
+    }
+
+    // Validate file mime-type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    if (!allowedTypes.includes(file.type)) {
+      addToast('Invalid file format. Only JPEG, PNG, GIF, and WEBP image uploads are allowed.', 'error')
+      e.target.value = '' // Clear input value
+      return
+    }
+
     const url = URL.createObjectURL(file)
     setPhotoPreview(url)
     addToast('Profile photo preview ready.', 'success')

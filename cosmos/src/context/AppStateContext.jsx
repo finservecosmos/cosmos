@@ -221,6 +221,7 @@ export function AppStateProvider({ children }) {
   const markAllNotifsRead = () => setNotifications(p => p.map(x => ({ ...x, read: true })))
   const addUser    = (u) => setUsers(p => [{ ...u, id: p.length + 1 }, ...p])
   const updateUser = (u) => setUsers(p => p.map(x => x.id === u.id ? u : x))
+  const removeUser = (id) => setUsers(p => p.filter(x => x.id !== id))
   const addBackup  = (b) => setBackups(p => [b, ...p])
 
   return (
@@ -235,7 +236,7 @@ export function AppStateProvider({ children }) {
       enquiries, addEnquiry, updateEnquiry, removeEnquiry,
       loginFiles, addLoginFile, updateLoginFile, removeLoginFile,
       backups, addBackup,
-      users, addUser, updateUser,
+      users, addUser, updateUser, removeUser,
     }}>
       {children}
     </AppStateContext.Provider>

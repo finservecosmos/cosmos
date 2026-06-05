@@ -1,0 +1,16 @@
+{
+  "short_name": "Cosmos",
+  "name": "Cosmos Finserve Portal",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#111827",
+  "theme_color": "#b45309",
+  "display": "standalone",
+  "orientation": "any"
+}

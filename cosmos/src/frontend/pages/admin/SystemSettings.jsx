@@ -6,10 +6,14 @@ function SystemSettings() {
   const [company, setCompany] = useState('Cosmos Finserve')
   const [email, setEmail] = useState('admin@cosmos.local')
   const [backupFreq, setBackupFreq] = useState('daily')
+  const [timeoutEnabled, setTimeoutEnabled] = useState(
+    localStorage.getItem('session_timeout_enabled') !== 'false'
+  )
   const [saved, setSaved] = useState(false)
 
   const handleSave = (e) => {
     e.preventDefault()
+    localStorage.setItem('session_timeout_enabled', String(timeoutEnabled))
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
@@ -66,7 +70,11 @@ function SystemSettings() {
                 <p className="settings-toggle-sub">Auto-logout after 30 minutes of inactivity</p>
               </div>
               <label className="toggle-switch">
-                <input type="checkbox" defaultChecked />
+                <input 
+                  type="checkbox" 
+                  checked={timeoutEnabled} 
+                  onChange={(e) => setTimeoutEnabled(e.target.checked)} 
+                />
                 <span className="toggle-slider" />
               </label>
             </div>
