@@ -1,5 +1,6 @@
 import DashboardLayout from '../../components/DashboardLayout'
 import './AdminPages.css'
+import { Check as CheckIcon, X } from 'lucide-react';
 
 const permissions = [
   { feature: 'Dashboard',          admin: true,  advisor: true,  staff: true  },
@@ -16,9 +17,9 @@ const permissions = [
 
 function Check({ allowed }) {
   return allowed ? (
-    <span className="perm-yes">✓</span>
+    <span className="perm-yes"><CheckIcon size={16} /></span>
   ) : (
-    <span className="perm-no">✗</span>
+    <span className="perm-no"><X size={16} /></span>
   )
 }
 

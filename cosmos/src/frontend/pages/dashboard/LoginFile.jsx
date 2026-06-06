@@ -6,6 +6,8 @@ import { useAppState } from '../../../context/AppStateContext'
 import { useToast } from '../../../context/ToastContext'
 import useConfirm from '../../hooks/useConfirm'
 import '../DataPage.css'
+import { Check, Eye, Edit, CheckCircle, Trash2, ClipboardList } from 'lucide-react';
+import { Hourglass, RefreshCw, AlertTriangle } from 'lucide-react';
 
 /* ─── Constants ─────────────────────────────────────────────── */
 const STAGES = [
@@ -22,15 +24,15 @@ const LOAN_TYPES = [
 const STATUS_FILTERS = ['All Status', 'Processing', 'Completed', 'Delayed']
 
 const PRIORITY_META = {
-  Normal: { label: 'NORMAL', color: '#6b7280', bg: '#f9fafb', border: '#e5e7eb' },
-  High:   { label: 'HIGH PRIORITY', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
-  Urgent: { label: 'URGENT', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+  Normal: { label: 'NORMAL', color: 'var(--text-muted)', bg: 'var(--bg-input)', border: 'var(--border)' },
+  High:   { label: 'HIGH PRIORITY', color: '#dc2626', bg: 'var(--bg-hover)', border: '#fecaca' },
+  Urgent: { label: 'URGENT', color: '#dc2626', bg: 'var(--bg-hover)', border: '#fecaca' },
 }
 
 const FILE_STATUS_META = {
-  Processing: { label: 'PROCESSING', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
-  Completed:  { label: 'COMPLETED',  color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
-  Delayed:    { label: 'DELAYED',    color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+  Processing: { label: 'PROCESSING', color: '#2563eb', bg: 'var(--bg-hover)', border: '#bfdbfe' },
+  Completed:  { label: 'COMPLETED',  color: '#16a34a', bg: 'var(--bg-hover)', border: '#bbf7d0' },
+  Delayed:    { label: 'DELAYED',    color: '#dc2626', bg: 'var(--bg-hover)', border: '#fecaca' },
 }
 
 /* ─── Helpers ────────────────────────────────────────────────── */
@@ -141,16 +143,16 @@ const emptyAddForm = { client: '', client_id: '', loan_type: 'Home Loan' }
 function StatCard({ label, value, sub, icon, iconBg, accent }) {
   return (
     <div style={{
-      background: '#fff', borderRadius: 12, border: '1px solid #f0f0f0',
+      background: 'var(--bg-surface)', borderRadius: 12, border: '1px solid #f0f0f0',
       padding: '20px 24px', flex: '1 1 0', minWidth: 0,
       display: 'flex', flexDirection: 'column', gap: 6,
       boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
     }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: accent || '#111', lineHeight: 1.1 }}>{value}</div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#374151', marginTop: 4 }}>{label}</div>
-          {sub && <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{sub}</div>}
+          <div style={{ fontSize: 30, fontWeight: 700, color: accent || 'var(--text-primary)', lineHeight: 1.1 }}>{value}</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginTop: 4 }}>{label}</div>
+          {sub && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>}
         </div>
         <div style={{
           width: 44, height: 44, borderRadius: 10,
@@ -179,14 +181,14 @@ function StepNode({ status, stageName, stageData }) {
   const overdue = status === 'delayed' ? daysOverdue(stageData?.expected) : 0
 
   const nodeStyle = {
-    completed: { bg: '#16a34a', border: '#16a34a', icon: '✓', color: '#fff' },
-    current:   { bg: '#fbbf24', border: '#f59e0b', icon: '⏳', color: '#78350f' },
+    completed: { bg: '#16a34a', border: '#16a34a', icon: <Check size={14} />, color: '#fff' },
+    current:   { bg: '#fbbf24', border: '#f59e0b', icon: <Hourglass size={14} />, color: '#78350f' },
     delayed:   { bg: '#dc2626', border: '#dc2626', icon: '!', color: '#fff' },
-    pending:   { bg: '#fff', border: '#d1d5db', icon: '', color: '#9ca3af' },
+    pending:   { bg: '#fff', border: 'var(--border-input)', icon: '', color: 'var(--text-faint)' },
   }[status]
 
   let subLabel = ''
-  let subColor = '#9ca3af'
+  let subColor = 'var(--text-faint)'
   if (status === 'completed') {
     subLabel = `Act ${formatShortDate(stageData?.actual)}`
     subColor = '#16a34a'
@@ -203,7 +205,7 @@ function StepNode({ status, stageName, stageData }) {
     subColor = '#dc2626'
   } else {
     subLabel = `Exp ${formatShortDate(stageData?.expected)}`
-    subColor = '#9ca3af'
+    subColor = 'var(--text-faint)'
   }
 
   return (
@@ -216,11 +218,11 @@ function StepNode({ status, stageName, stageData }) {
         flexShrink: 0, zIndex: 1,
       }}>{nodeStyle.icon}</div>
       <div style={{
-        fontSize: 9, fontWeight: 700, color: status === 'pending' ? '#9ca3af' : '#374151',
+        fontSize: 9, fontWeight: 700, color: status === 'pending' ? 'var(--text-faint)' : 'var(--text-secondary)',
         textAlign: 'center', letterSpacing: '0.02em', lineHeight: 1.2,
       }}>{stageName}</div>
       {(status === 'completed' || status === 'current' || status === 'delayed') && stageData?.expected && (
-        <div style={{ fontSize: 9, color: '#9ca3af' }}>Exp {formatShortDate(stageData.expected)}</div>
+        <div style={{ fontSize: 9, color: 'var(--text-faint)' }}>Exp {formatShortDate(stageData.expected)}</div>
       )}
       <div style={{ fontSize: 9, fontWeight: 600, color: subColor, textAlign: 'center' }}>{subLabel}</div>
     </div>
@@ -233,7 +235,7 @@ function ProgressTimeline({ file }) {
     <div style={{ position: 'relative', padding: '8px 0 4px' }}>
       <div style={{
         position: 'absolute', top: 22, left: '5%', right: '5%', height: 2,
-        background: '#e5e7eb', zIndex: 0,
+        background: 'var(--border)', zIndex: 0,
       }} />
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, overflowX: 'auto', paddingBottom: 4 }}>
         {STAGES.map((name, i) => (
@@ -258,7 +260,7 @@ function FileCard({ file, onMenu, activeMenuId,  onView, onEdit, onRemove, onMar
 
   return (
     <div style={{
-      background: '#fff', borderRadius: 12, border: '1px solid #f0f0f0',
+      background: 'var(--bg-surface)', borderRadius: 12, border: '1px solid #f0f0f0',
       padding: '18px 20px', marginBottom: 16,
       boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
     }}>
@@ -266,13 +268,13 @@ function FileCard({ file, onMenu, activeMenuId,  onView, onEdit, onRemove, onMar
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
-            <span style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>{file.client}</span>
+            <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>{file.client}</span>
             {file.client_id && (
-              <span style={{ fontSize: 12, color: '#9ca3af' }}>ID: {file.client_id}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-faint)' }}>ID: {file.client_id}</span>
             )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 12, color: '#6b7280' }}>{file.loan_type}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{file.loan_type}</span>
             {(file.priority === 'High' || file.priority === 'Urgent') && (
               <Tag {...priorityMeta} label={priorityMeta.label} />
             )}
@@ -287,7 +289,7 @@ function FileCard({ file, onMenu, activeMenuId,  onView, onEdit, onRemove, onMar
             onClick={(ev) => { ev.stopPropagation(); onMenu(file.id) }}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: 20, color: '#9ca3af', padding: '4px 6px',
+              fontSize: 20, color: 'var(--text-faint)', padding: '4px 6px',
               borderRadius: 6, lineHeight: 1
             }}
           >⋮</button>
@@ -297,23 +299,23 @@ function FileCard({ file, onMenu, activeMenuId,  onView, onEdit, onRemove, onMar
               onClick={ev => ev.stopPropagation()}
               style={{
                 position: 'absolute', right: 0, top: '110%', zIndex: 999,
-                background: '#fff', borderRadius: 10, border: '1px solid #e5e7eb',
+                background: 'var(--bg-surface)', borderRadius: 10, border: '1px solid #e5e7eb',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.18)', minWidth: 185, overflow: 'hidden'
               }}
             >
               <button onClick={() => onView(file)}
-                style={menuBtn}>👁 View Details</button>
+                style={menuBtn}><Eye size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View Details</button>
               <button onClick={() => onEdit(file)}
-                style={menuBtn}>✏️ Edit File</button>
+                style={menuBtn}><Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit File</button>
               {!file.done && (
                 <button onClick={() => onMarkDone(file)}
                   style={{ ...menuBtn, color: '#16a34a' }}>
-                  ✅ Mark as Done{currentStage ? ` (${currentStage})` : ''}
+                  <CheckCircle size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Mark as Done{currentStage ? ` (${currentStage})` : ''}
                 </button>
               )}
               <div style={{ borderTop: '1px solid #f5f5f5', margin: '4px 0' }} />
               <button onClick={() => onRemove(file)}
-                style={{ ...menuBtn, color: '#dc2626' }}>🗑 Remove</button>
+                style={{ ...menuBtn, color: '#dc2626' }}><Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Remove</button>
             </div>
           )}
         </div>
@@ -327,7 +329,7 @@ function FileCard({ file, onMenu, activeMenuId,  onView, onEdit, onRemove, onMar
 
 const menuBtn = {
   width: '100%', padding: '10px 16px', background: 'none', border: 'none',
-  cursor: 'pointer', textAlign: 'left', fontSize: 13, color: '#374151',
+  cursor: 'pointer', textAlign: 'left', fontSize: 13, color: 'var(--text-secondary)',
   display: 'flex', alignItems: 'center', gap: 8,
 }
 
@@ -381,10 +383,10 @@ export default function LoginFile() {
   const processing = files.filter(f => !f.done && getFileStatus(f) === 'Processing').length
 
   const stats = [
-    { label: 'Total Files', value: total,      sub: total > 0 ? `+${Math.round((processing / total) * 100)}% active` : '', icon: '📋', iconBg: '#eff6ff' },
-    { label: 'Processing',  value: processing, sub: 'Currently in pipeline', icon: '🔄', iconBg: '#fffbeb' },
-    { label: 'Completed',   value: completed,  sub: 'Fully disbursed',       icon: '✅', iconBg: '#f0fdf4', accent: '#16a34a' },
-    { label: 'Delayed',     value: delayed,    sub: 'Needs attention',       icon: '⚠️', iconBg: '#fef2f2', accent: '#dc2626' },
+    { label: 'Total Files', value: total,      sub: total > 0 ? `+${Math.round((processing / total) * 100)}% active` : '', icon: <ClipboardList size={20} color="#3b82f6" />, iconBg: 'var(--bg-hover)' },
+    { label: 'Processing',  value: processing, sub: 'Currently in pipeline', icon: <RefreshCw size={20} color="#f59e0b" />, iconBg: 'var(--bg-hover)' },
+    { label: 'Completed',   value: completed,  sub: 'Fully disbursed',       icon: <CheckCircle size={20} color="#16a34a" />, iconBg: 'var(--bg-hover)', accent: '#16a34a' },
+    { label: 'Delayed',     value: delayed,    sub: 'Needs attention',       icon: <AlertTriangle size={20} color="#dc2626" />, iconBg: 'var(--bg-hover)', accent: '#dc2626' },
   ]
 
   /* ── Handlers ── */
@@ -526,23 +528,23 @@ export default function LoginFile() {
 
   const inputStyle = {
     border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px',
-    fontSize: 13, color: '#374151', outline: 'none', width: '100%',
+    fontSize: 13, color: 'var(--text-secondary)', outline: 'none', width: '100%',
   }
 
-  const labelStyle = { fontSize: 12, fontWeight: 500, color: '#374151', display: 'flex', flexDirection: 'column', gap: 4 }
+  const labelStyle = { fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 4 }
 
   /* ══════════════════════════════════════════
      Render
   ══════════════════════════════════════════ */
   return (
     <DashboardLayout>
-      <div className="data-page" style={{ background: '#f8f9fb', minHeight: '100vh', paddingBottom: 80 }}>
+      <div className="data-page">
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: '#111827', margin: 0 }}>Login File Tracking</h2>
-            <p style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Login File Tracking</h2>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
               Real-time monitoring of loan application lifecycles and compliance stages.
             </p>
           </div>
@@ -560,7 +562,7 @@ export default function LoginFile() {
 
         {/* Filters */}
         <div style={{
-          background: '#fff', borderRadius: 12, border: '1px solid #f0f0f0',
+          background: 'var(--bg-surface)', borderRadius: 12, border: '1px solid #f0f0f0',
           padding: '16px 20px', marginBottom: 24,
           boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
         }}>
@@ -596,7 +598,7 @@ export default function LoginFile() {
               </label>
             </div>
             <button onClick={clearFilters} style={{
-              background: '#fff', color: '#374151', border: '1px solid #e5e7eb',
+              background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid #e5e7eb',
               borderRadius: 8, padding: '9px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer',
             }}>Clear</button>
           </div>
@@ -604,7 +606,7 @@ export default function LoginFile() {
 
         {/* File cards */}
         {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af', fontSize: 15 }}>
+          <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-faint)', fontSize: 15 }}>
             No files found. Try adjusting your filters or add a new file.
           </div>
         ) : (
@@ -650,7 +652,7 @@ export default function LoginFile() {
                 </select>
               </label>
             </div>
-            <p style={{ fontSize: 12, color: '#6b7280', margin: '12px 0 0' }}>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '12px 0 0' }}>
               The file will start at the <strong>LOGIN</strong> stage with expected dates auto-calculated for all stages.
             </p>
             <div className="modal-actions">
@@ -697,13 +699,13 @@ export default function LoginFile() {
             </div>
 
             <div style={{ marginTop: 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>
                 Stage Dates — adjust expected &amp; actual dates to reflect delays
               </div>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                   <thead>
-                    <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                    <tr style={{ background: 'var(--bg-input)', borderBottom: '1px solid #e5e7eb' }}>
                       <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600 }}>Stage</th>
                       <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600 }}>Expected</th>
                       <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600 }}>Actual</th>
@@ -714,7 +716,7 @@ export default function LoginFile() {
                     {STAGES.map((name, i) => {
                       const st = getStageStatus(editData, i)
                       const sd = editData.stages?.[name] || {}
-                      const stColors = { completed: '#16a34a', current: '#d97706', delayed: '#dc2626', pending: '#9ca3af' }
+                      const stColors = { completed: '#16a34a', current: '#d97706', delayed: '#dc2626', pending: 'var(--text-faint)' }
                       return (
                         <tr key={name} style={{ borderBottom: '1px solid #f5f5f5' }}>
                           <td style={{ padding: '8px 10px', fontWeight: 600 }}>{name}</td>
@@ -732,11 +734,11 @@ export default function LoginFile() {
                               onChange={(e) => handleStageStatusChange(i, e.target.value)}
                               style={{
                                 border: '1px solid #e5e7eb', borderRadius: 8, padding: '4px 8px',
-                                fontSize: 12, fontWeight: 600, color: stColors[st], background: '#fff',
+                                fontSize: 12, fontWeight: 600, color: stColors[st], background: 'var(--bg-surface)',
                                 outline: 'none', cursor: 'pointer'
                               }}
                             >
-                              <option value="pending" style={{ color: '#9ca3af' }}>Not started</option>
+                              <option value="pending" style={{ color: 'var(--text-faint)' }}>Not started</option>
                               <option value="completed" style={{ color: '#16a34a' }}>Completed</option>
                               <option value="delayed" style={{ color: '#dc2626' }}>Delayed</option>
                             </select>
@@ -770,8 +772,8 @@ export default function LoginFile() {
                 ['Current Stage', editData.done ? 'All Complete' : STAGES[editData.currentStageIndex]],
               ].map(([k, v]) => (
                 <div key={k}>
-                  <div style={{ fontSize: 11, color: '#9ca3af', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{k}</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#111827', marginTop: 2 }}>{v || '—'}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-faint)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{k}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginTop: 2 }}>{v || '—'}</div>
                 </div>
               ))}
             </div>

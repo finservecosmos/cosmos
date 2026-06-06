@@ -6,6 +6,7 @@ import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import useConfirm from '../hooks/useConfirm'
 import './FinanceOverview.css'
+import { FileText, Receipt, Mail, Edit, Trash2, TrendingUp } from 'lucide-react';
 
 // Helper to calculate due date and urgency dynamically
 function getDueInfo(clientDateStr) {
@@ -560,20 +561,20 @@ export default function FinanceOverview() {
                           {activeMenuId === rec.id && (
                             <div className="profile-dropdown" style={{ top: 'auto', right: 0, bottom: '100%', zIndex: 100, width: 160 }}>
                               <button type="button" className="profile-dropdown-item" onClick={() => handleViewDetails(rec)}>
-                                📄 View Details
+                                <FileText size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View Details
                               </button>
                               <button type="button" className="profile-dropdown-item" onClick={() => handleGenerateInvoice(rec)}>
-                                🧾 Gen Invoice
+                                <Receipt size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Gen Invoice
                               </button>
                               <button type="button" className="profile-dropdown-item" onClick={() => handleSendReminder(rec)}>
-                                📧 Send Reminder
+                                <Mail size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Send Reminder
                               </button>
                               <button type="button" className="profile-dropdown-item" onClick={() => handleEditRecord(rec)}>
-                                ✏️ Edit Details
+                                <Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit Details
                               </button>
                               <div className="profile-dropdown-divider" />
                               <button type="button" className="profile-dropdown-item danger" onClick={() => handleDeleteRecord(rec)}>
-                                🗑️ Delete
+                                <Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Delete
                               </button>
                             </div>
                           )}
@@ -607,7 +608,7 @@ export default function FinanceOverview() {
           <div className="panel-card">
             <div className="panel-header">
               <div className="panel-title-wrap">
-                <h3 className="panel-title">📈 Loans Collection Performance</h3>
+                <h3 className="panel-title"><TrendingUp size={18} style={{marginRight: 6, verticalAlign: "middle"}} /> Loans Collection Performance</h3>
                 <p className="panel-subtitle">Collection efficiency breakdown by timeframe</p>
               </div>
               <div className="bar-chart-legend">

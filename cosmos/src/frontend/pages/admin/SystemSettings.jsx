@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DashboardLayout from '../../components/DashboardLayout'
 import './AdminPages.css'
+import { Check } from 'lucide-react';
 
 function SystemSettings() {
   const [company, setCompany] = useState('Cosmos Finserve')
@@ -81,7 +82,7 @@ function SystemSettings() {
           </div>
 
           <div className="settings-footer">
-            {saved && <span className="settings-saved">✓ Settings saved</span>}
+            {saved && <span className="settings-saved"><Check size={14} style={{marginRight: 4, verticalAlign: "middle"}} /> Settings saved</span>}
             <button type="submit" className="admin-primary-btn">Save Changes</button>
           </div>
 

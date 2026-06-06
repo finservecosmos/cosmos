@@ -14,13 +14,13 @@
 .dashboard-page-title {
   font-size: 24px;
   font-weight: 700;
-  color: #111;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .dashboard-page-subtitle {
   margin: 4px 0 0;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
@@ -33,9 +33,9 @@
 .range-tab {
   padding: 10px 16px;
   border-radius: 999px;
-  border: 1px solid #e8e8e8;
-  background: #fff;
-  color: #555;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -43,13 +43,13 @@
 }
 
 .range-tab:hover {
-  border-color: #c0392b;
+  border-color: var(--accent);
 }
 
 .range-tab.active {
-  background: #c0392b;
-  color: #fff;
-  border-color: #c0392b;
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
 }
 
 /* Stat cards row */
@@ -67,8 +67,8 @@
 }
 
 .chart-card {
-  background: #fff;
-  border: 1px solid #ebebeb;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 20px 24px;
 }
@@ -83,13 +83,13 @@
 .chart-title {
   font-size: 16px;
   font-weight: 700;
-  color: #111;
+  color: var(--text-primary);
   margin: 0 0 4px;
 }
 
 .chart-subtitle {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -97,14 +97,14 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #aaa;
+  color: var(--text-muted);
   padding: 4px;
   display: flex;
   align-items: center;
 }
 
 .chart-menu-btn:hover {
-  color: #555;
+  color: var(--text-secondary);
 }
 
 .chart-menu-btn svg {

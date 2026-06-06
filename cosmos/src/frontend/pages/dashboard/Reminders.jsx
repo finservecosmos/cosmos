@@ -5,6 +5,7 @@ import Modal from '../../components/Modal'
 import DashboardLayout from '../../components/DashboardLayout'
 import '../DataPage.css'
 import './Reminders.css'
+import { CheckCircle } from 'lucide-react';
 
 const priorityConfig = {
   high:   { color: '#c0392b', bg: '#fde8e8', label: 'High' },
@@ -142,7 +143,7 @@ export default function Reminders() {
         <div className="reminder-list">
           {filtered.length === 0 ? (
             <div className="data-empty">
-              <div className="data-empty-icon">✅</div>
+              <div className="data-empty-icon"><CheckCircle size={48} /></div>
               <div className="data-empty-title">All clear!</div>
               <div className="data-empty-sub">No reminders in this category</div>
             </div>

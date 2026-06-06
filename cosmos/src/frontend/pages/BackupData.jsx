@@ -4,6 +4,7 @@ import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import './DataPage.css'
 import './BackupData.css'
+import { Check } from 'lucide-react';
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -75,7 +76,7 @@ export default function BackupData() {
 
         {done && (
           <div className="backup-success-banner">
-            ✓ Backup completed successfully — {new Date().toLocaleTimeString()}
+            <Check size={14} style={{marginRight: 4, verticalAlign: "middle"}} /> Backup completed successfully — {new Date().toLocaleTimeString()}
           </div>
         )}
 
@@ -115,7 +116,7 @@ export default function BackupData() {
             </div>
             <div className="backup-setting-item">
               <span className="backup-setting-label">Encryption</span>
-              <span className="backup-setting-value" style={{ color: '#16a34a', fontWeight: 700 }}>✓ Enabled (AES-256)</span>
+              <span className="backup-setting-value" style={{ color: '#16a34a', fontWeight: 700 }}><span style={{display:'inline-flex', alignItems:'center', gap:'4px'}}><Check size={14} /> Enabled (AES-256)</span></span>
             </div>
           </div>
         </div>

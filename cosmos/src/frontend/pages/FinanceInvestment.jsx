@@ -6,6 +6,7 @@ import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import useConfirm from '../hooks/useConfirm'
 import './FinanceInvestment.css'
+import { X, Plus, Download, Eye, Edit, Trash2, Link } from 'lucide-react';
 
 function getDaysRemainingInfo(endDateStr) {
   const today = new Date('2026-06-06') // Reference system date
@@ -331,7 +332,7 @@ export default function FinanceInvestment() {
               }
             }}
           >
-            {isFormOpen ? '✕ Close Form' : '+ New Investment'}
+            {isFormOpen ? '<X size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> Close Form' : '<Plus size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> New Investment'}
           </button>
         </div>
 
@@ -586,7 +587,7 @@ export default function FinanceInvestment() {
                 onClick={handleExportCSV}
                 style={{ display: 'inline-flex', alignSelf: 'center', gap: 6 }}
               >
-                📥 Export Excel
+                <Download size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> Export Excel
               </button>
             </div>
           </div>
@@ -644,7 +645,7 @@ export default function FinanceInvestment() {
                             title="View Details"
                             onClick={() => setViewRecord(rec)}
                           >
-                            👁️
+                            <Eye size={16} />
                           </button>
                           <button
                             type="button"
@@ -652,7 +653,7 @@ export default function FinanceInvestment() {
                             title="Edit Record"
                             onClick={() => handleEditRecord(rec)}
                           >
-                            ✏️
+                            <Edit size={16} />
                           </button>
                           <button
                             type="button"
@@ -667,7 +668,7 @@ export default function FinanceInvestment() {
                         {activeMenuId === rec.id && (
                           <div className="profile-dropdown" style={{ top: 'auto', right: 0, bottom: '100%', zIndex: 100, width: 140 }}>
                             <button type="button" className="profile-dropdown-item danger" onClick={() => handleDeleteRecord(rec)}>
-                              🗑️ Deactivate
+                              <Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Deactivate
                             </button>
                           </div>
                         )}
@@ -745,7 +746,7 @@ export default function FinanceInvestment() {
                     rel="noopener noreferrer"
                     style={{ color: 'var(--accent)', fontWeight: 700, textDecoration: 'underline' }}
                   >
-                    Open Google Drive 🔗
+                    Open Google Drive <Link size={14} style={{marginLeft: 4, verticalAlign: "middle"}} />
                   </a>
                 </div>
               )}

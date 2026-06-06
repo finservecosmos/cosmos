@@ -6,6 +6,7 @@ import { useToast } from '../../../context/ToastContext'
 import { useNavigate } from 'react-router-dom'
 import useConfirm from '../../hooks/useConfirm'
 import '../DataPage.css'
+import { Coins, CheckCircle, AlertTriangle, Clock, TrendingUp, CircleDot, BarChart, Download, FileSpreadsheet, FileText, Eye, RefreshCw, Edit, Trash2, Plus } from 'lucide-react';
 
 /* ─── Currency Formatter ────────────────────────────────────── */
 function formatAmount(n) {
@@ -16,16 +17,16 @@ function formatAmount(n) {
 function getLetterMeta(name) {
   const char = (name || '?').charAt(0).toUpperCase()
   const colors = {
-    M: { bg: '#eff6ff', color: '#2563eb' },
-    B: { bg: '#fdf2f8', color: '#db2777' },
-    S: { bg: '#f0fdf4', color: '#16a34a' },
-    R: { bg: '#fffbeb', color: '#d97706' },
-    P: { bg: '#faf5ff', color: '#7c3aed' },
-    A: { bg: '#f0fdfa', color: '#0d9488' },
-    D: { bg: '#fff7ed', color: '#ea580c' },
-    K: { bg: '#fef2f2', color: '#dc2626' },
+    M: { bg: 'var(--bg-hover)', color: '#2563eb' },
+    B: { bg: 'var(--bg-hover)', color: '#db2777' },
+    S: { bg: 'var(--bg-hover)', color: '#16a34a' },
+    R: { bg: 'var(--bg-hover)', color: '#d97706' },
+    P: { bg: 'var(--bg-hover)', color: '#7c3aed' },
+    A: { bg: 'var(--bg-hover)', color: '#0d9488' },
+    D: { bg: 'var(--bg-hover)', color: '#ea580c' },
+    K: { bg: 'var(--bg-hover)', color: '#dc2626' },
   }
-  return colors[char] || { bg: '#f3f4f6', color: '#4b5563' }
+  return colors[char] || { bg: 'var(--bg-muted)', color: 'var(--text-secondary)' }
 }
 
 export default function PaymentStatus() {
@@ -253,14 +254,14 @@ export default function PaymentStatus() {
 
     const rowsHTML = outstandingList.map((c, i) => `
       <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${i + 1}</td>
-        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #111827;">${c.client}</td>
-        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6; font-family: monospace; color: #4b5563;">${c.file_no}</td>
-        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #111827;">₹${c.actual.toLocaleString('en-IN')}</td>
-        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #16a34a; font-weight: 600;">₹${c.received.toLocaleString('en-IN')}</td>
-        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #b91c1c; font-weight: 600;">₹${c.pending.toLocaleString('en-IN')}</td>
-        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6; text-align: center;">
-          <span style="padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: ${c.status === 'PARTIAL' ? '#fffbeb' : '#fef2f2'}; color: ${c.status === 'PARTIAL' ? '#b45309' : '#b91c1c'};">
+        <td style="padding: 12px; border-bottom: 1px solid var(--border);">${i + 1}</td>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-primary);">${c.client}</td>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border); font-family: monospace; color: var(--text-secondary);">${c.file_no}</td>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border); text-align: right; color: var(--text-primary);">₹${c.actual.toLocaleString('en-IN')}</td>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border); text-align: right; color: #16a34a; font-weight: 600;">₹${c.received.toLocaleString('en-IN')}</td>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border); text-align: right; color: #b91c1c; font-weight: 600;">₹${c.pending.toLocaleString('en-IN')}</td>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border); text-align: center;">
+          <span style="padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: ${c.status === 'PARTIAL' ? 'var(--bg-hover)' : 'var(--bg-hover)'}; color: ${c.status === 'PARTIAL' ? '#b45309' : '#b91c1c'};">
             ${c.status}
           </span>
         </td>
@@ -272,14 +273,14 @@ export default function PaymentStatus() {
         <head>
           <title>Pending Payout Analysis - Cosmos Finserve</title>
           <style>
-            body { font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #1f2937; padding: 40px; }
+            body { font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--text-primary); padding: 40px; }
             .header { display: flex; justify-content: space-between; border-bottom: 2px solid #850f1d; padding-bottom: 20px; margin-bottom: 30px; }
             .logo { font-size: 24px; font-weight: 800; color: #850f1d; }
-            .sub { font-size: 12px; color: #6b7280; margin-top: 4px; }
-            .title { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: #111827; text-transform: uppercase; letter-spacing: 0.05em; }
+            .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+            .title { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
             .table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            .th { padding: 12px; border-bottom: 2px solid #e5e7eb; font-weight: 700; text-align: left; font-size: 12px; text-transform: uppercase; color: #374151; }
-            .footer { margin-top: 50px; border-top: 1px solid #e5e7eb; padding-top: 20px; font-size: 11px; color: #9ca3af; text-align: center; }
+            .th { padding: 12px; border-bottom: 2px solid var(--border); font-weight: 700; text-align: left; font-size: 12px; text-transform: uppercase; color: var(--text-secondary); }
+            .footer { margin-top: 50px; border-top: 1px solid var(--border); padding-top: 20px; font-size: 11px; color: var(--text-faint); text-align: center; }
           </style>
         </head>
         <body>
@@ -398,7 +399,7 @@ export default function PaymentStatus() {
         .ps-wrapper {
           padding: 8px 4px;
           font-family: 'Inter', system-ui, -apple-system, sans-serif;
-          color: #1f2937;
+          color: var(--text-primary);
         }
 
         /* Top header KPI row */
@@ -410,38 +411,39 @@ export default function PaymentStatus() {
         }
 
         .ps-kpi-card {
-          background: #fff;
-          border: 1px solid #f3f4f6;
-          border-radius: 16px;
-          padding: 20px 24px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+          background: #ffffff;
+          border-radius: 12px;
+          padding: 24px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
           display: flex;
           align-items: center;
           justify-content: space-between;
-          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
           position: relative;
           overflow: hidden;
         }
 
         .ps-kpi-card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 12px 30px rgba(133, 15, 29, 0.06);
+          transform: none;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         .ps-kpi-label {
-          font-size: 13px;
-          font-weight: 600;
-          color: #6b7280;
-          margin-bottom: 6px;
+          font-size: 11px;
+          font-weight: 700;
+          color: #9ca3af;
+          margin-bottom: 8px;
           text-transform: uppercase;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.5px;
         }
 
         .ps-kpi-value {
-          font-size: 28px;
-          font-weight: 800;
-          color: #111827;
-          line-height: 1.2;
+          font-family: 'Inter', system-ui, -apple-system, sans-serif;
+          font-size: 26px;
+          font-weight: 900;
+          color: #000000;
+          line-height: 1;
+          margin-bottom: 10px;
+          letter-spacing: -0.5px;
         }
 
         .ps-trend {
@@ -465,7 +467,7 @@ export default function PaymentStatus() {
         }
 
         .ps-main-card {
-          background: #fff;
+          background: var(--bg-surface);
           border: 1px solid #f3f4f6;
           border-radius: 16px;
           box-shadow: 0 4px 25px rgba(0,0,0,0.02);
@@ -486,7 +488,7 @@ export default function PaymentStatus() {
         .ps-card-title {
           font-size: 16px;
           font-weight: 750;
-          color: #111827;
+          color: var(--text-primary);
           display: flex;
           align-items: center;
           gap: 8px;
@@ -512,7 +514,7 @@ export default function PaymentStatus() {
         .ps-donut-label {
           font-size: 10px;
           font-weight: 700;
-          color: #9ca3af;
+          color: var(--text-faint);
           text-transform: uppercase;
           letter-spacing: 0.06em;
         }
@@ -520,7 +522,7 @@ export default function PaymentStatus() {
         .ps-donut-val {
           font-size: 22px;
           font-weight: 850;
-          color: #111827;
+          color: var(--text-primary);
           margin-top: 2px;
         }
 
@@ -546,7 +548,7 @@ export default function PaymentStatus() {
         .ps-legend-lbl {
           font-size: 10px;
           font-weight: 700;
-          color: #6b7280;
+          color: var(--text-muted);
           text-transform: uppercase;
           letter-spacing: 0.04em;
         }
@@ -554,7 +556,7 @@ export default function PaymentStatus() {
         .ps-legend-val {
           font-size: 15px;
           font-weight: 800;
-          color: #111827;
+          color: var(--text-primary);
         }
 
         .ps-tag-row {
@@ -571,7 +573,7 @@ export default function PaymentStatus() {
           padding: 4px 10px;
           border-radius: 6px;
           background: #f3f4f6;
-          color: #4b5563;
+          color: var(--text-secondary);
           border: 1px solid #e5e7eb;
           text-transform: uppercase;
           letter-spacing: 0.02em;
@@ -596,7 +598,7 @@ export default function PaymentStatus() {
           justify-content: space-between;
           font-size: 13px;
           font-weight: 700;
-          color: #374151;
+          color: var(--text-secondary);
         }
 
         .ps-out-bar-bg {
@@ -621,7 +623,7 @@ export default function PaymentStatus() {
           padding: 12px 14px;
           border: 1px solid #f3f4f6;
           font-size: 11px;
-          color: #6b7280;
+          color: var(--text-muted);
           font-weight: 600;
           display: flex;
           align-items: center;
@@ -630,7 +632,7 @@ export default function PaymentStatus() {
 
         /* Dynamic Filter Toolbar */
         .ps-filter-card {
-          background: #fff;
+          background: var(--bg-surface);
           border: 1px solid #f3f4f6;
           border-radius: 16px;
           padding: 20px 24px;
@@ -648,7 +650,7 @@ export default function PaymentStatus() {
         .ps-field-label {
           font-size: 10px;
           font-weight: 750;
-          color: #4b5563;
+          color: var(--text-secondary);
           margin-bottom: 6px;
           text-transform: uppercase;
           letter-spacing: 0.05em;
@@ -660,8 +662,8 @@ export default function PaymentStatus() {
           border: 1px solid #d1d5db;
           border-radius: 8px;
           font-size: 13px;
-          background: #fff;
-          color: #1f2937;
+          background: var(--bg-surface);
+          color: var(--text-primary);
           outline: none;
           transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
@@ -688,8 +690,8 @@ export default function PaymentStatus() {
         }
 
         .ps-btn-clear {
-          background: #fff;
-          color: #4b5563;
+          background: var(--bg-surface);
+          color: var(--text-secondary);
           border: 1px solid #d1d5db;
           padding: 10px 18px;
           border-radius: 8px;
@@ -705,7 +707,7 @@ export default function PaymentStatus() {
 
         /* Custom Table aesthetics */
         .ps-table-card {
-          background: #fff;
+          background: var(--bg-surface);
           border: 1px solid #f3f4f6;
           border-radius: 16px;
           box-shadow: 0 4px 25px rgba(0,0,0,0.02);
@@ -724,16 +726,16 @@ export default function PaymentStatus() {
           padding: 14px 20px;
           font-size: 11px;
           font-weight: 750;
-          color: #4b5563;
+          color: var(--text-secondary);
           text-transform: uppercase;
           letter-spacing: 0.05em;
-          border-bottom: 1px solid #f3f4f6;
+          border-bottom: 1px solid var(--border);
         }
 
         .ps-table td {
           padding: 16px 20px;
           font-size: 13.5px;
-          border-bottom: 1px solid #f3f4f6;
+          border-bottom: 1px solid var(--border);
           vertical-align: middle;
         }
 
@@ -774,7 +776,7 @@ export default function PaymentStatus() {
         .ps-ellipsis-btn {
           background: none;
           border: none;
-          color: #9ca3af;
+          color: var(--text-faint);
           font-size: 20px;
           cursor: pointer;
           padding: 4px 8px;
@@ -784,7 +786,7 @@ export default function PaymentStatus() {
 
         .ps-ellipsis-btn:hover {
           background: #f3f4f6;
-          color: #4b5563;
+          color: var(--text-secondary);
         }
 
         /* Popover actions menu */
@@ -793,7 +795,7 @@ export default function PaymentStatus() {
           right: 20px;
           z-index: 99;
           width: 150px;
-          background: #fff;
+          background: var(--bg-surface);
           border: 1px solid #e5e7eb;
           border-radius: 10px;
           box-shadow: 0 10px 25px rgba(0,0,0,0.08);
@@ -814,7 +816,7 @@ export default function PaymentStatus() {
           text-align: left;
           font-size: 12.5px;
           font-weight: 600;
-          color: #374151;
+          color: var(--text-secondary);
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -851,7 +853,7 @@ export default function PaymentStatus() {
           right: 24px;
           top: 50px;
           z-index: 100;
-          background: #fff;
+          background: var(--bg-surface);
           border: 1px solid #e5e7eb;
           border-radius: 10px;
           box-shadow: 0 10px 25px rgba(0,0,0,0.1);
@@ -872,7 +874,7 @@ export default function PaymentStatus() {
         .ps-page-info {
           font-size: 12px;
           font-weight: 600;
-          color: #6b7280;
+          color: var(--text-muted);
         }
 
         .ps-page-btn-group {
@@ -885,10 +887,10 @@ export default function PaymentStatus() {
           padding: 6px 12px;
           border-radius: 6px;
           border: 1px solid #d1d5db;
-          background: #fff;
+          background: var(--bg-surface);
           font-size: 12px;
           font-weight: 700;
-          color: #4b5563;
+          color: var(--text-secondary);
           cursor: pointer;
           transition: background 0.2s;
         }
@@ -919,14 +921,8 @@ export default function PaymentStatus() {
           background: #f9fafb;
           padding: 10px 12px;
           font-weight: 700;
-          color: #4b5563;
-          border-bottom: 1px solid #e5e7eb;
-          text-align: left;
-        }
-
-        .ps-history-table td {
-          padding: 10px 12px;
-          border-bottom: 1px solid #f3f4f6;
+          color: var(--text-secondary);
+          border-bottom: 1px solid var(--border);
         }
         .modal-xl {
           max-width: 960px !important;
@@ -1006,9 +1002,13 @@ export default function PaymentStatus() {
             <div>
               <div className="ps-kpi-label">Actual Payout</div>
               <div className="ps-kpi-value">{formatAmount(globalStats.actual)}</div>
-              <div className="ps-trend up">↗ 12% vs last month</div>
+              <div style={{ color: '#16a34a', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                ↗ 12% vs last month
+              </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fdf2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>💰</div>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fcf3f3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Coins size={20} color="#000000" />
+            </div>
           </div>
 
           {/* Card 2: Received Payout */}
@@ -1016,11 +1016,13 @@ export default function PaymentStatus() {
             <div>
               <div className="ps-kpi-label">Received Payout</div>
               <div className="ps-kpi-value">{formatAmount(globalStats.received)}</div>
-              <div style={{ width: '120px', height: '6px', background: '#e5e7eb', borderRadius: '3px', marginTop: '12px', overflow: 'hidden' }}>
+              <div style={{ width: '100px', height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden' }}>
                 <div style={{ width: `${globalStats.rate}%`, height: '100%', background: '#16a34a' }} />
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>✅</div>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fcf3f3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CheckCircle size={20} color="#16a34a" />
+            </div>
           </div>
 
           {/* Card 3: Pending Payout */}
@@ -1028,11 +1030,13 @@ export default function PaymentStatus() {
             <div>
               <div className="ps-kpi-label">Pending Payout</div>
               <div className="ps-kpi-value">{formatAmount(globalStats.pending)}</div>
-              <div style={{ color: '#dc2626', fontSize: '11px', fontWeight: '700', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                ⚠️ {globalStats.overdueCount} overdue items
+              <div style={{ color: '#dc2626', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <AlertTriangle size={12} color="#dc2626" /> {globalStats.overdueCount} overdue items
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>⏰</div>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fcf3f3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Clock size={20} color="#dc2626" />
+            </div>
           </div>
 
           {/* Card 4: Collection Rate */}
@@ -1040,21 +1044,21 @@ export default function PaymentStatus() {
             <div>
               <div className="ps-kpi-label">Collection Rate</div>
               <div className="ps-kpi-value">{globalStats.rate}%</div>
-              <div style={{ fontSize: '11px', color: '#9ca3af', fontWeight: '700', marginTop: '8px' }}>TARGET: 85%</div>
+              <div style={{ fontSize: '11px', color: '#9ca3af', fontWeight: '700' }}>TARGET: 85%</div>
             </div>
-            <div style={{ position: 'relative', width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="48" height="48" viewBox="0 0 36 36">
+            <div style={{ position: 'relative', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="44" height="44" viewBox="0 0 36 36">
                 <path
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
                   stroke="#f3f4f6"
-                  strokeWidth="3.5"
+                  strokeWidth="4"
                 />
                 <path
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
-                  stroke="#111827"
-                  strokeWidth="3.5"
+                  stroke="#000000"
+                  strokeWidth="4"
                   strokeDasharray={`${globalStats.rate}, 100`}
                 />
               </svg>
@@ -1069,14 +1073,14 @@ export default function PaymentStatus() {
           {/* Left Column: Collection Overview */}
           <div className="ps-main-card">
             <div className="ps-card-header">
-              <div className="ps-card-title">📈 Collection Overview</div>
+              <div className="ps-card-title"><TrendingUp size={18} style={{marginRight: 6, verticalAlign: "middle"}} /> Collection Overview</div>
               <button className="ps-ellipsis-btn">⋮</button>
             </div>
 
             {/* Donut Chart SVG */}
             <div className="ps-donut-wrap">
               <svg width="180" height="180" viewBox="0 0 42 42" className="ps-donut">
-                <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#fef2f2" strokeWidth="4.2" />
+                <circle cx="21" cy="21" r="15.915" fill="transparent" stroke='var(--bg-hover)' strokeWidth="4.2" />
                 <circle
                   cx="21"
                   cy="21"
@@ -1097,23 +1101,23 @@ export default function PaymentStatus() {
             {/* Metrics cards below donut */}
             <div className="ps-legend-grid">
               <div className="ps-legend-box green">
-                <span className="ps-legend-lbl">🟢 Received</span>
+                <span className="ps-legend-lbl"><CircleDot size={12} color="#16a34a" style={{marginRight: 6, verticalAlign: "middle"}} /> Received</span>
                 <span className="ps-legend-val">{formatAmount(globalStats.received)}</span>
                 <span style={{ fontSize: '11px', fontWeight: '750', color: '#16a34a' }}>{globalStats.rate}%</span>
               </div>
               <div className="ps-legend-box red">
-                <span className="ps-legend-lbl">🔴 Pending</span>
+                <span className="ps-legend-lbl"><CircleDot size={12} color="#dc2626" style={{marginRight: 6, verticalAlign: "middle"}} /> Pending</span>
                 <span className="ps-legend-val">{formatAmount(globalStats.pending)}</span>
                 <span style={{ fontSize: '11px', fontWeight: '750', color: '#dc2626' }}>{100 - globalStats.rate}%</span>
               </div>
             </div>
 
             {/* Collection rate summary */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px' }}>
               <span>Collection Rate</span>
               <span>{globalStats.rate}%</span>
             </div>
-            <div style={{ height: '8px', background: '#f3f4f6', borderRadius: '4px', overflow: 'hidden', marginBottom: '16px' }}>
+            <div style={{ height: '8px', background: 'var(--bg-muted)', borderRadius: '4px', overflow: 'hidden', marginBottom: '16px' }}>
               <div style={{ width: `${globalStats.rate}%`, height: '100%', background: '#16a34a' }} />
             </div>
 
@@ -1128,7 +1132,7 @@ export default function PaymentStatus() {
           {/* Right Column: Pending Payout Analysis */}
           <div className="ps-main-card">
             <div className="ps-card-header" style={{ position: 'relative' }}>
-              <div className="ps-card-title">📊 Pending Payout Analysis</div>
+              <div className="ps-card-title"><BarChart size={18} style={{marginRight: 6, verticalAlign: "middle"}} /> Pending Payout Analysis</div>
               
               {/* Exporters Dropdown Controller */}
               <div ref={downloadRef}>
@@ -1137,16 +1141,16 @@ export default function PaymentStatus() {
                   className="ps-download-btn"
                   onClick={() => setDownloadOpen(!downloadOpen)}
                 >
-                  📥 Download Report
+                  <Download size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> Download Report
                 </button>
 
                 {downloadOpen && (
                   <div className="ps-download-popover">
                     <button className="ps-action-item" onClick={exportExcel}>
-                      🟢 Export Excel (.csv)
+                      <FileSpreadsheet size={16} color="#16a34a" style={{marginRight: 6, verticalAlign: "middle"}} /> Export Excel (.csv)
                     </button>
                     <button className="ps-action-item" onClick={exportPDF}>
-                      🔴 Export PDF (.pdf)
+                      <FileText size={16} color="#dc2626" style={{marginRight: 6, verticalAlign: "middle"}} /> Export PDF (.pdf)
                     </button>
                   </div>
                 )}
@@ -1171,7 +1175,7 @@ export default function PaymentStatus() {
               ))}
 
               {topPendingOutstanding.length === 0 && (
-                <div style={{ margin: 'auto', textAlign: 'center', color: '#9ca3af', fontSize: '13px', fontWeight: '600' }}>
+                <div style={{ margin: 'auto', textAlign: 'center', color: 'var(--text-faint)', fontSize: '13px', fontWeight: '600' }}>
                   No outstanding payouts recorded! All balances paid.
                 </div>
               )}
@@ -1288,8 +1292,8 @@ export default function PaymentStatus() {
                           {(item.client || '?').charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <div style={{ fontWeight: 700, color: '#111827' }}>{item.client}</div>
-                          <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px', fontWeight: '500' }}>
+                          <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{item.client}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-faint)', marginTop: '2px', fontWeight: '500' }}>
                             {item.file_no}
                           </div>
                         </div>
@@ -1297,7 +1301,7 @@ export default function PaymentStatus() {
                     </td>
 
                     {/* Actual Payout */}
-                    <td style={{ fontWeight: 700, color: '#374151' }}>
+                    <td style={{ fontWeight: 700, color: 'var(--text-secondary)' }}>
                       {formatAmount(item.actual)}
                     </td>
 
@@ -1314,10 +1318,10 @@ export default function PaymentStatus() {
                     {/* Collection rate progress bar */}
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '100px' }}>
-                        <span style={{ fontSize: '12px', fontWeight: '750', color: '#4b5563', width: '32px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: '750', color: 'var(--text-secondary)', width: '32px' }}>
                           {item.collection_rate}%
                         </span>
-                        <div style={{ flex: 1, height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ flex: 1, height: '6px', background: 'var(--bg-muted)', borderRadius: '3px', overflow: 'hidden' }}>
                           <div
                             style={{
                               width: `${item.collection_rate}%`,
@@ -1364,7 +1368,7 @@ export default function PaymentStatus() {
                               setActiveMenuId(null)
                             }}
                           >
-                            👁️ View Details
+                            <Eye size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View Details
                           </button>
                           
                           <button
@@ -1380,7 +1384,7 @@ export default function PaymentStatus() {
                               addToast(`Redirecting to invoice creator for ${item.client}...`, 'info')
                             }}
                           >
-                            📄 Generate Invoice
+                            <FileText size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Generate Invoice
                           </button>
 
                           {item.pending > 0 && (
@@ -1391,7 +1395,7 @@ export default function PaymentStatus() {
                                 setActiveMenuId(null)
                               }}
                             >
-                              🔄 Update Payment
+                              <RefreshCw size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Update Payment
                             </button>
                           )}
 
@@ -1402,7 +1406,7 @@ export default function PaymentStatus() {
                               setActiveMenuId(null)
                             }}
                           >
-                            ✏️ Edit Record
+                            <Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit Record
                           </button>
 
                           <button
@@ -1413,7 +1417,7 @@ export default function PaymentStatus() {
                               setActiveMenuId(null)
                             }}
                           >
-                            🗑️ Delete Record
+                            <Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Delete Record
                           </button>
                         </div>
                       )}
@@ -1425,7 +1429,7 @@ export default function PaymentStatus() {
 
               {paginatedRecords.length === 0 && (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af', fontWeight: '600' }}>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-faint)', fontWeight: '600' }}>
                     No payment records match the filter criteria!
                   </td>
                 </tr>
@@ -1464,10 +1468,10 @@ export default function PaymentStatus() {
             onClose={() => setSelectedDetails(null)}
           >
             <div className="ps-modal-body-payout">
-              <div style={{ background: '#fafafa', borderRadius: '10px', padding: '14px 18px', border: '1px solid #f3f4f6' }}>
+              <div style={{ background: 'var(--bg-surface)', borderRadius: '10px', padding: '14px 18px', border: '1px solid #f3f4f6' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
-                  <span style={{ color: '#6b7280', fontWeight: '500' }}>Actual Fee Payout:</span>
-                  <span style={{ fontWeight: '700', color: '#111827' }}>{formatAmount(selectedDetails.actual)}</span>
+                  <span style={{ color: 'var(--text-muted)', fontWeight: '500' }}>Actual Fee Payout:</span>
+                  <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{formatAmount(selectedDetails.actual)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
                   <span style={{ color: '#16a34a', fontWeight: '500' }}>Total Collected Amount:</span>
@@ -1479,7 +1483,7 @@ export default function PaymentStatus() {
                 </div>
               </div>
 
-              <div style={{ fontWeight: 705, color: '#111827', fontSize: '14px', marginTop: '6px' }}>
+              <div style={{ fontWeight: 705, color: 'var(--text-primary)', fontSize: '14px', marginTop: '6px' }}>
                 Transaction Ledgers
               </div>
 
@@ -1527,7 +1531,7 @@ export default function PaymentStatus() {
             onClose={() => setUpdatePayment(null)}
           >
             <div className="ps-modal-body-payout">
-              <div style={{ background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '10px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+              <div style={{ background: 'var(--bg-hover)', border: '1px solid #fee2e2', borderRadius: '10px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
                 <span style={{ color: '#be123c', fontWeight: '650' }}>Remaining Balance Due:</span>
                 <span style={{ fontWeight: '800', color: '#be123c' }}>{formatAmount(updatePaymentRecord.pending)}</span>
               </div>
@@ -1607,16 +1611,16 @@ export default function PaymentStatus() {
           >
             <div className="ps-modal-body-payout" style={{ width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <div style={{ fontSize: '13px', color: '#6b7280', fontWeight: '600' }}>
-                  Manage payment log transactions for File: <span style={{ color: '#111827', fontFamily: 'monospace' }}>{editCustomer.file_no}</span>
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '600' }}>
+                  Manage payment log transactions for File: <span style={{ color: 'var(--text-primary)', fontFamily: 'monospace' }}>{editCustomer.file_no}</span>
                 </div>
                 <button
                   type="button"
                   className="ps-download-btn"
-                  style={{ padding: '4px 10px', background: '#f3f4f6', fontSize: '12px' }}
+                  style={{ padding: '4px 10px', background: 'var(--bg-muted)', fontSize: '12px' }}
                   onClick={window.handleLocalPaymentAdd}
                 >
-                  ➕ Add Transaction
+                  <Plus size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Add Transaction
                 </button>
               </div>
 
@@ -1705,7 +1709,7 @@ export default function PaymentStatus() {
                     ))}
                     {editPaymentsLocal.length === 0 && (
                       <tr>
-                        <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#9ca3af', fontWeight: '600' }}>
+                        <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-faint)', fontWeight: '600' }}>
                           No transactions left. Saving will delete the payout ledger.
                         </td>
                       </tr>

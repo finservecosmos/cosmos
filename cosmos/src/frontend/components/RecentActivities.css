@@ -1,6 +1,6 @@
 .activities-card {
-  background: #fff;
-  border: 1px solid #ebebeb;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 20px;
   height: 100%;
@@ -9,14 +9,14 @@
 .activities-title {
   font-size: 15px;
   font-weight: 700;
-  color: #111;
+  color: var(--text-primary);
   margin: 0 0 16px;
 }
 
 .activities-loading,
 .activities-empty {
   font-size: 13px;
-  color: #aaa;
+  color: var(--text-muted);
   text-align: center;
   padding: 20px 0;
 }
@@ -58,19 +58,19 @@
 .activity-title {
   font-size: 13px;
   font-weight: 600;
-  color: #111;
+  color: var(--text-primary);
   margin: 0 0 2px;
 }
 
 .activity-desc {
   font-size: 12px;
-  color: #666;
+  color: var(--text-secondary);
   margin: 0 0 4px;
 }
 
 .activity-time {
   font-size: 11px;
-  color: #aaa;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }

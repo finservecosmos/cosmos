@@ -6,6 +6,7 @@ import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import { useUser } from '../../context/UserContext'
 import './DataPage.css'
+import { User, Briefcase, Coins, Search, Eye, Edit, ClipboardCheck, Building2, FolderCheck, CheckCircle, Hourglass, FileText } from 'lucide-react';
 
 function maskAadhaar(num) {
   if (!num) return ''
@@ -90,16 +91,16 @@ const clientSchema = z.object({
 const statusClass = (s) => 'status-badge status-' + s.toLowerCase().replace(' ', '-')
 
 function formatAmount(n) {
-  if (n >= 10000000) return `₹${(n/10000000).toFixed(2)}Cr`
-  if (n >= 100000)   return `₹${(n/100000).toFixed(1)}L`
+  if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)}Cr`
+  if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`
   return `₹${n.toLocaleString('en-IN')}`
 }
 
 const LOAN_TYPES = ['All', 'Home Loan', 'Business Loan', 'Personal Loan', 'Gold Loan', 'Mortgage']
-const STATUSES   = ['All', 'Enquiry', 'Processing', 'Approved', 'Disbursed', 'Closed']
+const STATUSES = ['All', 'Enquiry', 'Processing', 'Approved', 'Disbursed', 'Closed']
 
 const MAJOR_LOCATIONS = [
-  'Mumbai, MH', 'Delhi NCR', 'Bengaluru, KA', 'Kolkata, WB', 
+  'Mumbai, MH', 'Delhi NCR', 'Bengaluru, KA', 'Kolkata, WB',
   'Chennai, TN', 'Hyderabad, TG', 'Pune, MH', 'Ahmedabad, GJ',
   'Jaipur, RJ', 'Lucknow, UP', 'Indore, MP', 'Kochi, KL', 'Patna, BR'
 ]
@@ -137,12 +138,12 @@ export default function ClientRecordBook() {
   const { clients, addClient, updateClient } = useAppState()
   const { addToast } = useToast()
   const { user } = useUser()
-  const [search, setSearch]     = useState('')
-  const [loanFilter, setLoan]   = useState('All')
+  const [search, setSearch] = useState('')
+  const [loanFilter, setLoan] = useState('All')
   const [statusFilter, setStatus] = useState('All')
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState('add')
-  const [formData, setFormData]   = useState(emptyClient)
+  const [formData, setFormData] = useState(emptyClient)
 
   // Data Masking reveal state
   const [revealAadhaar, setRevealAadhaar] = useState(false)
@@ -182,8 +183,8 @@ export default function ClientRecordBook() {
     setScanStatus('idle')
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
       })
       setVideoStream(stream)
       setScanStatus('camera_active')
@@ -208,7 +209,7 @@ export default function ClientRecordBook() {
       setScanStatus('extracting')
       setTimeout(() => {
         setScanStatus('success')
-        
+
         if (scanType === 'pan') {
           const mockPan = 'BPDPM' + Math.floor(1000 + Math.random() * 9000) + 'K'
           setFormData(prev => ({ ...prev, pan_card: mockPan }))
@@ -259,7 +260,7 @@ export default function ClientRecordBook() {
   const filtered = clients.filter((c) => {
     const q = search.toLowerCase()
     const matchSearch = !q || c.name.toLowerCase().includes(q) || c.file_no.includes(q) || c.phone.includes(q)
-    const matchLoan   = loanFilter === 'All' || c.loan_type === loanFilter
+    const matchLoan = loanFilter === 'All' || c.loan_type === loanFilter
     const matchStatus = statusFilter === 'All' || c.status === statusFilter
     return matchSearch && matchLoan && matchStatus
   })
@@ -268,7 +269,7 @@ export default function ClientRecordBook() {
   const paginatedClients = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   const totalDisbursed = clients
-    .filter(c => ['Approved','Disbursed'].includes(c.status))
+    .filter(c => ['Approved', 'Disbursed'].includes(c.status))
     .reduce((s, c) => s + c.amount, 0)
 
   const openAddModal = () => {
@@ -417,47 +418,47 @@ export default function ClientRecordBook() {
             <div className="wizard-form-body">
               {wizardStep === 1 && (
                 <div className="wizard-panel">
-                  <h3 className="wizard-panel-title">👤 Verify Identity & Setup Contacts</h3>
+                  <h3 className="wizard-panel-title"><User size={18} style={{ marginRight: 8, verticalAlign: "middle" }} /> Verify Identity & Setup Contacts</h3>
                   <div className="form-grid">
                     <label>
                       Client Name *
-                      <input 
-                        type="text" 
-                        placeholder="Full Name" 
+                      <input
+                        type="text"
+                        placeholder="Full Name"
                         className={validationErrors.name ? 'error' : ''}
-                        value={formData.name || ''} 
+                        value={formData.name || ''}
                         onChange={(e) => {
                           setFormData({ ...formData, name: e.target.value })
                           setValidationErrors(prev => ({ ...prev, name: null }))
-                        }} 
+                        }}
                       />
                       {validationErrors.name && <span className="form-error">{validationErrors.name}</span>}
                     </label>
                     <label>
                       Phone Number *
-                      <input 
-                        type="text" 
-                        placeholder="Mobile Number" 
+                      <input
+                        type="text"
+                        placeholder="Mobile Number"
                         className={validationErrors.phone ? 'error' : ''}
-                        value={formData.phone || ''} 
+                        value={formData.phone || ''}
                         onChange={(e) => {
                           setFormData({ ...formData, phone: e.target.value })
                           setValidationErrors(prev => ({ ...prev, phone: null }))
-                        }} 
+                        }}
                       />
                       {validationErrors.phone && <span className="form-error">{validationErrors.phone}</span>}
                     </label>
                     <label className="form-grid-full">
                       Email Address
-                      <input 
-                        type="email" 
-                        placeholder="client@email.com" 
+                      <input
+                        type="email"
+                        placeholder="client@email.com"
                         className={validationErrors.email ? 'error' : ''}
-                        value={formData.email || ''} 
+                        value={formData.email || ''}
                         onChange={(e) => {
                           setFormData({ ...formData, email: e.target.value })
                           setValidationErrors(prev => ({ ...prev, email: null }))
-                        }} 
+                        }}
                       />
                       {validationErrors.email && <span className="form-error">{validationErrors.email}</span>}
                     </label>
@@ -472,15 +473,15 @@ export default function ClientRecordBook() {
                           Scan Card
                         </button>
                       </span>
-                      <input 
-                        type="text" 
-                        placeholder="ABCDE1234F" 
+                      <input
+                        type="text"
+                        placeholder="ABCDE1234F"
                         className={validationErrors.pan_card ? 'error' : ''}
-                        value={formData.pan_card || ''} 
+                        value={formData.pan_card || ''}
                         onChange={(e) => {
                           setFormData({ ...formData, pan_card: e.target.value.toUpperCase() })
                           setValidationErrors(prev => ({ ...prev, pan_card: null }))
-                        }} 
+                        }}
                       />
                       {validationErrors.pan_card && <span className="form-error">{validationErrors.pan_card}</span>}
                     </label>
@@ -495,22 +496,22 @@ export default function ClientRecordBook() {
                           Scan Card
                         </button>
                       </span>
-                      <input 
-                        type="text" 
-                        placeholder="12-digit Aadhaar number" 
+                      <input
+                        type="text"
+                        placeholder="12-digit Aadhaar number"
                         className={validationErrors.aadhaar_number ? 'error' : ''}
-                        value={formData.aadhaar_number || ''} 
+                        value={formData.aadhaar_number || ''}
                         onChange={(e) => {
                           setFormData({ ...formData, aadhaar_number: e.target.value })
                           setValidationErrors(prev => ({ ...prev, aadhaar_number: null }))
-                        }} 
+                        }}
                       />
                       {validationErrors.aadhaar_number && <span className="form-error">{validationErrors.aadhaar_number}</span>}
                     </label>
                     <label>
                       Residential Status
-                      <select 
-                        value={formData.residential_status || 'Resident Indian'} 
+                      <select
+                        value={formData.residential_status || 'Resident Indian'}
                         onChange={(e) => setFormData({ ...formData, residential_status: e.target.value })}
                       >
                         <option value="Resident Indian">Resident Indian</option>
@@ -522,12 +523,12 @@ export default function ClientRecordBook() {
                     <label>
                       Location / City *
                       <div className={validationErrors.location ? 'error' : ''}>
-                        <HybridLocationPicker 
-                          value={formData.location || ''} 
+                        <HybridLocationPicker
+                          value={formData.location || ''}
                           onChange={(value) => {
                             setFormData({ ...formData, location: value })
                             setValidationErrors(prev => ({ ...prev, location: null }))
-                          }} 
+                          }}
                         />
                       </div>
                       {validationErrors.location && <span className="form-error">{validationErrors.location}</span>}
@@ -538,7 +539,7 @@ export default function ClientRecordBook() {
 
               {wizardStep === 2 && (
                 <div className="wizard-panel">
-                  <h3 className="wizard-panel-title">💼 Employment, Income & Stability Profile</h3>
+                  <h3 className="wizard-panel-title"><Briefcase size={18} style={{ marginRight: 8, verticalAlign: "middle" }} /> Employment, Income & Stability Profile</h3>
                   <div className="form-grid">
                     <label>
                       Employment Status
@@ -552,31 +553,31 @@ export default function ClientRecordBook() {
                     </label>
                     <label>
                       Monthly Net Income (₹)
-                      <input 
-                        type="number" 
-                        min="0" 
-                        placeholder="Monthly Take Home" 
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="Monthly Take Home"
                         className={validationErrors.monthly_net_income ? 'error' : ''}
-                        value={formData.monthly_net_income || ''} 
+                        value={formData.monthly_net_income || ''}
                         onChange={(e) => {
                           setFormData({ ...formData, monthly_net_income: e.target.value })
                           setValidationErrors(prev => ({ ...prev, monthly_net_income: null }))
-                        }} 
+                        }}
                       />
                       {validationErrors.monthly_net_income && <span className="form-error">{validationErrors.monthly_net_income}</span>}
                     </label>
                     <label>
                       Co-Applicant Net Income (₹)
-                      <input 
-                        type="number" 
-                        min="0" 
-                        placeholder="Co-Applicant Monthly Take Home" 
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="Co-Applicant Monthly Take Home"
                         className={validationErrors.co_applicant_income ? 'error' : ''}
-                        value={formData.co_applicant_income || ''} 
+                        value={formData.co_applicant_income || ''}
                         onChange={(e) => {
                           setFormData({ ...formData, co_applicant_income: e.target.value })
                           setValidationErrors(prev => ({ ...prev, co_applicant_income: null }))
-                        }} 
+                        }}
                       />
                       {validationErrors.co_applicant_income && <span className="form-error">{validationErrors.co_applicant_income}</span>}
                     </label>
@@ -591,16 +592,16 @@ export default function ClientRecordBook() {
                     </label>
                     <label className="form-grid-full">
                       Tenure at Current Address (Years)
-                      <input 
-                        type="number" 
-                        min="0" 
-                        placeholder="Years of occupancy" 
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="Years of occupancy"
                         className={validationErrors.tenure_at_address ? 'error' : ''}
-                        value={formData.tenure_at_address || ''} 
+                        value={formData.tenure_at_address || ''}
                         onChange={(e) => {
                           setFormData({ ...formData, tenure_at_address: e.target.value })
                           setValidationErrors(prev => ({ ...prev, tenure_at_address: null }))
-                        }} 
+                        }}
                       />
                       {validationErrors.tenure_at_address && <span className="form-error">{validationErrors.tenure_at_address}</span>}
                     </label>
@@ -610,19 +611,19 @@ export default function ClientRecordBook() {
 
               {wizardStep === 3 && (
                 <div className="wizard-panel">
-                  <h3 className="wizard-panel-title">💰 Lending Parameters & Office Assignment</h3>
+                  <h3 className="wizard-panel-title"><Coins size={18} style={{ marginRight: 8, verticalAlign: "middle" }} /> Lending Parameters & Office Assignment</h3>
                   <div className="form-grid">
                     <label>
                       File No. *
-                      <input 
-                        type="text" 
-                        placeholder="e.g. F-983" 
+                      <input
+                        type="text"
+                        placeholder="e.g. F-983"
                         className={validationErrors.file_no ? 'error' : ''}
-                        value={formData.file_no || ''} 
+                        value={formData.file_no || ''}
                         onChange={(e) => {
                           setFormData({ ...formData, file_no: e.target.value })
                           setValidationErrors(prev => ({ ...prev, file_no: null }))
-                        }} 
+                        }}
                       />
                       {validationErrors.file_no && <span className="form-error">{validationErrors.file_no}</span>}
                     </label>
@@ -634,29 +635,29 @@ export default function ClientRecordBook() {
                     </label>
                     <label>
                       Amount (₹) *
-                      <input 
-                        type="number" 
-                        min="0" 
-                        placeholder="Requested Amount" 
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="Requested Amount"
                         className={validationErrors.amount ? 'error' : ''}
-                        value={formData.amount || ''} 
+                        value={formData.amount || ''}
                         onChange={(e) => {
                           setFormData({ ...formData, amount: e.target.value })
                           setValidationErrors(prev => ({ ...prev, amount: null }))
-                        }} 
+                        }}
                       />
                       {validationErrors.amount && <span className="form-error">{validationErrors.amount}</span>}
                     </label>
                     <label>
                       Application Date *
-                      <input 
-                        type="date" 
+                      <input
+                        type="date"
                         className={validationErrors.date ? 'error' : ''}
-                        value={formData.date || ''} 
+                        value={formData.date || ''}
                         onChange={(e) => {
                           setFormData({ ...formData, date: e.target.value })
                           setValidationErrors(prev => ({ ...prev, date: null }))
-                        }} 
+                        }}
                       />
                       {validationErrors.date && <span className="form-error">{validationErrors.date}</span>}
                     </label>
@@ -754,7 +755,7 @@ export default function ClientRecordBook() {
         <div className="data-toolbar">
           <div className="data-search">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input placeholder="Search by name, file no, phone..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
@@ -786,7 +787,7 @@ export default function ClientRecordBook() {
               {paginatedClients.length === 0 ? (
                 <tr><td colSpan={8}>
                   <div className="data-empty">
-                    <div className="data-empty-icon">🔍</div>
+                    <div className="data-empty-icon"><Search size={48} /></div>
                     <div className="data-empty-title">No clients found</div>
                     <div className="data-empty-sub">Try adjusting your search or filters</div>
                   </div>
@@ -824,10 +825,10 @@ export default function ClientRecordBook() {
                       {activeMenuId === c.id && (
                         <div className="action-popover" onClick={(e) => e.stopPropagation()}>
                           <button className="popover-item" onClick={() => { openViewModal(c); setActiveMenuId(null); }}>
-                            👁️ View details
+                            <Eye size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> View details
                           </button>
                           <button className="popover-item" onClick={() => { openEditModal(c); setActiveMenuId(null); }}>
-                            ✏️ Edit record
+                            <Edit size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Edit record
                           </button>
                         </div>
                       )}
@@ -858,48 +859,48 @@ export default function ClientRecordBook() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
                 <h4 style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12, borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
-                  👤 Personal Details
+                  <User size={14} style={{ marginRight: 6, verticalAlign: "middle" }} /> Personal Details
                 </h4>
                 <div className="form-grid">
                   <label>
                     Client Name
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       className={validationErrors.name ? 'error' : ''}
-                      value={formData.name} 
-                      disabled={modalMode === 'view'} 
+                      value={formData.name}
+                      disabled={modalMode === 'view'}
                       onChange={(e) => {
                         setFormData({ ...formData, name: e.target.value })
                         setValidationErrors(prev => ({ ...prev, name: null }))
-                      }} 
+                      }}
                     />
                     {validationErrors.name && <span className="form-error">{validationErrors.name}</span>}
                   </label>
                   <label>
                     Phone Number
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       className={validationErrors.phone ? 'error' : ''}
-                      value={formData.phone} 
-                      disabled={modalMode === 'view'} 
+                      value={formData.phone}
+                      disabled={modalMode === 'view'}
                       onChange={(e) => {
                         setFormData({ ...formData, phone: e.target.value })
                         setValidationErrors(prev => ({ ...prev, phone: null }))
-                      }} 
+                      }}
                     />
                     {validationErrors.phone && <span className="form-error">{validationErrors.phone}</span>}
                   </label>
                   <label className="form-grid-full">
                     Email Address
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       className={validationErrors.email ? 'error' : ''}
-                      value={formData.email} 
-                      disabled={modalMode === 'view'} 
+                      value={formData.email}
+                      disabled={modalMode === 'view'}
                       onChange={(e) => {
                         setFormData({ ...formData, email: e.target.value })
                         setValidationErrors(prev => ({ ...prev, email: null }))
-                      }} 
+                      }}
                     />
                     {validationErrors.email && <span className="form-error">{validationErrors.email}</span>}
                   </label>
@@ -908,26 +909,26 @@ export default function ClientRecordBook() {
 
               <div>
                 <h4 style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12, borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
-                  📋 KYC & Identification Profile
+                  <ClipboardCheck size={14} style={{ marginRight: 6, verticalAlign: "middle" }} /> KYC & Identification Profile
                 </h4>
                 <div className="form-grid">
                   <label>
                     PAN Card Number
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
-                      <input 
-                        type="text" 
-                        placeholder="e.g. ABCDE1234F" 
+                      <input
+                        type="text"
+                        placeholder="e.g. ABCDE1234F"
                         className={validationErrors.pan_card ? 'error' : ''}
                         value={
                           modalMode === 'view'
                             ? (revealPAN ? (formData.pan_card || '') : maskPAN(formData.pan_card))
                             : (formData.pan_card || '')
-                        } 
-                        disabled={modalMode === 'view'} 
+                        }
+                        disabled={modalMode === 'view'}
                         onChange={(e) => {
                           setFormData({ ...formData, pan_card: e.target.value.toUpperCase() })
                           setValidationErrors(prev => ({ ...prev, pan_card: null }))
-                        }} 
+                        }}
                         style={{ flex: 1 }}
                       />
                       {modalMode === 'view' && (
@@ -953,9 +954,9 @@ export default function ClientRecordBook() {
                           title={revealPAN ? "Hide sensitive details" : "Reveal sensitive details"}
                         >
                           {revealPAN ? (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                           ) : (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
                           )}
                         </button>
                       )}
@@ -965,20 +966,20 @@ export default function ClientRecordBook() {
                   <label>
                     Aadhaar Number
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
-                      <input 
-                        type="text" 
-                        placeholder="12-digit Aadhaar number" 
+                      <input
+                        type="text"
+                        placeholder="12-digit Aadhaar number"
                         className={validationErrors.aadhaar_number ? 'error' : ''}
                         value={
                           modalMode === 'view'
                             ? (revealAadhaar ? (formData.aadhaar_number || '') : maskAadhaar(formData.aadhaar_number))
                             : (formData.aadhaar_number || '')
-                        } 
-                        disabled={modalMode === 'view'} 
+                        }
+                        disabled={modalMode === 'view'}
                         onChange={(e) => {
                           setFormData({ ...formData, aadhaar_number: e.target.value })
                           setValidationErrors(prev => ({ ...prev, aadhaar_number: null }))
-                        }} 
+                        }}
                         style={{ flex: 1 }}
                       />
                       {modalMode === 'view' && (
@@ -1004,9 +1005,9 @@ export default function ClientRecordBook() {
                           title={revealAadhaar ? "Hide sensitive details" : "Reveal sensitive details"}
                         >
                           {revealAadhaar ? (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                           ) : (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
                           )}
                         </button>
                       )}
@@ -1025,13 +1026,13 @@ export default function ClientRecordBook() {
                   <label>
                     Location / City
                     <div className={validationErrors.location ? 'error' : ''}>
-                      <HybridLocationPicker 
-                        value={formData.location || ''} 
-                        disabled={modalMode === 'view'} 
+                      <HybridLocationPicker
+                        value={formData.location || ''}
+                        disabled={modalMode === 'view'}
                         onChange={(value) => {
                           setFormData({ ...formData, location: value })
                           setValidationErrors(prev => ({ ...prev, location: null }))
-                        }} 
+                        }}
                       />
                     </div>
                     {validationErrors.location && <span className="form-error">{validationErrors.location}</span>}
@@ -1041,7 +1042,7 @@ export default function ClientRecordBook() {
 
               <div>
                 <h4 style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12, borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
-                  💼 Employment & Financial Profile
+                  <Briefcase size={14} style={{ marginRight: 6, verticalAlign: "middle" }} /> Employment & Financial Profile
                 </h4>
                 <div className="form-grid">
                   <label>
@@ -1056,31 +1057,31 @@ export default function ClientRecordBook() {
                   </label>
                   <label>
                     Monthly Net Income (₹)
-                    <input 
-                      type="number" 
-                      min="0" 
+                    <input
+                      type="number"
+                      min="0"
                       className={validationErrors.monthly_net_income ? 'error' : ''}
-                      value={formData.monthly_net_income || ''} 
-                      disabled={modalMode === 'view'} 
+                      value={formData.monthly_net_income || ''}
+                      disabled={modalMode === 'view'}
                       onChange={(e) => {
                         setFormData({ ...formData, monthly_net_income: e.target.value })
                         setValidationErrors(prev => ({ ...prev, monthly_net_income: null }))
-                      }} 
+                      }}
                     />
                     {validationErrors.monthly_net_income && <span className="form-error">{validationErrors.monthly_net_income}</span>}
                   </label>
                   <label>
                     Co-Applicant Net Income (₹)
-                    <input 
-                      type="number" 
-                      min="0" 
+                    <input
+                      type="number"
+                      min="0"
                       className={validationErrors.co_applicant_income ? 'error' : ''}
-                      value={formData.co_applicant_income || ''} 
-                      disabled={modalMode === 'view'} 
+                      value={formData.co_applicant_income || ''}
+                      disabled={modalMode === 'view'}
                       onChange={(e) => {
                         setFormData({ ...formData, co_applicant_income: e.target.value })
                         setValidationErrors(prev => ({ ...prev, co_applicant_income: null }))
-                      }} 
+                      }}
                     />
                     {validationErrors.co_applicant_income && <span className="form-error">{validationErrors.co_applicant_income}</span>}
                   </label>
@@ -1095,16 +1096,16 @@ export default function ClientRecordBook() {
                   </label>
                   <label className="form-grid-full">
                     Tenure at Current Address (Years)
-                    <input 
-                      type="number" 
-                      min="0" 
+                    <input
+                      type="number"
+                      min="0"
                       className={validationErrors.tenure_at_address ? 'error' : ''}
-                      value={formData.tenure_at_address || ''} 
-                      disabled={modalMode === 'view'} 
+                      value={formData.tenure_at_address || ''}
+                      disabled={modalMode === 'view'}
                       onChange={(e) => {
                         setFormData({ ...formData, tenure_at_address: e.target.value })
                         setValidationErrors(prev => ({ ...prev, tenure_at_address: null }))
-                      }} 
+                      }}
                     />
                     {validationErrors.tenure_at_address && <span className="form-error">{validationErrors.tenure_at_address}</span>}
                   </label>
@@ -1113,20 +1114,20 @@ export default function ClientRecordBook() {
 
               <div>
                 <h4 style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12, borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
-                  💰 Lending Parameters
+                  <Coins size={14} style={{ marginRight: 6, verticalAlign: "middle" }} /> Lending Parameters
                 </h4>
                 <div className="form-grid">
                   <label>
                     File No.
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       className={validationErrors.file_no ? 'error' : ''}
-                      value={formData.file_no} 
-                      disabled={modalMode === 'view'} 
+                      value={formData.file_no}
+                      disabled={modalMode === 'view'}
                       onChange={(e) => {
                         setFormData({ ...formData, file_no: e.target.value })
                         setValidationErrors(prev => ({ ...prev, file_no: null }))
-                      }} 
+                      }}
                     />
                     {validationErrors.file_no && <span className="form-error">{validationErrors.file_no}</span>}
                   </label>
@@ -1138,30 +1139,30 @@ export default function ClientRecordBook() {
                   </label>
                   <label>
                     Amount (₹)
-                    <input 
-                      type="number" 
-                      min="0" 
+                    <input
+                      type="number"
+                      min="0"
                       className={validationErrors.amount ? 'error' : ''}
-                      value={formData.amount} 
-                      disabled={modalMode === 'view'} 
+                      value={formData.amount}
+                      disabled={modalMode === 'view'}
                       onChange={(e) => {
                         setFormData({ ...formData, amount: e.target.value })
                         setValidationErrors(prev => ({ ...prev, amount: null }))
-                      }} 
+                      }}
                     />
                     {validationErrors.amount && <span className="form-error">{validationErrors.amount}</span>}
                   </label>
                   <label>
                     Application Date
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       className={validationErrors.date ? 'error' : ''}
-                      value={formData.date} 
-                      disabled={modalMode === 'view'} 
+                      value={formData.date}
+                      disabled={modalMode === 'view'}
                       onChange={(e) => {
                         setFormData({ ...formData, date: e.target.value })
                         setValidationErrors(prev => ({ ...prev, date: null }))
-                      }} 
+                      }}
                     />
                     {validationErrors.date && <span className="form-error">{validationErrors.date}</span>}
                   </label>
@@ -1170,7 +1171,7 @@ export default function ClientRecordBook() {
 
               <div>
                 <h4 style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12, borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
-                  🏢 Status & Assignment
+                  <Building2 size={14} style={{ marginRight: 6, verticalAlign: "middle" }} /> Status & Assignment
                 </h4>
                 <div className="form-grid">
                   <label>
@@ -1189,7 +1190,7 @@ export default function ClientRecordBook() {
             {modalMode !== 'add' && (
               <div style={{ marginTop: 24, borderTop: '1px solid var(--border)', paddingTop: 18 }}>
                 <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-primary)' }}>
-                  <span>📁</span> KYC Documents Verification
+                  <FolderCheck size={16} style={{ marginRight: 6, verticalAlign: "middle" }} /> KYC Documents Verification
                 </h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
                   {['PAN Card', 'Aadhaar Card', 'IT Return', 'Bank Statement'].map((doc) => {
@@ -1205,7 +1206,7 @@ export default function ClientRecordBook() {
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{ fontSize: 16 }}>
-                            {clientDocStatus === 'success' ? '✅' : progress !== undefined ? '⏳' : '📄'}
+                            {clientDocStatus === 'success' ? <CheckCircle size={16} color="green" /> : progress !== undefined ? <Hourglass size={16} /> : <FileText size={16} />}
                           </span>
                           <div>
                             <div style={{ fontWeight: 600, fontSize: 12, color: 'var(--text-primary)' }}>{doc}</div>
@@ -1275,9 +1276,9 @@ export default function ClientRecordBook() {
         )}
 
         {scannerOpen && (
-          <Modal 
-            title={`KYC ${scanType === 'pan' ? 'PAN Card' : 'Aadhaar Card'} Camera Scanner`} 
-            onClose={handleStopScan} 
+          <Modal
+            title={`KYC ${scanType === 'pan' ? 'PAN Card' : 'Aadhaar Card'} Camera Scanner`}
+            onClose={handleStopScan}
             size="md"
           >
             <div className="camera-scanner-modal-body">
@@ -1322,27 +1323,27 @@ export default function ClientRecordBook() {
                     <div className="mock-camera-badge">Simulated Camera Stream Active</div>
                   </div>
                 ) : (
-                  <video 
-                    id="scanner-video-feed" 
-                    className="camera-video-element" 
-                    muted 
-                    playsInline 
+                  <video
+                    id="scanner-video-feed"
+                    className="camera-video-element"
+                    muted
+                    playsInline
                   />
                 )}
               </div>
 
               <div className="camera-scanner-controls">
-                <button 
-                  type="button" 
-                  className="data-btn data-btn-outline" 
+                <button
+                  type="button"
+                  className="data-btn data-btn-outline"
                   onClick={handleStopScan}
                 >
                   Cancel
                 </button>
                 {['camera_active', 'mock_active'].includes(scanStatus) && (
-                  <button 
-                    type="button" 
-                    className="data-btn data-btn-primary" 
+                  <button
+                    type="button"
+                    className="data-btn data-btn-primary"
                     onClick={handleCapture}
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 14, height: 14, marginRight: 6, display: 'inline-block', verticalAlign: 'middle' }}>

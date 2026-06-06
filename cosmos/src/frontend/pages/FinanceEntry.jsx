@@ -6,6 +6,7 @@ import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import useConfirm from '../hooks/useConfirm'
 import './FinanceEntry.css'
+import { X, Plus, Check, Save, FileText, Edit, Trash2 } from 'lucide-react';
 
 // Helper to calculate due date and urgency dynamically
 function getDueInfo(clientDateStr) {
@@ -404,7 +405,7 @@ export default function FinanceEntry() {
               }
             }}
           >
-            {isFormOpen ? '✕ Close Form' : '+ New Client Entry'}
+            {isFormOpen ? '<X size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> Close Form' : '<Plus size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> New Client Entry'}
           </button>
         </div>
 
@@ -433,7 +434,7 @@ export default function FinanceEntry() {
                   <path d="M9 12l2 2 4-4" />
                 </svg>
               </div>
-              <span className="kpi-tag trend-up">✓ 94% retention rate</span>
+              <span className="kpi-tag trend-up"><Check size={14} style={{marginRight: 4, verticalAlign: "middle"}} /> 94% retention rate</span>
             </div>
             <div className="kpi-body">
               <div className="kpi-title">ACTIVE INVESTMENTS</div>
@@ -683,7 +684,7 @@ export default function FinanceEntry() {
                 className="data-btn data-btn-outline" 
                 onClick={handleExportCSV}
               >
-                💾 Export Excel
+                <Save size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> Export Excel
               </button>
             </div>
           </div>
@@ -744,14 +745,14 @@ export default function FinanceEntry() {
                         {activeMenuId === rec.id && (
                           <div className="profile-dropdown" style={{ top: 'auto', right: 0, bottom: '100%', zIndex: 100, width: 140 }}>
                             <button type="button" className="profile-dropdown-item" onClick={() => { setViewRecord(rec); setActiveMenuId(null) }}>
-                              📄 View Details
+                              <FileText size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View Details
                             </button>
                             <button type="button" className="profile-dropdown-item" onClick={() => handleEditRecord(rec)}>
-                              ✏️ Edit Details
+                              <Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit Details
                             </button>
                             <div className="profile-dropdown-divider" />
                             <button type="button" className="profile-dropdown-item danger" onClick={() => handleDeleteRecord(rec)}>
-                              🗑️ Delete Record
+                              <Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Delete Record
                             </button>
                           </div>
                         )}
