@@ -12,14 +12,14 @@ function getDaysRemainingInfo(endDateStr) {
   const eDate = new Date(endDateStr || '2026-12-31')
   const diffTime = eDate.getTime() - today.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  
+
   let barColor = 'green'
   if (diffDays <= 30) {
     barColor = 'red'
   } else if (diffDays <= 90) {
     barColor = 'orange'
   }
-  
+
   return { remainingDays: Math.max(0, diffDays), barColor }
 }
 
@@ -46,6 +46,7 @@ export default function FinanceInvestment() {
   const [nomineeAadhaar, setNomineeAadhaar] = useState('')
   const [nomineePan, setNomineePan] = useState('')
   const [address, setAddress] = useState('')
+  const [googleDriveLink, setGoogleDriveLink] = useState('')
 
   // Edit Mode state
   const [editId, setEditId] = useState(null)
@@ -121,14 +122,14 @@ export default function FinanceInvestment() {
       const start = inv.start_date || inv.startDate || '2026-06-06'
       const end = inv.end_date || inv.endDate || '2027-06-06'
       const amount = Number(inv.amount) || 0
-      
+
       // Calculate interest rate
       let rate = 0.08
       if (inv.duration === '6 Months') rate = 0.07
       else if (inv.duration === '12 Months') rate = 0.08
       else if (inv.duration === '24 Months') rate = 0.09
       else if (inv.duration === '36 Months') rate = 0.10
-      
+
       const interest = Math.round(amount * rate)
       const { remainingDays, barColor } = getDaysRemainingInfo(end)
 
@@ -160,7 +161,7 @@ export default function FinanceInvestment() {
       const matchSearch = !query ||
         rec.partner.toLowerCase().includes(query) ||
         rec.id.toLowerCase().includes(query)
-      
+
       const matchStatus = statusFilter === 'All' || rec.status === statusFilter
       return matchSearch && matchStatus
     })
@@ -187,6 +188,7 @@ export default function FinanceInvestment() {
     setNomineeAadhaar('')
     setNomineePan('')
     setAddress('')
+    setGoogleDriveLink('')
   }
 
   const handleCancel = () => {
@@ -227,6 +229,7 @@ export default function FinanceInvestment() {
       nominee_aadhaar: nomineeAadhaar,
       nominee_pan: nomineePan.toUpperCase(),
       address,
+      google_drive_link: googleDriveLink,
       status: 'Active'
     }
 
@@ -261,6 +264,7 @@ export default function FinanceInvestment() {
     setNomineeAadhaar(orig.nominee_aadhaar || '')
     setNomineePan(orig.nominee_pan || '')
     setAddress(orig.address || '')
+    setGoogleDriveLink(orig.google_drive_link || '')
 
     setIsFormOpen(true)
     setActiveMenuId(null)
@@ -315,8 +319,8 @@ export default function FinanceInvestment() {
       <div className="finance-investment-page">
         {/* Toggle shortcut row */}
         <div className="finance-investment-actions-row">
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="data-btn data-btn-primary"
             onClick={() => {
               if (isFormOpen && editId) {
@@ -385,7 +389,7 @@ export default function FinanceInvestment() {
             <div className="form-header-row">
               <div className="form-title-wrap">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
                 <span>{editId ? 'Modify Investment Record' : 'Investment Entry Form'}</span>
               </div>
@@ -397,21 +401,30 @@ export default function FinanceInvestment() {
             <div className="investment-form-grid">
               <label>
                 Partner Name *
-                <input 
-                  type="text" 
-                  placeholder="Enter full name" 
-                  value={partnerName} 
-                  onChange={e => setPartnerName(e.target.value)} 
+                <input
+                  type="text"
+                  placeholder="Enter full name"
+                  value={partnerName}
+                  onChange={e => setPartnerName(e.target.value)}
                 />
               </label>
 
               <label>
                 Investment Amount (₹) *
-                <input 
-                  type="number" 
-                  placeholder="0.00" 
-                  value={investmentAmount} 
-                  onChange={e => setInvestmentAmount(e.target.value)} 
+                <input
+                  type="number"
+                  placeholder="0.00"
+                  value={investmentAmount}
+                  onChange={e => setInvestmentAmount(e.target.value)}
+                />
+              </label>
+              <label className="span-2" style={{ marginTop: -8 }}>
+                Google Drive Link
+                <input
+                  type="url"
+                  placeholder="https://drive.google.com/..."
+                  value={googleDriveLink}
+                  onChange={e => setGoogleDriveLink(e.target.value)}
                 />
               </label>
 
@@ -427,90 +440,90 @@ export default function FinanceInvestment() {
 
               <label>
                 Partner Mobile
-                <input 
-                  type="text" 
-                  placeholder="+91 XXXXX XXXXX" 
-                  value={mobileNumber} 
-                  onChange={e => setMobileNumber(e.target.value)} 
+                <input
+                  type="text"
+                  placeholder="+91 XXXXX XXXXX"
+                  value={mobileNumber}
+                  onChange={e => setMobileNumber(e.target.value)}
                 />
               </label>
 
               <label>
                 Partner Aadhaar
-                <input 
-                  type="text" 
-                  placeholder="XXXX XXXX XXXX" 
-                  value={aadhaarNumber} 
-                  onChange={e => setAadhaarNumber(e.target.value)} 
+                <input
+                  type="text"
+                  placeholder="XXXX XXXX XXXX"
+                  value={aadhaarNumber}
+                  onChange={e => setAadhaarNumber(e.target.value)}
                 />
               </label>
 
               <label>
                 Start Date *
-                <input 
-                  type="date" 
-                  value={startDate} 
-                  onChange={e => setStartDate(e.target.value)} 
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={e => setStartDate(e.target.value)}
                 />
               </label>
 
               <label>
                 End Date (Auto)
-                <input 
-                  type="date" 
-                  value={endDate} 
-                  disabled 
+                <input
+                  type="date"
+                  value={endDate}
+                  disabled
                   style={{ background: 'var(--bg-muted)', cursor: 'not-allowed' }}
                 />
               </label>
 
               <label>
                 Partner PAN
-                <input 
-                  type="text" 
-                  placeholder="ABCDE1234F" 
-                  value={panNumber} 
-                  onChange={e => setPanNumber(e.target.value)} 
+                <input
+                  type="text"
+                  placeholder="ABCDE1234F"
+                  value={panNumber}
+                  onChange={e => setPanNumber(e.target.value)}
                 />
               </label>
 
               <label>
                 Nominee Name
-                <input 
-                  type="text" 
-                  placeholder="Relationship Holder" 
-                  value={nomineeName} 
-                  onChange={e => setNomineeName(e.target.value)} 
+                <input
+                  type="text"
+                  placeholder="Relationship Holder"
+                  value={nomineeName}
+                  onChange={e => setNomineeName(e.target.value)}
                 />
               </label>
 
               <label className="span-2">
                 Remarks
-                <input 
-                  type="text" 
-                  placeholder="Internal notes..." 
-                  value={remarks} 
-                  onChange={e => setRemarks(e.target.value)} 
+                <input
+                  type="text"
+                  placeholder="Internal notes..."
+                  value={remarks}
+                  onChange={e => setRemarks(e.target.value)}
                 />
               </label>
 
               <label>
                 Nominee Aadhaar
-                <input 
-                  type="text" 
-                  placeholder="XXXX XXXX XXXX" 
-                  value={nomineeAadhaar} 
-                  onChange={e => setNomineeAadhaar(e.target.value)} 
+                <input
+                  type="text"
+                  placeholder="XXXX XXXX XXXX"
+                  value={nomineeAadhaar}
+                  onChange={e => setNomineeAadhaar(e.target.value)}
                 />
               </label>
 
               <label>
                 Nominee PAN
-                <input 
-                  type="text" 
-                  placeholder="PAN NUMBER" 
-                  value={nomineePan} 
-                  onChange={e => setNomineePan(e.target.value)} 
+                <input
+                  type="text"
+                  placeholder="PAN NUMBER"
+                  value={nomineePan}
+                  onChange={e => setNomineePan(e.target.value)}
                 />
               </label>
 
@@ -522,11 +535,11 @@ export default function FinanceInvestment() {
 
               <label className="span-2" style={{ marginTop: -8 }}>
                 Address
-                <textarea 
-                  rows={3} 
-                  placeholder="Residential/Business address details..." 
-                  value={address} 
-                  onChange={e => setAddress(e.target.value)} 
+                <textarea
+                  rows={3}
+                  placeholder="Residential/Business address details..."
+                  value={address}
+                  onChange={e => setAddress(e.target.value)}
                   style={{ resize: 'none' }}
                 />
               </label>
@@ -545,9 +558,9 @@ export default function FinanceInvestment() {
             </div>
 
             <div className="records-filter-toolbar">
-              <select 
-                className="data-filter-select" 
-                value={statusFilter} 
+              <select
+                className="data-filter-select"
+                value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value)}
               >
                 <option value="All">All Status</option>
@@ -559,17 +572,17 @@ export default function FinanceInvestment() {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                <input 
-                  type="text" 
-                  placeholder="Search partner..." 
+                <input
+                  type="text"
+                  placeholder="Search partner..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                 />
               </div>
 
-              <button 
-                type="button" 
-                className="data-btn data-btn-outline" 
+              <button
+                type="button"
+                className="data-btn data-btn-outline"
                 onClick={handleExportCSV}
                 style={{ display: 'inline-flex', alignSelf: 'center', gap: 6 }}
               >
@@ -611,9 +624,9 @@ export default function FinanceInvestment() {
                         <div className="remaining-days-bar-container">
                           <span className="remaining-days-text">{rec.remainingDays} Days</span>
                           <div className="remaining-days-bar-bg">
-                            <div 
-                              className={`remaining-days-bar-fill ${rec.barColor}`} 
-                              style={{ width: `${Math.min(100, (rec.remainingDays / 540) * 100)}%` }} 
+                            <div
+                              className={`remaining-days-bar-fill ${rec.barColor}`}
+                              style={{ width: `${Math.min(100, (rec.remainingDays / 540) * 100)}%` }}
                             />
                           </div>
                         </div>
@@ -625,25 +638,25 @@ export default function FinanceInvestment() {
                       </td>
                       <td style={{ textAlign: 'right', position: 'relative' }}>
                         <div style={{ display: 'inline-flex', gap: 10 }}>
-                          <button 
-                            type="button" 
-                            className="panel-more-btn" 
+                          <button
+                            type="button"
+                            className="panel-more-btn"
                             title="View Details"
                             onClick={() => setViewRecord(rec)}
                           >
                             👁️
                           </button>
-                          <button 
-                            type="button" 
-                            className="panel-more-btn" 
+                          <button
+                            type="button"
+                            className="panel-more-btn"
                             title="Edit Record"
                             onClick={() => handleEditRecord(rec)}
                           >
                             ✏️
                           </button>
-                          <button 
-                            type="button" 
-                            className="panel-more-btn" 
+                          <button
+                            type="button"
+                            className="panel-more-btn"
                             title="More Actions"
                             onClick={(e) => triggerActionMenu(e, rec.id)}
                           >
@@ -723,6 +736,19 @@ export default function FinanceInvestment() {
                 <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Nominee Aadhaar:</span>
                 <span style={{ fontFamily: 'monospace' }}>{viewRecord.originalInvestment.nominee_aadhaar || '—'}</span>
               </div>
+              {viewRecord.originalInvestment.google_drive_link && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Google Drive Link:</span>
+                  <a
+                    href={viewRecord.originalInvestment.google_drive_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'var(--accent)', fontWeight: 700, textDecoration: 'underline' }}
+                  >
+                    Open Google Drive 🔗
+                  </a>
+                </div>
+              )}
               {viewRecord.originalInvestment.address && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
                   <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Billing Address:</span>
