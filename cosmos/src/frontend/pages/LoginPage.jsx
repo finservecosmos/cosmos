@@ -23,6 +23,7 @@ function LoginPage() {
   const [resetLoading, setResetLoading] = useState(false)
   const [bioModalOpen, setBioModalOpen] = useState(false)
   const [bioState, setBioState] = useState('idle') // 'idle' | 'scanning' | 'success'
+  const [regConfirmOpen, setRegConfirmOpen] = useState(false)
 
   useEffect(() => {
     document.title = 'Login | Cosmos'
@@ -108,20 +109,135 @@ function LoginPage() {
     setResetOpen(false)
   }
 
-  const handleBiometricLogin = () => {
-    setBioModalOpen(true)
-    setBioState('scanning')
+  const handleBiometricLogin = async () => {
+    setError('')
+    
+    // Check WebAuthn support
+    const isSupported = window.PublicKeyCredential && 
+      typeof window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function';
+    
+    if (!isSupported) {
+      runSimulatedBypass();
+      return;
+    }
+
+    try {
+      const isPlatformAvailable = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      if (!isPlatformAvailable) {
+        runSimulatedBypass();
+        return;
+      }
+      
+      const savedCredStr = localStorage.getItem('cosmos_passkey');
+      if (savedCredStr) {
+        setBioModalOpen(true);
+        setBioState('scanning');
+        
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+        
+        const savedCred = JSON.parse(savedCredStr);
+        const options = {
+          challenge: challenge,
+          rpId: window.location.hostname,
+          allowCredentials: [{
+            id: new Uint8Array(savedCred.rawId),
+            type: 'public-key'
+          }],
+          userVerification: "required"
+        };
+        
+        const assertion = await navigator.credentials.get({ publicKey: options });
+        if (assertion) {
+          setBioState('success');
+          setTimeout(() => {
+            setBioModalOpen(false);
+            sessionStorage.setItem('dev_auth', 'true');
+            addToast('Passkey verified successfully!', 'success');
+            navigate('/dashboard');
+          }, 1200);
+        }
+      } else {
+        setRegConfirmOpen(true);
+      }
+    } catch (err) {
+      console.warn('WebAuthn process error, using simulation fallback:', err);
+      addToast('Real Passkey verification not completed. Using simulation mode.', 'warning');
+      runSimulatedBypass();
+    }
+  }
+
+  const runSimulatedBypass = () => {
+    setBioModalOpen(true);
+    setBioState('scanning');
 
     setTimeout(() => {
-      setBioState('success')
-      
+      setBioState('success');
       setTimeout(() => {
-        setBioModalOpen(false)
-        sessionStorage.setItem('dev_auth', 'true')
-        addToast('Biometric authentication verified!', 'success')
-        navigate('/dashboard')
-      }, 1200)
-    }, 2000)
+        setBioModalOpen(false);
+        sessionStorage.setItem('dev_auth', 'true');
+        addToast('Biometric authentication verified! (Simulation Mode)', 'success');
+        navigate('/dashboard');
+      }, 1200);
+    }, 2000);
+  }
+
+  const handleRegisterPasskey = async () => {
+    setRegConfirmOpen(false);
+    setBioModalOpen(true);
+    setBioState('scanning');
+
+    try {
+      const challenge = new Uint8Array(32);
+      window.crypto.getRandomValues(challenge);
+      
+      const userId = new Uint8Array(16);
+      window.crypto.getRandomValues(userId);
+      
+      const options = {
+        challenge: challenge,
+        rp: {
+          name: "Cosmos Finserve",
+          id: window.location.hostname
+        },
+        user: {
+          id: userId,
+          name: email || "dev@cosmos.com",
+          displayName: email ? email.split('@')[0] : "Cosmos Developer"
+        },
+        pubKeyCredParams: [
+          { type: "public-key", alg: -7 },
+          { type: "public-key", alg: -257 }
+        ],
+        authenticatorSelection: {
+          authenticatorAttachment: "platform",
+          userVerification: "required"
+        },
+        timeout: 60000
+      };
+
+      const credential = await navigator.credentials.create({ publicKey: options });
+      if (credential) {
+        const credInfo = {
+          id: credential.id,
+          rawId: Array.from(new Uint8Array(credential.rawId))
+        };
+        localStorage.setItem('cosmos_passkey', JSON.stringify(credInfo));
+        setBioState('success');
+        
+        setTimeout(() => {
+          setBioModalOpen(false);
+          sessionStorage.setItem('dev_auth', 'true');
+          addToast('Passkey registered and logged in successfully!', 'success');
+          navigate('/dashboard');
+        }, 1200);
+      }
+    } catch (err) {
+      console.error('Registration failed:', err);
+      setBioModalOpen(false);
+      addToast('Passkey registration not completed. Using simulation mode.', 'warning');
+      runSimulatedBypass();
+    }
   }
 
   return (
@@ -286,6 +402,41 @@ function LoginPage() {
               {bioState === 'scanning' && 'Please place your finger on the sensor or scan your face.'}
               {bioState === 'success' && 'Welcome back, Cosmos User!'}
             </p>
+          </div>
+        </Modal>
+      )}
+
+      {regConfirmOpen && (
+        <Modal 
+          title="Register Device Passkey" 
+          onClose={() => setRegConfirmOpen(false)} 
+          size="sm"
+        >
+          <div style={{ padding: '8px 0' }}>
+            <p style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.5 }}>
+              No passkey is registered on this device yet. Would you like to link your device's biometric authentication (Face ID, Touch ID, or Windows Hello) as a secure login method?
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 16 }}>
+              <button 
+                type="button" 
+                className="biometric-btn" 
+                style={{ width: 'auto', padding: '8px 16px', background: 'none', border: '1.5px solid var(--border-input)', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
+                onClick={() => {
+                  setRegConfirmOpen(false);
+                  runSimulatedBypass();
+                }}
+              >
+                Use Simulation Mode
+              </button>
+              <button 
+                type="button" 
+                className="data-btn data-btn-primary" 
+                style={{ padding: '8px 16px', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
+                onClick={handleRegisterPasskey}
+              >
+                Register Passkey
+              </button>
+            </div>
           </div>
         </Modal>
       )}

@@ -110,3 +110,36 @@
 }
 .logout-btn:hover { color: var(--accent); }
 .logout-btn svg { width: 16px; height: 16px; }
+
+.new-enquiry-shortcut-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #111827;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.new-enquiry-shortcut-btn:hover {
+  background: #1f2937;
+}
+
+.new-enquiry-shortcut-btn:active {
+  transform: scale(0.98);
+}
+
+.new-enquiry-shortcut-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: #ffffff;
+}
+

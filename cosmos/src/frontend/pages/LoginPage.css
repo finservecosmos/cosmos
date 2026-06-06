@@ -14,7 +14,7 @@
   display: flex;
   width: 100%;
   max-width: 860px;
-  max-height: 530px;
+  max-height: 630px;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
@@ -193,11 +193,11 @@
   transition: background 0.2s;
 }
 
-.toggle-label input[type='checkbox']:checked + .toggle-circle {
+.toggle-label input[type='checkbox']:checked+.toggle-circle {
   background: #c0392b;
 }
 
-.toggle-label input[type='checkbox']:focus-visible + .toggle-circle {
+.toggle-label input[type='checkbox']:focus-visible+.toggle-circle {
   outline: 2px solid #c0392b;
   outline-offset: 2px;
 }
@@ -297,7 +297,8 @@
   }
 
   .login-left {
-    display: none; /* hide hero on mobile */
+    display: none;
+    /* hide hero on mobile */
   }
 
   .login-right {
@@ -423,9 +424,12 @@
 }
 
 @keyframes laserScan {
-  0%, 100% {
+
+  0%,
+  100% {
     top: 10%;
   }
+
   50% {
     top: 90%;
   }
@@ -446,5 +450,3 @@
   text-align: center;
   max-width: 260px;
 }
-
-

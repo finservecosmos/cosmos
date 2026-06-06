@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '../../context/ThemeContext'
 import { useUser } from '../../context/UserContext'
 import { dummySearchIndex } from '../../lib/dummyData'
@@ -14,10 +14,68 @@ const tabs = [
   { label: 'Reminders',          path: '/dashboard/reminders',       end: false },
 ]
 
+const PAGE_HEADERS = {
+  '/finance/overview': {
+    title: 'Finance Overview Dashboard',
+    description: 'Monitor investments, outstanding amounts, bank balances, and financial performance.'
+  },
+  '/clients': {
+    title: 'Client Record Book',
+    description: 'Manage clients, KYC profiles, document verification, and statuses.'
+  },
+  '/associates': {
+    title: 'Associates Book',
+    description: 'Track business associates, assignments, and performances.'
+  },
+  '/payments/invoice': {
+    title: 'Invoice Builder',
+    description: 'Generate custom invoices and manage financial billing.'
+  },
+  '/payments/products': {
+    title: 'Product & Service Book',
+    description: 'Manage financial products, interest structures, and services.'
+  },
+  '/backup': {
+    title: 'Backup Data',
+    description: 'Export data logs, configure manual checkpoints, and restore system state.'
+  },
+  '/profile': {
+    title: 'Profile Settings',
+    description: 'Configure personal settings, upload security verification files, and manage security.'
+  },
+  '/notifications': {
+    title: 'Notifications Central',
+    description: 'View all recent audit logs, warnings, and compliance alerts.'
+  },
+  '/admin/users': {
+    title: 'User Management',
+    description: 'Add, update, or remove personnel and staff accounts.'
+  },
+  '/admin/roles': {
+    title: 'Roles & Access Control',
+    description: 'Define system privilege mappings and role permissions.'
+  },
+  '/admin/audit-log': {
+    title: 'System Audit Log',
+    description: 'Monitor security-sensitive changes and login histories.'
+  },
+  '/admin/settings': {
+    title: 'System Settings',
+    description: 'Manage auto-logout policies, biometric features, and global parameters.'
+  }
+}
+
 function Topbar({ onToggleSidebar }) {
   const { theme, toggleTheme } = useTheme()
   const { user } = useUser()
   const navigate = useNavigate()
+  const location = useLocation()
+  
+  const showTabs = location.pathname.startsWith('/dashboard')
+  const pageHeader = PAGE_HEADERS[location.pathname] || {
+    title: 'Cosmos Finserve',
+    description: 'Enterprise Finance Operations Platform'
+  }
 
   // ── Search ──────────────────────────────────────────────
   const [query, setQuery] = useState('')
@@ -125,19 +183,26 @@ function Topbar({ onToggleSidebar }) {
         </svg>
       </button>
 
-      {/* Tabs */}
-      <nav className="topbar-tabs" aria-label="Dashboard sections">
-        {tabs.map((tab) => (
-          <NavLink
-            key={tab.path}
-            to={tab.path}
-            end={tab.end}
-            className={({ isActive }) => 'topbar-tab' + (isActive ? ' active' : '')}
-          >
-            {tab.label}
-          </NavLink>
-        ))}
-      </nav>
+      {/* Tabs / Page Headers */}
+      {showTabs ? (
+        <nav className="topbar-tabs" aria-label="Dashboard sections">
+          {tabs.map((tab) => (
+            <NavLink
+              key={tab.path}
+              to={tab.path}
+              end={tab.end}
+              className={({ isActive }) => 'topbar-tab' + (isActive ? ' active' : '')}
+            >
+              {tab.label}
+            </NavLink>
+          ))}
+        </nav>
+      ) : (
+        <div className="topbar-header-left">
+          <h1 className="topbar-title">{pageHeader.title}</h1>
+          <p className="topbar-desc">{pageHeader.description}</p>
+        </div>
+      )}
 
       {/* Right actions */}
       <div className="topbar-actions">

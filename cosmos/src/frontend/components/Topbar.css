@@ -14,6 +14,36 @@
   gap: 16px;
 }
 
+/* Left-aligned page header */
+.topbar-header-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  flex: 1;
+}
+
+.topbar-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-desc {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Tabs */
 .topbar-tabs {
   display: flex;
@@ -273,6 +303,14 @@
 
   .topbar-search input {
     width: 100px;
+  }
+
+  .topbar-desc {
+    display: none;
+  }
+
+  .topbar-title {
+    font-size: 13px;
   }
 }
 
