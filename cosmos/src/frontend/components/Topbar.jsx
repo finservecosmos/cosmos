@@ -19,6 +19,10 @@ const PAGE_HEADERS = {
     title: 'Finance Overview Dashboard',
     description: 'Monitor investments, outstanding amounts, bank balances, and financial performance.'
   },
+  '/finance/entry': {
+    title: 'Finance Entry',
+    description: 'Manage investment entries, due dates, interest calculations, and investor records.'
+  },
   '/clients': {
     title: 'Client Record Book',
     description: 'Manage clients, KYC profiles, document verification, and statuses.'

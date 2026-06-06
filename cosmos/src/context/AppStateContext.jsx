@@ -44,6 +44,11 @@ export function AppStateProvider({ children }) {
     { id: 3, name: 'Ravi Patel',    email: 'ravi@cosmos.local',   role: 'staff',   status: 'active' },
     { id: 4, name: 'Sunita Rao',    email: 'sunita@cosmos.local', role: 'advisor', status: 'inactive' },
   ])
+  const [investments, setInvestments] = useState([
+    { id: 'I001', partner: 'Charles', amount: 500000, interest_rate: 0.08, duration: '12 Months', start_date: '2025-12-15', nominee_name: 'Jane Doe', remarks: 'Seed funding', status: 'Active', pan_card: 'ABCDE1234F', aadhaar_number: '987654321012', mobile: '9000080000', nominee_aadhaar: '123456789012', nominee_pan: 'FGHIJ5678K', address: '123, Main Street, Mumbai' },
+    { id: 'I002', partner: 'Prabhu', amount: 200000, interest_rate: 0.07, duration: '6 Months', start_date: '2026-03-05', nominee_name: 'Rajesh P', remarks: 'Core investment', status: 'Active', pan_card: 'FGHIJ5678K', aadhaar_number: '876543210987', mobile: '9000080000', nominee_aadhaar: '234567890123', nominee_pan: 'KLMNO9012P', address: '456, Park Road, Bangalore' },
+    { id: 'I003', partner: 'MP Kumar', amount: 1000000, interest_rate: 0.09, duration: '24 Months', start_date: '2026-01-01', nominee_name: 'Suresh Kumar', remarks: 'Expansion capital', status: 'Active', pan_card: 'KLMNO9012P', aadhaar_number: '765432109876', mobile: '9000080000', nominee_aadhaar: '345678901234', nominee_pan: 'PQRST3456Q', address: '789, Residency Lane, Pune' }
+  ])
 
   /* ─── Sync 1: Dynamic Associate Performance metrics ───────── */
   const computedAssociates = associates.map(a => {

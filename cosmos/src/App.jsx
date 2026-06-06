@@ -21,6 +21,7 @@ import AuditLog           from './frontend/pages/admin/AuditLog'
 import SystemSettings     from './frontend/pages/admin/SystemSettings'
 import ProtectedRoute     from './frontend/components/ProtectedRoute'
 import FinanceOverview    from './frontend/pages/FinanceOverview'
+import FinanceEntry       from './frontend/pages/FinanceEntry'
 
 const PR = ({ roles, children }) => <ProtectedRoute allowedRoles={roles}>{children}</ProtectedRoute>
 
@@ -46,6 +47,7 @@ function App() {
            <Route path="/payments/invoice"  element={<PR roles={['admin','advisor']}><Invoice /></PR>} />
           <Route path="/payments/products" element={<PR roles={['admin','advisor']}><ProductServiceBook /></PR>} />
           <Route path="/finance/overview"  element={<PR roles={['admin','advisor','staff']}><FinanceOverview /></PR>} />
+          <Route path="/finance/entry"     element={<PR roles={['admin','advisor','staff']}><FinanceEntry /></PR>} />
           <Route path="/backup"            element={<PR roles={['admin']}><BackupData /></PR>} />
           <Route path="/profile"           element={<PR roles={['admin','advisor','staff']}><ProfilePage /></PR>} />
           <Route path="/notifications"     element={<PR roles={['admin','advisor','staff']}><NotificationsPage /></PR>} />
