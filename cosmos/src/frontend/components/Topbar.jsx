@@ -27,6 +27,10 @@ const PAGE_HEADERS = {
     title: 'Investment Management',
     description: 'Manage partner investments, nominee details, maturity dates, and investment records.'
   },
+  '/finance/income-expenses': {
+    title: 'Income & Expenses',
+    description: 'Track, manage, and analyze all company income and expense transactions.'
+  },
   '/clients': {
     title: 'Client Record Book',
     description: 'Manage clients, KYC profiles, document verification, and statuses.'

@@ -64,7 +64,7 @@ export default function FinanceOverview() {
   const navigate = useNavigate()
   const { addToast } = useToast()
   const confirm = useConfirm()
-  const { clients, updateClient, investments } = useAppState()
+  const { clients, updateClient, investments, transactions } = useAppState()
 
   // Filters state
   const [fromDate, setFromDate] = useState('')
@@ -110,6 +110,13 @@ export default function FinanceOverview() {
       .filter(c => ['Approved', 'Processing'].includes(c.status))
       .reduce((sum, c) => sum + Number(c.amount || 0), 0)
   }, [clients])
+
+  const currentBankBalance = useMemo(() => {
+    const list = transactions || []
+    const totalIncome = list.filter(t => t.type === 'Income').reduce((sum, t) => sum + Number(t.amount || 0), 0)
+    const totalExpenses = list.filter(t => t.type === 'Expense').reduce((sum, t) => sum + Number(t.amount || 0), 0)
+    return 10000 + totalIncome - totalExpenses
+  }, [transactions])
 
   // Derive all due records reactively from global clients state
   const derivedDueRecords = useMemo(() => {
@@ -358,7 +365,7 @@ export default function FinanceOverview() {
             </div>
             <div className="kpi-body">
               <div className="kpi-title">Bank Account Balance</div>
-              <div className="kpi-value">₹10,976</div>
+              <div className="kpi-value">₹{currentBankBalance.toLocaleString('en-IN')}</div>
             </div>
           </div>
         </div>

@@ -49,6 +49,33 @@ export function AppStateProvider({ children }) {
     { id: 'I002', partner: 'Prabhu', amount: 200000, interest_rate: 0.07, duration: '6 Months', start_date: '2026-03-05', nominee_name: 'Rajesh P', remarks: 'Core investment', status: 'Active', pan_card: 'FGHIJ5678K', aadhaar_number: '876543210987', mobile: '9000080000', nominee_aadhaar: '234567890123', nominee_pan: 'KLMNO9012P', address: '456, Park Road, Bangalore' },
     { id: 'I003', partner: 'MP Kumar', amount: 1000000, interest_rate: 0.09, duration: '24 Months', start_date: '2026-01-01', nominee_name: 'Suresh Kumar', remarks: 'Expansion capital', status: 'Active', pan_card: 'KLMNO9012P', aadhaar_number: '765432109876', mobile: '9000080000', nominee_aadhaar: '345678901234', nominee_pan: 'PQRST3456Q', address: '789, Residency Lane, Pune' }
   ])
+  const [transactions, setTransactions] = useState([
+    { id: 'TX001', date: '2026-06-20', type: 'Income', name: 'Prabhu', particular: 'Processing Fee Received', category: 'Processing Fee', amount: 10000, status: 'Received', remarks: '' },
+    { id: 'TX002', date: '2026-06-20', type: 'Expense', name: 'Office Rent', particular: 'Office Rent Payment', category: 'Office Rent', amount: 50000, status: 'Paid', remarks: 'June 2026' },
+    { id: 'TX003', date: '2026-06-19', type: 'Income', name: 'Ravi Varma', particular: 'Interest Collection', category: 'Interest Collection', amount: 5000, status: 'Received', remarks: '' },
+    { id: 'TX004', date: '2026-06-19', type: 'Expense', name: 'Manikandan', particular: 'Petrol Expense', category: 'Petrol', amount: 2500, status: 'Paid', remarks: 'Local Travel' },
+    { id: 'TX005', date: '2026-06-18', type: 'Expense', name: 'HDFC Bank', particular: 'Loan Processing Service', category: 'Operational', amount: 10000, status: 'Paid', remarks: 'Direct Debit' },
+    { id: 'TX006', date: '2026-06-18', type: 'Income', name: 'Rajesh Kumar', particular: 'Home Loan processing fee', category: 'Processing Fee', amount: 120000, status: 'Received', remarks: 'HDFC Payout' },
+    { id: 'TX007', date: '2026-06-17', type: 'Income', name: 'Meena Sharma', particular: 'Partner Commission Recd', category: 'Commission', amount: 45000, status: 'Received', remarks: 'June Cycle' },
+    { id: 'TX008', date: '2026-06-17', type: 'Expense', name: 'Salary Staff', particular: 'Monthly staff salary', category: 'Salaries', amount: 84000, status: 'Paid', remarks: 'June Salaries' },
+    { id: 'TX009', date: '2026-06-16', type: 'Income', name: 'MP Kumar', particular: 'Partner Interest Collection', category: 'Interest Collection', amount: 35000, status: 'Received', remarks: 'P2P ledger' },
+    { id: 'TX010', date: '2026-06-15', type: 'Expense', name: 'Office Rent Addl', particular: 'Storage room rent', category: 'Office Rent', amount: 76000, status: 'Paid', remarks: 'Godown rent' },
+    { id: 'TX011', date: '2026-06-14', type: 'Income', name: 'Kiran Mehta', particular: 'Processing Fee Received', category: 'Processing Fee', amount: 140000, status: 'Received', remarks: 'Axis Payout' },
+    { id: 'TX012', date: '2026-06-13', type: 'Income', name: 'Sunita Rao', particular: 'Advisor Commission Recd', category: 'Commission', amount: 67500, status: 'Received', remarks: 'Q2 cycle' },
+    { id: 'TX013', date: '2026-06-12', type: 'Income', name: 'Charles', particular: 'Partner Interest Collection', category: 'Interest Collection', amount: 27500, status: 'Received', remarks: 'P2P ledger' },
+    { id: 'TX014', date: '2026-06-11', type: 'Expense', name: 'Aadhaar verification', particular: 'API verification usage fee', category: 'Operational', amount: 2000, status: 'Paid', remarks: 'UIDAI Portal' },
+    { id: 'TX015', date: '2026-06-10', type: 'Expense', name: 'Sulekha Media', particular: 'Lead generation ads', category: 'Operational', amount: 15000, status: 'Paid', remarks: 'Google Ads' },
+    { id: 'TX016', date: '2026-06-09', type: 'Expense', name: 'Tata Power', particular: 'Electricity bill', category: 'Operational', amount: 8000, status: 'Paid', remarks: 'June bill' },
+    { id: 'TX017', date: '2026-06-08', type: 'Expense', name: 'Stationery Hub', particular: 'Printers and papers', category: 'Operational', amount: 4000, status: 'Paid', remarks: 'Office Supplies' },
+    { id: 'TX018', date: '2026-06-07', type: 'Expense', name: 'Manikandan', particular: 'Petrol Expense', category: 'Petrol', amount: 2500, status: 'Paid', remarks: 'Site visits' },
+    { id: 'TX019', date: '2026-06-06', type: 'Expense', name: 'Swiggy Client Meeting', particular: 'Food & beverage', category: 'Operational', amount: 2000, status: 'Paid', remarks: 'Client lunch' },
+    { id: 'TX020', date: '2026-06-05', type: 'Expense', name: 'ACT Fiber', particular: 'Internet subscription', category: 'Operational', amount: 1000, status: 'Paid', remarks: 'June broadband' },
+    { id: 'TX021', date: '2026-06-04', type: 'Expense', name: 'Coffee Vendor', particular: 'Pantry supplies', category: 'Operational', amount: 3000, status: 'Paid', remarks: 'Milk and tea' },
+    { id: 'TX022', date: '2026-06-03', type: 'Expense', name: 'ZOHO Books', particular: 'Accounting software renewal', category: 'Operational', amount: 4000, status: 'Paid', remarks: 'Annual plan' },
+    { id: 'TX023', date: '2026-06-02', type: 'Expense', name: 'Shiva Travels', particular: 'Cab service for client site', category: 'Operational', amount: 8000, status: 'Paid', remarks: 'Travel exp' },
+    { id: 'TX024', date: '2026-06-01', type: 'Expense', name: 'Water Supplier', particular: 'Drinking water cans', category: 'Operational', amount: 6000, status: 'Paid', remarks: 'June supply' },
+    { id: 'TX025', date: '2026-06-01', type: 'Expense', name: 'Miscellaneous', particular: 'Office petty cash', category: 'Operational', amount: 2000, status: 'Paid', remarks: 'Sundry expenses' }
+  ])
 
   /* ─── Sync 1: Dynamic Associate Performance metrics ───────── */
   const computedAssociates = associates.map(a => {
@@ -233,6 +260,10 @@ export function AppStateProvider({ children }) {
   const updateInvestment = (inv) => setInvestments(p => p.map(x => x.id === inv.id ? inv : x))
   const removeInvestment = (id) => setInvestments(p => p.filter(x => x.id !== id))
 
+  const addTransaction = (tx) => setTransactions(p => [{ ...tx, id: `TX${String(p.length + 1).padStart(3, '0')}` }, ...p])
+  const updateTransaction = (tx) => setTransactions(p => p.map(x => x.id === tx.id ? tx : x))
+  const removeTransaction = (id) => setTransactions(p => p.filter(x => x.id !== id))
+
   return (
     <AppStateContext.Provider value={{
       clients, addClient, updateClient,
@@ -247,6 +278,7 @@ export function AppStateProvider({ children }) {
       backups, addBackup,
       users, addUser, updateUser, removeUser,
       investments, addInvestment, updateInvestment, removeInvestment,
+      transactions, addTransaction, updateTransaction, removeTransaction,
     }}>
       {children}
     </AppStateContext.Provider>
