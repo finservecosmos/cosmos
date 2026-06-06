@@ -23,6 +23,10 @@ const PAGE_HEADERS = {
     title: 'Finance Entry',
     description: 'Manage investment entries, due dates, interest calculations, and investor records.'
   },
+  '/finance/investment': {
+    title: 'Investment Management',
+    description: 'Manage partner investments, nominee details, maturity dates, and investment records.'
+  },
   '/clients': {
     title: 'Client Record Book',
     description: 'Manage clients, KYC profiles, document verification, and statuses.'

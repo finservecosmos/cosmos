@@ -64,7 +64,7 @@ export default function FinanceOverview() {
   const navigate = useNavigate()
   const { addToast } = useToast()
   const confirm = useConfirm()
-  const { clients, updateClient } = useAppState()
+  const { clients, updateClient, investments } = useAppState()
 
   // Filters state
   const [fromDate, setFromDate] = useState('')
@@ -184,15 +184,23 @@ export default function FinanceOverview() {
 
   const donutData = useMemo(() => {
     const total = totalInvestment || 1
-    const associateGroups = {}
-    clients.forEach(c => {
-      const assoc = c.associate && c.associate !== 'Unassigned' ? c.associate : 'Institutional Funds'
-      associateGroups[assoc] = (associateGroups[assoc] || 0) + Number(c.amount || 0)
+    const partnerGroups = {}
+    let totalPartnerAmount = 0
+    
+    const activeInvestments = investments || []
+    activeInvestments.forEach(inv => {
+      if (inv.status === 'Active') {
+        partnerGroups[inv.partner] = (partnerGroups[inv.partner] || 0) + Number(inv.amount || 0)
+        totalPartnerAmount += Number(inv.amount || 0)
+      }
     })
+    
+    const remainder = Math.max(0, totalInvestment - totalPartnerAmount)
+    partnerGroups['Institutional Funds'] = (partnerGroups['Institutional Funds'] || 0) + remainder
     
     const colors = ['#c0392b', '#1e293b', '#e74c3c', '#cbd5e1', '#3498db', '#a0c4ff', '#8e44ad', '#2c3e50', '#27ae60']
     
-    return Object.entries(associateGroups).map(([type, count], index) => {
+    return Object.entries(partnerGroups).map(([type, count], index) => {
       const percent = Math.round((count / total) * 100)
       return {
         type,
@@ -201,7 +209,7 @@ export default function FinanceOverview() {
         color: colors[index % colors.length]
       }
     }).sort((a, b) => b.count - a.count)
-  }, [clients, totalInvestment])
+  }, [clients, investments, totalInvestment])
 
   const donutSegments = useMemo(() => {
     const total = totalInvestment || 1

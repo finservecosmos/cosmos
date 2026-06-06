@@ -229,6 +229,10 @@ export function AppStateProvider({ children }) {
   const removeUser = (id) => setUsers(p => p.filter(x => x.id !== id))
   const addBackup  = (b) => setBackups(p => [b, ...p])
 
+  const addInvestment = (inv) => setInvestments(p => [{ ...inv, id: `I${String(p.length + 1).padStart(3, '0')}` }, ...p])
+  const updateInvestment = (inv) => setInvestments(p => p.map(x => x.id === inv.id ? inv : x))
+  const removeInvestment = (id) => setInvestments(p => p.filter(x => x.id !== id))
+
   return (
     <AppStateContext.Provider value={{
       clients, addClient, updateClient,
@@ -242,6 +246,7 @@ export function AppStateProvider({ children }) {
       loginFiles, addLoginFile, updateLoginFile, removeLoginFile,
       backups, addBackup,
       users, addUser, updateUser, removeUser,
+      investments, addInvestment, updateInvestment, removeInvestment,
     }}>
       {children}
     </AppStateContext.Provider>
