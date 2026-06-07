@@ -5,6 +5,7 @@ import Modal from '../../shared/ui/Modal'
 import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import useConfirm from '../../shared/lib/useConfirm'
+import '../../shared/ui/DataPage.css'
 import './FinanceIncomeExpenses.css'
 import { X, Plus, Download, Edit, Trash2 } from 'lucide-react';
 
@@ -28,7 +29,7 @@ export default function FinanceIncomeExpenses() {
   const [entryCategory, setEntryCategory] = useState('Processing Fee')
   const [entryAmount, setEntryAmount] = useState('')
   const [entryRemarks, setEntryRemarks] = useState('')
-  
+
   // Edit mode state
   const [editId, setEditId] = useState(null)
 
@@ -100,13 +101,13 @@ export default function FinanceIncomeExpenses() {
     return dateFilteredTransactions.filter(t => {
       const d = t.date || ''
       const matchDates = d >= tableFromDate && d <= tableToDate
-      
+
       const query = searchQuery.toLowerCase().trim()
-      const matchSearch = !query || 
+      const matchSearch = !query ||
         (t.name && t.name.toLowerCase().includes(query)) ||
         (t.category && t.category.toLowerCase().includes(query)) ||
         (t.particular && t.particular.toLowerCase().includes(query))
-      
+
       return matchDates && matchSearch
     }).sort((a, b) => new Date(b.date) - new Date(a.date) || b.id.localeCompare(a.id))
   }, [dateFilteredTransactions, tableFromDate, tableToDate, searchQuery])
@@ -331,22 +332,22 @@ export default function FinanceIncomeExpenses() {
         <div className="finance-investment-actions-row" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <div className="range-filter-container">
             <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Scope Range:</span>
-            <input 
-              type="date" 
+            <input
+              type="date"
               className="date-scope-input"
-              value={headerFromDate} 
-              onChange={e => setHeaderFromDate(e.target.value)} 
+              value={headerFromDate}
+              onChange={e => setHeaderFromDate(e.target.value)}
             />
             <span style={{ color: 'var(--text-muted)' }}>to</span>
-            <input 
-              type="date" 
+            <input
+              type="date"
               className="date-scope-input"
-              value={headerToDate} 
-              onChange={e => setHeaderToDate(e.target.value)} 
+              value={headerToDate}
+              onChange={e => setHeaderToDate(e.target.value)}
             />
           </div>
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="data-btn data-btn-primary"
             onClick={() => {
               if (isFormOpen && editId) {
@@ -357,7 +358,7 @@ export default function FinanceIncomeExpenses() {
               }
             }}
           >
-            {isFormOpen ? '<X size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> Close Form' : '<Plus size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> New Entry'}
+            {isFormOpen ? 'Close Form' : 'New Entry'}
           </button>
         </div>
 
@@ -366,7 +367,7 @@ export default function FinanceIncomeExpenses() {
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap" style={{ color: '#16a34a' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
                   <polyline points="17 6 23 6 23 12" />
                 </svg>
@@ -382,7 +383,7 @@ export default function FinanceIncomeExpenses() {
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap" style={{ color: '#dc2626' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
                   <polyline points="17 18 23 18 23 12" />
                 </svg>
@@ -398,8 +399,8 @@ export default function FinanceIncomeExpenses() {
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap" style={{ color: '#3498db' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
               </div>
               <span className="kpi-tag trend-up">↗ +25.4% vs last month</span>
@@ -413,7 +414,7 @@ export default function FinanceIncomeExpenses() {
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap" style={{ color: '#9b59b6' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="2" y="5" width="20" height="14" rx="2" />
                   <line x1="2" y1="10" x2="22" y2="10" />
                 </svg>
@@ -434,27 +435,27 @@ export default function FinanceIncomeExpenses() {
             <div className="investment-form-card entry-form-panel">
               <div className="form-header-row">
                 <div className="form-title-wrap">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
                   <span>{editId ? 'Modify Transaction Entry' : 'Add New Income / Expense Entry'}</span>
                 </div>
                 <div className="form-type-toggles">
                   <label className={`toggle-btn ${entryType === 'Income' ? 'active income' : ''}`}>
-                    <input 
-                      type="radio" 
-                      name="entryType" 
-                      checked={entryType === 'Income'} 
-                      onChange={() => setEntryType('Income')} 
+                    <input
+                      type="radio"
+                      name="entryType"
+                      checked={entryType === 'Income'}
+                      onChange={() => setEntryType('Income')}
                     />
                     Income
                   </label>
                   <label className={`toggle-btn ${entryType === 'Expense' ? 'active expense' : ''}`}>
-                    <input 
-                      type="radio" 
-                      name="entryType" 
-                      checked={entryType === 'Expense'} 
-                      onChange={() => setEntryType('Expense')} 
+                    <input
+                      type="radio"
+                      name="entryType"
+                      checked={entryType === 'Expense'}
+                      onChange={() => setEntryType('Expense')}
                     />
                     Expense
                   </label>
@@ -464,27 +465,27 @@ export default function FinanceIncomeExpenses() {
               <div className="investment-form-grid text-fields-grid">
                 <label>
                   Date *
-                  <input 
-                    type="date" 
-                    value={entryDate} 
-                    onChange={e => setEntryDate(e.target.value)} 
+                  <input
+                    type="date"
+                    value={entryDate}
+                    onChange={e => setEntryDate(e.target.value)}
                   />
                 </label>
 
                 <label>
                   Name / Payer / Payee *
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="Enter name"
-                    value={entryName} 
-                    onChange={e => setEntryName(e.target.value)} 
+                    value={entryName}
+                    onChange={e => setEntryName(e.target.value)}
                   />
                 </label>
 
                 <label>
                   Category
-                  <select 
-                    value={entryCategory} 
+                  <select
+                    value={entryCategory}
                     onChange={e => setEntryCategory(e.target.value)}
                   >
                     {entryType === 'Income' ? (
@@ -508,21 +509,21 @@ export default function FinanceIncomeExpenses() {
 
                 <label>
                   Amount (₹) *
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     placeholder="0.00"
-                    value={entryAmount} 
-                    onChange={e => setEntryAmount(e.target.value)} 
+                    value={entryAmount}
+                    onChange={e => setEntryAmount(e.target.value)}
                   />
                 </label>
 
                 <label className="span-4">
                   Remarks (Optional)
-                  <textarea 
+                  <textarea
                     rows={2}
                     placeholder="Enter purpose or additional notes..."
-                    value={entryRemarks} 
-                    onChange={e => setEntryRemarks(e.target.value)} 
+                    value={entryRemarks}
+                    onChange={e => setEntryRemarks(e.target.value)}
                     style={{ resize: 'none' }}
                   />
                 </label>
@@ -596,8 +597,8 @@ export default function FinanceIncomeExpenses() {
               <div className="chart-bars-graphics-container">
                 <div className="chart-graphics-column">
                   <div className="chart-bar-fill-wrapper">
-                    <div 
-                      className="chart-bar-rect income-bar" 
+                    <div
+                      className="chart-bar-rect income-bar"
                       style={{ height: `${Math.min(100, (totalIncome / 500000) * 100)}%` }}
                     >
                       <span className="bar-hover-badge">₹{totalIncome.toLocaleString('en-IN')}</span>
@@ -608,8 +609,8 @@ export default function FinanceIncomeExpenses() {
 
                 <div className="chart-graphics-column">
                   <div className="chart-bar-fill-wrapper">
-                    <div 
-                      className="chart-bar-rect expense-bar" 
+                    <div
+                      className="chart-bar-rect expense-bar"
                       style={{ height: `${Math.min(100, (totalExpenses / 500000) * 100)}%` }}
                     >
                       <span className="bar-hover-badge">₹{totalExpenses.toLocaleString('en-IN')}</span>
@@ -620,8 +621,8 @@ export default function FinanceIncomeExpenses() {
 
                 <div className="chart-graphics-column">
                   <div className="chart-bar-fill-wrapper">
-                    <div 
-                      className="chart-bar-rect profit-bar" 
+                    <div
+                      className="chart-bar-rect profit-bar"
                       style={{ height: `${Math.max(0, Math.min(100, (netProfit / 500000) * 100))}%` }}
                     >
                       <span className="bar-hover-badge">₹{netProfit.toLocaleString('en-IN')}</span>
@@ -638,7 +639,7 @@ export default function FinanceIncomeExpenses() {
             <div className="panel-header" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 10, marginBottom: 12 }}>
               <h3 className="panel-title">Segment Weight Breakdown</h3>
             </div>
-            
+
             <div className="breakdown-donuts-grid">
               {/* Income Breakdown */}
               <div className="donut-segment-column">
@@ -648,7 +649,7 @@ export default function FinanceIncomeExpenses() {
                     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
                       <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--bg-muted)" strokeWidth={strokeW} />
                       {incomeSegments.map((seg, i) => (
-                        <circle 
+                        <circle
                           key={i}
                           cx={cx}
                           cy={cy}
@@ -687,7 +688,7 @@ export default function FinanceIncomeExpenses() {
                     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
                       <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--bg-muted)" strokeWidth={strokeW} />
                       {expenseSegments.map((seg, i) => (
-                        <circle 
+                        <circle
                           key={i}
                           cx={cx}
                           cy={cy}
@@ -734,45 +735,45 @@ export default function FinanceIncomeExpenses() {
             <div className="records-filter-toolbar">
               <div className="range-filter-container table-inner-dates">
                 <span>From</span>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   className="date-scope-input table-dates"
-                  value={tableFromDate} 
-                  onChange={e => setTableFromDate(e.target.value)} 
+                  value={tableFromDate}
+                  onChange={e => setTableFromDate(e.target.value)}
                 />
                 <span>To</span>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   className="date-scope-input table-dates"
-                  value={tableToDate} 
-                  onChange={e => setTableToDate(e.target.value)} 
+                  value={tableToDate}
+                  onChange={e => setTableToDate(e.target.value)}
                 />
               </div>
 
               <div className="records-search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                <input 
-                  type="text" 
-                  placeholder="Search records..." 
+                <input
+                  type="text"
+                  placeholder="Search records..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                 />
               </div>
 
-              <button 
-                type="button" 
-                className="data-btn data-btn-outline" 
+              <button
+                type="button"
+                className="data-btn data-btn-outline"
                 onClick={handleExportCSV}
                 style={{ display: 'inline-flex', alignSelf: 'center', gap: 6 }}
               >
-                <Download size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> Export CSV
+                <Download size={16} style={{ marginRight: 6, verticalAlign: "middle" }} /> Export CSV
               </button>
             </div>
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: 'auto', paddingBottom: 80 }}>
             <table className="data-table">
               <thead>
                 <tr>
@@ -816,33 +817,35 @@ export default function FinanceIncomeExpenses() {
                         </span>
                       </td>
                       <td className="cell-muted text-remarks-col">{rec.remarks || '—'}</td>
-                      <td style={{ textAlign: 'right', position: 'relative' }}>
-                        <div style={{ display: 'inline-flex', gap: 8 }}>
-                          <button 
-                            type="button" 
-                            className="panel-more-btn" 
+                      <td style={{ textAlign: 'right' }}>
+                        <div style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+                          <button
+                            type="button"
+                            className="panel-more-btn"
                             title="Edit Record"
                             onClick={() => handleEditRecord(rec)}
                           >
                             <Edit size={16} />
                           </button>
-                          <button 
-                            type="button" 
-                            className="panel-more-btn" 
-                            title="More Actions"
-                            onClick={(e) => triggerActionMenu(e, rec.id)}
-                          >
-                            ⋮
-                          </button>
-                        </div>
-
-                        {activeMenuId === rec.id && (
-                          <div className="profile-dropdown" style={{ top: 'auto', right: 0, bottom: '100%', zIndex: 100, width: 140 }}>
-                            <button type="button" className="profile-dropdown-item danger" onClick={() => handleDeleteRecord(rec)}>
-                              <Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Delete Record
+                          <div className="action-menu-container">
+                            <button
+                              type="button"
+                              className="panel-more-btn"
+                              title="More Actions"
+                              onClick={(e) => triggerActionMenu(e, rec.id)}
+                            >
+                              ⋮
                             </button>
+
+                            {activeMenuId === rec.id && (
+                              <div className="action-popover" onClick={(e) => e.stopPropagation()}>
+                                <button className="popover-item danger" onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}>
+                                  <Trash2 size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Delete Record
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   ))

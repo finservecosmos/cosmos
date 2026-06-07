@@ -5,6 +5,7 @@ import Modal from '../../shared/ui/Modal'
 import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import useConfirm from '../../shared/lib/useConfirm'
+import '../../shared/ui/DataPage.css'
 import './FinanceOverview.css'
 import { FileText, Receipt, Mail, Edit, Trash2, TrendingUp } from 'lucide-react';
 
@@ -327,7 +328,7 @@ export default function FinanceOverview() {
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
               </div>
@@ -342,7 +343,7 @@ export default function FinanceOverview() {
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap" style={{ color: '#dc2626' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01" />
                 </svg>
               </div>
@@ -357,7 +358,7 @@ export default function FinanceOverview() {
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                   <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
@@ -409,7 +410,7 @@ export default function FinanceOverview() {
                 <p className="panel-subtitle">Primary funding segment weights</p>
               </div>
               <button className="panel-more-btn" title="More Options">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
                 </svg>
               </button>
@@ -511,7 +512,7 @@ export default function FinanceOverview() {
               </button>
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
+            <div style={{ overflowX: 'auto', paddingBottom: 100 }}>
               <table className="data-table">
                 <thead>
                   <tr>
@@ -546,38 +547,39 @@ export default function FinanceOverview() {
                         <td className="cell-amount">₹{rec.principal.toLocaleString('en-IN')}</td>
                         <td className="cell-amount">₹{rec.interest.toLocaleString('en-IN')}</td>
                         <td className="cell-amount" style={{ fontWeight: 700 }}>₹{rec.total.toLocaleString('en-IN')}</td>
-                        <td style={{ textAlign: 'right', position: 'relative' }}>
-                          <button 
-                            type="button" 
-                            className="panel-more-btn" 
-                            style={{ display: 'inline-flex', alignSelf: 'center' }}
-                            onClick={(e) => triggerActionMenu(e, rec.id)}
-                          >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 15, height: 15 }}>
-                              <circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>
-                            </svg>
-                          </button>
+                        <td style={{ textAlign: 'right' }}>
+                          <div className="action-menu-container">
+                            <button 
+                              type="button" 
+                              className="panel-more-btn" 
+                              style={{ display: 'inline-flex', alignSelf: 'center' }}
+                              onClick={(e) => triggerActionMenu(e, rec.id)}
+                            >
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 15, height: 15 }}>
+                                <circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>
+                              </svg>
+                            </button>
 
-                          {activeMenuId === rec.id && (
-                            <div className="profile-dropdown" style={{ top: 'auto', right: 0, bottom: '100%', zIndex: 100, width: 160 }}>
-                              <button type="button" className="profile-dropdown-item" onClick={() => handleViewDetails(rec)}>
-                                <FileText size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View Details
-                              </button>
-                              <button type="button" className="profile-dropdown-item" onClick={() => handleGenerateInvoice(rec)}>
-                                <Receipt size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Gen Invoice
-                              </button>
-                              <button type="button" className="profile-dropdown-item" onClick={() => handleSendReminder(rec)}>
-                                <Mail size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Send Reminder
-                              </button>
-                              <button type="button" className="profile-dropdown-item" onClick={() => handleEditRecord(rec)}>
-                                <Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit Details
-                              </button>
-                              <div className="profile-dropdown-divider" />
-                              <button type="button" className="profile-dropdown-item danger" onClick={() => handleDeleteRecord(rec)}>
-                                <Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Delete
-                              </button>
-                            </div>
-                          )}
+                            {activeMenuId === rec.id && (
+                              <div className="action-popover" style={{ width: 160 }} onClick={(e) => e.stopPropagation()}>
+                                <button className="popover-item" onClick={() => { handleViewDetails(rec); setActiveMenuId(null); }}>
+                                  <FileText size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View Details
+                                </button>
+                                <button className="popover-item" onClick={() => { handleGenerateInvoice(rec); setActiveMenuId(null); }}>
+                                  <Receipt size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Gen Invoice
+                                </button>
+                                <button className="popover-item" onClick={() => { handleSendReminder(rec); setActiveMenuId(null); }}>
+                                  <Mail size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Send Reminder
+                                </button>
+                                <button className="popover-item" onClick={() => { handleEditRecord(rec); setActiveMenuId(null); }}>
+                                  <Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit Details
+                                </button>
+                                <button className="popover-item danger" onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}>
+                                  <Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))

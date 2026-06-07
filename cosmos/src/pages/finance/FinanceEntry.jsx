@@ -8,6 +8,7 @@ import useConfirm from '../../shared/lib/useConfirm';
 import { useFinanceEntry } from '../../features/client-ledger/hooks/useFinanceEntry';
 import FinanceEntryForm from '../../features/client-ledger/components/FinanceEntryForm';
 import FinanceEntryTable from '../../features/client-ledger/components/FinanceEntryTable';
+import '../../shared/ui/DataPage.css';
 import './FinanceEntry.css';
 
 export default function FinanceEntry() {
@@ -112,7 +113,7 @@ export default function FinanceEntry() {
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
               </div>
@@ -127,7 +128,7 @@ export default function FinanceEntry() {
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap" style={{ color: '#16a34a' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="3" width="18" height="18" rx="2" />
                   <path d="M9 12l2 2 4-4" />
                 </svg>
@@ -143,7 +144,7 @@ export default function FinanceEntry() {
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap" style={{ color: '#dc2626' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="4" width="18" height="18" rx="2" />
                   <line x1="16" y1="2" x2="16" y2="6" />
                   <line x1="8" y1="2" x2="8" y2="6" />
@@ -161,7 +162,7 @@ export default function FinanceEntry() {
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
               </div>

@@ -117,7 +117,7 @@ function Dashboard() {
             trend={loading ? undefined : getTrend(stats?.newEnquiries, stats?.newEnquiriesLastPeriod)}
             subLabel="vs last period"
             icon={
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="3" width="18" height="18" rx="2" />
                 <line x1="3" y1="9" x2="21" y2="9" />
                 <line x1="9" y1="21" x2="9" y2="9" />
@@ -131,7 +131,7 @@ function Dashboard() {
             trend={loading ? undefined : getTrend(stats?.loginFiles, stats?.loginFilesLastPeriod)}
             subLabel="Active processing"
             icon={
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
               </svg>
             }
@@ -144,7 +144,7 @@ function Dashboard() {
             subLabel="Total collections"
             highlight
             icon={
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="2" y="5" width="20" height="14" rx="2" />
                 <line x1="2" y1="10" x2="22" y2="10" />
               </svg>
@@ -161,7 +161,7 @@ function Dashboard() {
                 <p className="chart-subtitle">Real-time allocation across primary lending sectors</p>
               </div>
               <button className="chart-menu-btn" aria-label="More options" onClick={viewChartMenu}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="5" r="1" fill="currentColor" />
                   <circle cx="12" cy="12" r="1" fill="currentColor" />
                   <circle cx="12" cy="19" r="1" fill="currentColor" />

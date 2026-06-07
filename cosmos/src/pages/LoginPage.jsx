@@ -261,7 +261,7 @@ function LoginPage() {
                 <label htmlFor="email">EMAIL ID</label>
                 <div className="input-wrapper">
                   <span className="input-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="3" y="5" width="18" height="14" rx="2" />
                       <polyline points="3,5 12,13 21,5" />
                     </svg>
@@ -283,7 +283,7 @@ function LoginPage() {
                 <label htmlFor="password">PASSWORD</label>
                 <div className="input-wrapper">
                   <span className="input-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="3" y="11" width="18" height="11" rx="2" />
                       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                     </svg>
@@ -331,7 +331,7 @@ function LoginPage() {
                 onClick={handleBiometricLogin}
                 disabled={loading}
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="biometric-btn-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="biometric-btn-icon">
                   <path d="M12 10a2 2 0 0 0-2 2v3a2 2 0 0 0 4 0v-3a2 2 0 0 0-2-2z" />
                   <path d="M14 10a4.5 4.5 0 0 0-4.5 4.5V17" />
                   <path d="M18.5 10a8.5 8.5 0 0 0-13 0v4.5" />
@@ -383,7 +383,7 @@ function LoginPage() {
         >
           <div className="biometric-modal-content">
             <div className={`biometric-scanner-ring ${bioState}`}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="scanner-fingerprint">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="scanner-fingerprint">
                 <path d="M12 10a2 2 0 0 0-2 2v3a2 2 0 0 0 4 0v-3a2 2 0 0 0-2-2z" />
                 <path d="M14 10a4.5 4.5 0 0 0-4.5 4.5V17" />
                 <path d="M18.5 10a8.5 8.5 0 0 0-13 0v4.5" />

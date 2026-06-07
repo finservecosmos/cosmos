@@ -60,7 +60,7 @@ export default function FinanceEntryTable({
           </div>
 
           <div className="records-search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input 
@@ -81,7 +81,7 @@ export default function FinanceEntryTable({
         </div>
       </div>
 
-      <div style={{ overflowX: 'auto', marginTop: 16 }}>
+      <div style={{ overflowX: 'auto', marginTop: 16, paddingBottom: 80 }}>
         <table className="data-table">
           <thead>
             <tr>
@@ -122,32 +122,33 @@ export default function FinanceEntryTable({
                       ACTIVE
                     </span>
                   </td>
-                  <td style={{ textAlign: 'right', position: 'relative' }}>
-                    <button 
-                      type="button" 
-                      className="panel-more-btn" 
-                      style={{ display: 'inline-flex', alignSelf: 'center' }}
-                      onClick={(e) => triggerActionMenu(e, rec.id)}
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 15, height: 15 }}>
-                        <circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>
-                      </svg>
-                    </button>
+                  <td style={{ textAlign: 'right' }}>
+                    <div className="action-menu-container">
+                      <button 
+                        type="button" 
+                        className="panel-more-btn" 
+                        style={{ display: 'inline-flex', alignSelf: 'center' }}
+                        onClick={(e) => triggerActionMenu(e, rec.id)}
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 15, height: 15 }}>
+                          <circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>
+                        </svg>
+                      </button>
 
-                    {activeMenuId === rec.id && (
-                      <div className="profile-dropdown" style={{ top: 'auto', right: 0, bottom: '100%', zIndex: 100, width: 140 }}>
-                        <button type="button" className="profile-dropdown-item" onClick={() => { setViewRecord(rec); setActiveMenuId(null); }}>
-                          📄 View Details
-                        </button>
-                        <button type="button" className="profile-dropdown-item" onClick={() => { handleEditRecord(rec); setActiveMenuId(null); }}>
-                          ✏️ Edit Details
-                        </button>
-                        <div className="profile-dropdown-divider" />
-                        <button type="button" className="profile-dropdown-item danger" onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}>
-                          🗑️ Delete Record
-                        </button>
-                      </div>
-                    )}
+                      {activeMenuId === rec.id && (
+                        <div className="action-popover" onClick={(e) => e.stopPropagation()}>
+                          <button className="popover-item" onClick={() => { setViewRecord(rec); setActiveMenuId(null); }}>
+                            📄 View Details
+                          </button>
+                          <button className="popover-item" onClick={() => { handleEditRecord(rec); setActiveMenuId(null); }}>
+                            ✏️ Edit Details
+                          </button>
+                          <button className="popover-item danger" onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}>
+                            🗑️ Delete Record
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))

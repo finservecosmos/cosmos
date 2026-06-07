@@ -153,7 +153,7 @@ export default function Reminders() {
               <div key={r.id} className={`reminder-item${r.done ? ' done' : ''}`}>
                 <button className="reminder-check" onClick={() => toggleDone(r.id)} aria-label={r.done ? 'Mark pending' : 'Mark done'}>
                   {r.done ? (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <polyline points="20 6 9 17 4 12"/>
                     </svg>
                   ) : null}
