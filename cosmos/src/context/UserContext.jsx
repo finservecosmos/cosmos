@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../lib/supabaseClient'
+import { supabase } from '../shared/api/supabaseClient'
 import { dummyUser } from '../lib/dummyData'
 
 const UserContext = createContext()
@@ -10,23 +10,25 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-    const loadUser = async () => {
+    const loadUser = async (session) => {
       // Dev mode — use dummy user
       if (isDev && sessionStorage.getItem('dev_auth') === 'true') {
         setUser(dummyUser)
         return
       }
 
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
+      if (!session) {
+        setUser(null)
+        return
+      }
 
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('full_name, role, email')
         .eq('id', session.user.id)
         .single()
 
-      if (profile) {
+      if (profile && !error) {
         setUser({
           name: profile.full_name,
           email: profile.email || session.user.email,
@@ -49,7 +51,20 @@ export function UserProvider({ children }) {
       }
     }
 
-    loadUser()
+    // 1. Initial load
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      loadUser(session)
+    })
+
+    // 2. Listen for login/logout events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      loadUser(session)
+    })
+
+    // Cleanup subscription
+    return () => {
+      subscription?.unsubscribe()
+    }
   }, [])
 
   return (
@@ -60,5 +75,9 @@ export function UserProvider({ children }) {
 }
 
 export function useUser() {
-  return useContext(UserContext)
+  const context = useContext(UserContext)
+  if (context === undefined) {
+    throw new Error('useUser must be used within a UserProvider')
+  }
+  return context
 }

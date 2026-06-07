@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react'
-import Modal from '../frontend/components/Modal'
+import Modal from '../shared/ui/Modal'
 
 const ConfirmContext = createContext()
 

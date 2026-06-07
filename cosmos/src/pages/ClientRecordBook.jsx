@@ -1,0 +1,255 @@
+import React, { useState, useEffect } from 'react';
+import DashboardLayout from '../widgets/DashboardLayout';
+import Modal from '../shared/ui/Modal';
+import { useAppState } from '../context/AppStateContext';
+import { useToast } from '../context/ToastContext';
+import { useUser } from '../context/UserContext';
+import { useClientForm } from '../features/client-onboarding/hooks/useClientForm';
+import ClientOnboardingWizard from '../features/client-onboarding/components/ClientOnboardingWizard';
+import ClientRecordsTable from '../features/client-onboarding/components/ClientRecordsTable';
+import ClientOnboardingForm from '../features/client-onboarding/components/ClientOnboardingForm';
+import '../shared/ui/DataPage.css';
+
+function maskAadhaar(num) {
+  if (!num) return '';
+  const clean = num.toString().replace(/\s+/g, '');
+  if (clean.length < 12) return num;
+  return `XXXX-XXXX-${clean.slice(-4)}`;
+}
+
+function maskPAN(pan) {
+  if (!pan) return '';
+  const clean = pan.toString().toUpperCase().trim();
+  if (clean.length < 10) return pan;
+  return `${clean.slice(0, 5)}••••${clean.slice(-1)}`;
+}
+
+const statusClass = (s) => 'status-badge status-' + s.toLowerCase().replace(' ', '-');
+
+function formatAmount(n) {
+  if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)}Cr`;
+  if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
+  return `₹${n.toLocaleString('en-IN')}`;
+}
+
+const LOAN_TYPES = ['All', 'Home Loan', 'Business Loan', 'Personal Loan', 'Gold Loan', 'Mortgage'];
+const STATUSES = ['All', 'Enquiry', 'Processing', 'Approved', 'Disbursed', 'Closed'];
+
+export default function ClientRecordBook() {
+  const { clients, addClient, updateClient } = useAppState();
+  const { addToast } = useToast();
+  const { user } = useUser();
+
+  const [search, setSearch] = useState('');
+  const [loanFilter, setLoan] = useState('All');
+  const [statusFilter, setStatus] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 5;
+
+  const clientFormState = useClientForm({
+    addClient,
+    updateClient,
+    addToast,
+    currentUser: user
+  });
+
+  const {
+    formData,
+    modalOpen,
+    setModalOpen,
+    modalMode,
+    revealAadhaar,
+    setRevealAadhaar,
+    revealPAN,
+    setRevealPAN,
+    validationErrors,
+    setValidationErrors,
+    showAddWizard,
+    clientDocs,
+    uploadProgress,
+    openAddModal,
+    openEditModal,
+    openViewModal,
+    saveClient,
+    handleDocumentUpload
+  } = clientFormState;
+
+  useEffect(() => {
+    document.title = 'Client Record Book | Cosmos';
+  }, []);
+
+  // Reset pagination when search or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, loanFilter, statusFilter]);
+
+  const filtered = clients.filter((c) => {
+    const q = search.toLowerCase();
+    const matchSearch = !q || c.name.toLowerCase().includes(q) || c.file_no.includes(q) || c.phone.includes(q);
+    const matchLoan = loanFilter === 'All' || c.loan_type === loanFilter;
+    const matchStatus = statusFilter === 'All' || c.status === statusFilter;
+    return matchSearch && matchLoan && matchStatus;
+  });
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginatedClients = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const totalDisbursed = clients
+    .filter(c => ['Approved', 'Disbursed'].includes(c.status))
+    .reduce((s, c) => s + c.amount, 0);
+
+  if (showAddWizard) {
+    return (
+      <ClientOnboardingWizard
+        clientFormState={clientFormState}
+        LOAN_TYPES={LOAN_TYPES}
+        STATUSES={STATUSES}
+        maskPAN={maskPAN}
+        maskAadhaar={maskAadhaar}
+      />
+    );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="data-page">
+        {/* Header */}
+        <div className="data-page-header">
+          <div>
+            <h2 className="data-page-title">Client Record Book</h2>
+            <p className="data-page-sub">{clients.length} total clients</p>
+          </div>
+          <button className="data-btn data-btn-primary" onClick={openAddModal}>+ Add Client</button>
+        </div>
+
+        {/* Summary Card Metrics */}
+        <div className="data-summary">
+          <div className="data-summary-item">
+            <div className="data-summary-label">Total Clients</div>
+            <div className="data-summary-value">{clients.length}</div>
+          </div>
+          <div className="data-summary-item">
+            <div className="data-summary-label">Active Files</div>
+            <div className="data-summary-value">{clients.filter(c => c.status === 'Processing').length}</div>
+          </div>
+          <div className="data-summary-item">
+            <div className="data-summary-label">Approved</div>
+            <div className="data-summary-value">{clients.filter(c => c.status === 'Approved').length}</div>
+          </div>
+          <div className="data-summary-item">
+            <div className="data-summary-label">Total Disbursed</div>
+            <div className="data-summary-value accent">{formatAmount(totalDisbursed)}</div>
+          </div>
+        </div>
+
+        {/* Clients list grid table */}
+        <ClientRecordsTable
+          paginatedClients={paginatedClients}
+          search={search}
+          setSearch={setSearch}
+          loanFilter={loanFilter}
+          setLoan={setLoan}
+          statusFilter={statusFilter}
+          setStatus={setStatus}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
+          filteredCount={filtered.length}
+          LOAN_TYPES={LOAN_TYPES}
+          STATUSES={STATUSES}
+          formatAmount={formatAmount}
+          statusClass={statusClass}
+          openViewModal={openViewModal}
+          openEditModal={openEditModal}
+        />
+
+        {modalOpen && (
+          <Modal title={modalMode === 'view' ? 'Client details' : modalMode === 'edit' ? 'Edit client' : 'Add client'} onClose={() => setModalOpen(false)}>
+            <ClientOnboardingForm
+              formData={formData}
+              setFormData={clientFormState.setFormData}
+              validationErrors={validationErrors}
+              setValidationErrors={setValidationErrors}
+              mode="modal"
+              modalMode={modalMode}
+              revealPAN={revealPAN}
+              setRevealPAN={setRevealPAN}
+              revealAadhaar={revealAadhaar}
+              setRevealAadhaar={setRevealAadhaar}
+              currentUser={user}
+              addToast={addToast}
+              maskPAN={maskPAN}
+              maskAadhaar={maskAadhaar}
+              LOAN_TYPES={LOAN_TYPES}
+              STATUSES={STATUSES}
+            />
+
+            {modalMode !== 'add' && (
+              <div style={{ marginTop: 24, borderTop: '1px solid var(--border)', paddingTop: 18 }}>
+                <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-primary)' }}>
+                  <span>📁</span> KYC Documents Verification
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
+                  {['PAN Card', 'Aadhaar Card', 'IT Return', 'Bank Statement'].map((doc) => {
+                    const clientKey = formData.id || 'new';
+                    const clientDocStatus = (clientDocs[clientKey] && clientDocs[clientKey][doc]) || 'pending';
+                    const progress = uploadProgress[doc];
+
+                    return (
+                      <div key={doc} style={{
+                        display: 'flex', alignItems: 'center',
+                        padding: '10px 14px', borderRadius: 8, background: 'var(--bg-muted)',
+                        border: '1px solid var(--border)', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 16 }}>
+                            {clientDocStatus === 'success' ? '✅' : progress !== undefined ? '⏳' : '📄'}
+                          </span>
+                          <div>
+                            <div style={{ fontWeight: 600, fontSize: 12, color: 'var(--text-primary)' }}>{doc}</div>
+                            {progress !== undefined && progress < 100 && (
+                              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Uploading: {progress}%</div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          {clientDocStatus === 'success' ? (
+                            <span style={{
+                              fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 4,
+                              background: '#dcfce7', color: '#16a34a'
+                            }}>Verified</span>
+                          ) : progress !== undefined && progress < 100 ? (
+                            <div style={{ width: 80, height: 6, background: 'var(--border-input)', borderRadius: 3, overflow: 'hidden' }}>
+                              <div style={{ width: `${progress}%`, height: '100%', background: 'var(--accent)' }} />
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              className="row-btn"
+                              style={{ padding: '3px 8px', fontSize: 11, background: 'var(--bg-surface)' }}
+                              onClick={() => handleDocumentUpload(doc)}
+                            >
+                              Upload
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <button type="button" className="admin-action-btn" onClick={() => setModalOpen(false)}>Close</button>
+              {modalMode !== 'view' && (
+                <button type="button" className="admin-primary-btn" onClick={saveClient}>Save</button>
+              )}
+            </div>
+          </Modal>
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}

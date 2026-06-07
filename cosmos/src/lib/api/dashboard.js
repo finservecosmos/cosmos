@@ -1,4 +1,4 @@
-import { supabase } from '../supabaseClient'
+import { supabase } from '../../shared/api/supabaseClient'
 
 /** Summary counts for stat cards */
 export async function getDashboardStats() {
