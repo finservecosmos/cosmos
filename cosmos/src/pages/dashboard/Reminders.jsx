@@ -5,7 +5,7 @@ import Modal from '../../shared/ui/Modal'
 import DashboardLayout from '../../widgets/DashboardLayout'
 import '../../shared/ui/DataPage.css'
 import './Reminders.css'
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, ListTodo, Clock, AlertTriangle, CheckSquare } from 'lucide-react';
 
 const priorityConfig = {
   high:   { color: '#c0392b', bg: '#fde8e8', label: 'High' },
@@ -108,22 +108,53 @@ export default function Reminders() {
           <button className="data-btn data-btn-primary" onClick={openAddModal}>+ Add Reminder</button>
         </div>
 
-        <div className="data-summary">
-          <div className="data-summary-item">
-            <div className="data-summary-label">Total</div>
-            <div className="data-summary-value">{reminders.length}</div>
+        <div className="kpi-row">
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#3b82f6', background: '#dbeafe' }}>
+                <ListTodo size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Total</div>
+              <div className="kpi-value">{reminders.length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Pending</div>
-            <div className="data-summary-value accent">{pending}</div>
+          
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#d97706', background: '#fef3c7' }}>
+                <Clock size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Pending</div>
+              <div className="kpi-value">{pending}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">High Priority</div>
-            <div className="data-summary-value" style={{ color: '#c0392b' }}>{reminders.filter((r) => r.priority === 'high' && !r.done).length}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#dc2626', background: '#fecaca' }}>
+                <AlertTriangle size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">High Priority</div>
+              <div className="kpi-value">{reminders.filter((r) => r.priority === 'high' && !r.done).length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Completed</div>
-            <div className="data-summary-value">{reminders.filter((r) => r.done).length}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#16a34a', background: '#dcfce7' }}>
+                <CheckSquare size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Completed</div>
+              <div className="kpi-value">{reminders.filter((r) => r.done).length}</div>
+            </div>
           </div>
         </div>
 

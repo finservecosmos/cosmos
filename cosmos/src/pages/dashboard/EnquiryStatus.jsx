@@ -72,25 +72,18 @@ function HybridLocationPicker({ value, onChange, disabled }) {
 }
 
 /* ─── Sub-components ─────────────────────────────────────────── */
-function StatCard({ label, value, sub, icon, iconBg }) {
+function StatCard({ label, value, sub, icon, iconBg, subColor }) {
   return (
-    <div style={{
-      background: 'var(--bg-surface)', borderRadius: 12, border: '1px solid #f0f0f0',
-      padding: '20px 24px', flex: '1 1 0', minWidth: 0,
-      display: 'flex', flexDirection: 'column', gap: 6,
-      boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
-    }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.1 }}>{value}</div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginTop: 4 }}>{label}</div>
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>
+    <div className="kpi-card" style={{ flex: '1 1 0', minWidth: 0 }}>
+      <div className="kpi-header">
+        <div className="kpi-icon-wrap" style={{ background: iconBg }}>
+          {icon}
         </div>
-        <div style={{
-          width: 44, height: 44, borderRadius: 10,
-          background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 20, flexShrink: 0
-        }}>{icon}</div>
+        {sub && <span className="kpi-tag" style={{ color: subColor || 'inherit' }}>{sub}</span>}
+      </div>
+      <div className="kpi-body">
+        <div className="kpi-title">{label}</div>
+        <div className="kpi-value">{value}</div>
       </div>
     </div>
   )
@@ -333,7 +326,7 @@ export default function EnquiryStatus() {
         </div>
 
         {/* ── Stat Cards ── */}
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
+        <div className="kpi-row" style={{ marginBottom: 24 }}>
           {stats.map((s) => (
             <StatCard key={s.label} {...s} />
           ))}

@@ -4,7 +4,7 @@ import Modal from '../shared/ui/Modal'
 import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
 import '../shared/ui/DataPage.css'
-import { Package } from 'lucide-react'
+import { Package, CheckCircle, Ban } from 'lucide-react'
 
 const CATEGORIES = ['All', 'Loan', 'Advisory', 'Consultation']
 
@@ -76,18 +76,41 @@ export default function ProductServiceBook() {
         </div>
 
         {/* Summary */}
-        <div className="data-summary">
-          <div className="data-summary-item">
-            <div className="data-summary-label">Total Services</div>
-            <div className="data-summary-value">{products.length}</div>
+        <div className="kpi-row">
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#3b82f6', background: '#dbeafe' }}>
+                <Package size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Total Services</div>
+              <div className="kpi-value">{products.length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Active</div>
-            <div className="data-summary-value accent">{products.filter(p => p.active).length}</div>
+          
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#16a34a', background: '#dcfce7' }}>
+                <CheckCircle size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Active</div>
+              <div className="kpi-value">{products.filter(p => p.active).length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Inactive</div>
-            <div className="data-summary-value">{products.filter(p => !p.active).length}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#dc2626', background: '#fecaca' }}>
+                <Ban size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Inactive</div>
+              <div className="kpi-value">{products.filter(p => !p.active).length}</div>
+            </div>
           </div>
         </div>
 

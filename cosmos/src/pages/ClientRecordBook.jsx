@@ -9,6 +9,7 @@ import ClientOnboardingWizard from '../features/client-onboarding/components/Cli
 import ClientRecordsTable from '../features/client-onboarding/components/ClientRecordsTable';
 import ClientOnboardingForm from '../features/client-onboarding/components/ClientOnboardingForm';
 import '../shared/ui/DataPage.css';
+import { Users, RefreshCw, CheckCircle, Banknote } from 'lucide-react';
 
 function maskAadhaar(num) {
   if (!num) return '';
@@ -123,22 +124,53 @@ export default function ClientRecordBook() {
         </div>
 
         {/* Summary Card Metrics */}
-        <div className="data-summary">
-          <div className="data-summary-item">
-            <div className="data-summary-label">Total Clients</div>
-            <div className="data-summary-value">{clients.length}</div>
+        <div className="kpi-row">
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#3b82f6', background: '#dbeafe' }}>
+                <Users size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Total Clients</div>
+              <div className="kpi-value">{clients.length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Active Files</div>
-            <div className="data-summary-value">{clients.filter(c => c.status === 'Processing').length}</div>
+          
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#d97706', background: '#fef3c7' }}>
+                <RefreshCw size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Active Files</div>
+              <div className="kpi-value">{clients.filter(c => c.status === 'Processing').length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Approved</div>
-            <div className="data-summary-value">{clients.filter(c => c.status === 'Approved').length}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#16a34a', background: '#dcfce7' }}>
+                <CheckCircle size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Approved</div>
+              <div className="kpi-value">{clients.filter(c => c.status === 'Approved').length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Total Disbursed</div>
-            <div className="data-summary-value accent">{formatAmount(totalDisbursed)}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#8b5cf6', background: '#ede9fe' }}>
+                <Banknote size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Total Disbursed</div>
+              <div className="kpi-value">{formatAmount(totalDisbursed)}</div>
+            </div>
           </div>
         </div>
 

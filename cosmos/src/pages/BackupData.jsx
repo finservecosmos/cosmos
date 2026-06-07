@@ -4,7 +4,7 @@ import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
 import '../shared/ui/DataPage.css'
 import './BackupData.css'
-import { Check } from 'lucide-react';
+import { Check, Clock, Database, CheckCircle, AlertTriangle } from 'lucide-react';
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -80,22 +80,53 @@ export default function BackupData() {
           </div>
         )}
 
-        <div className="data-summary">
-          <div className="data-summary-item">
-            <div className="data-summary-label">Last Backup</div>
-            <div className="data-summary-value" style={{ fontSize: 16 }}>{lastSuccess ? timeAgo(lastSuccess.date) : '—'}</div>
+        <div className="kpi-row">
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#3b82f6', background: '#dbeafe' }}>
+                <Clock size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Last Backup</div>
+              <div className="kpi-value" style={{ fontSize: 16 }}>{lastSuccess ? timeAgo(lastSuccess.date) : '—'}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Total Backups</div>
-            <div className="data-summary-value">{backups.length}</div>
+          
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#8b5cf6', background: '#ede9fe' }}>
+                <Database size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Total Backups</div>
+              <div className="kpi-value">{backups.length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Successful</div>
-            <div className="data-summary-value accent">{backups.filter((b) => b.status === 'Success').length}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#16a34a', background: '#dcfce7' }}>
+                <CheckCircle size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Successful</div>
+              <div className="kpi-value">{backups.filter((b) => b.status === 'Success').length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Failed</div>
-            <div className="data-summary-value" style={{ color: '#c0392b' }}>{backups.filter((b) => b.status === 'Failed').length}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#dc2626', background: '#fecaca' }}>
+                <AlertTriangle size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Failed</div>
+              <div className="kpi-value">{backups.filter((b) => b.status === 'Failed').length}</div>
+            </div>
           </div>
         </div>
 

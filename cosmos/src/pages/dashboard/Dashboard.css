@@ -52,12 +52,7 @@
   border-color: var(--accent);
 }
 
-/* Stat cards row */
-.stat-cards-row {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
+
 
 /* Middle row */
 .dashboard-mid-row {
@@ -130,8 +125,4 @@
   }
 }
 
-@media (max-width: 640px) {
-  .stat-cards-row {
-    flex-direction: column;
-  }
-}
+

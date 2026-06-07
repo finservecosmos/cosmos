@@ -4,9 +4,9 @@ import Modal from '../../shared/ui/Modal'
 import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import { useNavigate } from 'react-router-dom'
-import useConfirm from '../../hooks/useConfirm'
+import useConfirm from '../../shared/lib/useConfirm'
 import DonutChart from '../../shared/ui/DonutChart'
-import '../DataPage.css'
+import '../../shared/ui/DataPage.css'
 import { Coins, CheckCircle, AlertTriangle, Clock, TrendingUp, CircleDot, BarChart, Download, FileSpreadsheet, FileText, Eye, RefreshCw, Edit, Trash2, Plus } from 'lucide-react';
 
 /* ─── Currency Formatter ────────────────────────────────────── */
@@ -257,7 +257,7 @@ export default function PaymentStatus() {
       <tr>
         <td style="padding: 12px; border-bottom: 1px solid var(--border);">${i + 1}</td>
         <td style="padding: 12px; border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-primary);">${c.client}</td>
-        <td style="padding: 12px; border-bottom: 1px solid var(--border); font-family: monospace; color: var(--text-secondary);">${c.file_no}</td>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border); font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; color: var(--text-secondary);">${c.file_no}</td>
         <td style="padding: 12px; border-bottom: 1px solid var(--border); text-align: right; color: var(--text-primary);">₹${c.actual.toLocaleString('en-IN')}</td>
         <td style="padding: 12px; border-bottom: 1px solid var(--border); text-align: right; color: #16a34a; font-weight: 600;">₹${c.received.toLocaleString('en-IN')}</td>
         <td style="padding: 12px; border-bottom: 1px solid var(--border); text-align: right; color: #b91c1c; font-weight: 600;">₹${c.pending.toLocaleString('en-IN')}</td>
@@ -274,7 +274,7 @@ export default function PaymentStatus() {
         <head>
           <title>Pending Payout Analysis - Cosmos Finserve</title>
           <style>
-            body { font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--text-primary); padding: 40px; }
+            body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; color: var(--text-primary); padding: 40px; }
             .header { display: flex; justify-content: space-between; border-bottom: 2px solid #850f1d; padding-bottom: 20px; margin-bottom: 30px; }
             .logo { font-size: 24px; font-weight: 800; color: var(--accent); }
             .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
@@ -463,66 +463,9 @@ export default function PaymentStatus() {
       <style>{`
         .ps-wrapper {
           padding: 8px 4px;
-          font-family: 'Inter', system-ui, -apple-system, sans-serif;
+          font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
           color: var(--text-primary);
         }
-
-        /* Top header KPI row */
-        .ps-kpi-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
-          margin-bottom: 24px;
-        }
-
-        .ps-kpi-card {
-          background: var(--bg-surface); border: 1px solid var(--border);
-          border-radius: 12px;
-          padding: 24px;
-          box-shadow: var(--shadow-sm);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .ps-kpi-card:hover {
-          transform: none;
-          box-shadow: var(--shadow-md); border-color: var(--border-input);
-        }
-
-        .ps-kpi-label {
-          font-size: 11px;
-          font-weight: 700;
-          color: #9ca3af;
-          margin-bottom: 8px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .ps-kpi-value {
-          font-family: 'Inter', system-ui, -apple-system, sans-serif;
-          font-size: 26px;
-          font-weight: 900;
-          color: var(--text-primary);
-          line-height: 1;
-          margin-bottom: 10px;
-          letter-spacing: -0.5px;
-        }
-
-        .ps-trend {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 12px;
-          font-weight: 700;
-          margin-top: 6px;
-        }
-
-        .ps-trend.up { color: #16a34a; }
-        .ps-trend.down { color: #dc2626; }
-
         /* Dynamic Visual Charts Rows */
         .ps-charts-row {
           display: grid;
@@ -995,73 +938,63 @@ export default function PaymentStatus() {
       <div className="ps-wrapper">
 
         {/* ─── Top KPI Row Module ──────────────────────────────── */}
-        <div className="ps-kpi-grid">
+        <div className="kpi-row" style={{ marginBottom: 24 }}>
 
           {/* Card 1: Actual Payout */}
-          <div className="ps-kpi-card">
-            <div>
-              <div className="ps-kpi-label">Actual Payout</div>
-              <div className="ps-kpi-value">{formatAmount(globalStats.actual)}</div>
-              <div style={{ color: '#16a34a', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                ↗ 12% vs last month
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#3b82f6', background: '#dbeafe' }}>
+                <Coins size={20} />
               </div>
+              <span className="kpi-tag" style={{ color: '#16a34a' }}>↗ 12% vs last month</span>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Coins size={20} color="var(--text-primary)" />
+            <div className="kpi-body">
+              <div className="kpi-title">Actual Payout</div>
+              <div className="kpi-value">{formatAmount(globalStats.actual)}</div>
             </div>
           </div>
 
           {/* Card 2: Received Payout */}
-          <div className="ps-kpi-card">
-            <div>
-              <div className="ps-kpi-label">Received Payout</div>
-              <div className="ps-kpi-value">{formatAmount(globalStats.received)}</div>
-              <div style={{ width: '100px', height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ width: `${globalStats.rate}%`, height: '100%', background: '#16a34a' }} />
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#16a34a', background: '#dcfce7' }}>
+                <CheckCircle size={20} />
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CheckCircle size={20} color="#16a34a" />
+            <div className="kpi-body">
+              <div className="kpi-title">Received Payout</div>
+              <div className="kpi-value">{formatAmount(globalStats.received)}</div>
+              <div style={{ width: '100%', height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden', marginTop: '12px' }}>
+                <div style={{ width: `${globalStats.rate}%`, height: '100%', background: '#16a34a' }} />
+              </div>
             </div>
           </div>
 
           {/* Card 3: Pending Payout */}
-          <div className="ps-kpi-card">
-            <div>
-              <div className="ps-kpi-label">Pending Payout</div>
-              <div className="ps-kpi-value">{formatAmount(globalStats.pending)}</div>
-              <div style={{ color: '#dc2626', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <AlertTriangle size={12} color="#dc2626" /> {globalStats.overdueCount} overdue items
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#dc2626', background: '#fecaca' }}>
+                <Clock size={20} />
               </div>
+              <span className="kpi-tag" style={{ color: '#dc2626' }}><AlertTriangle size={12} style={{marginRight: 4}} /> {globalStats.overdueCount} overdue</span>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Clock size={20} color="#dc2626" />
+            <div className="kpi-body">
+              <div className="kpi-title">Pending Payout</div>
+              <div className="kpi-value">{formatAmount(globalStats.pending)}</div>
             </div>
           </div>
 
           {/* Card 4: Collection Rate */}
-          <div className="ps-kpi-card">
-            <div>
-              <div className="ps-kpi-label">Collection Rate</div>
-              <div className="ps-kpi-value">{globalStats.rate}%</div>
-              <div style={{ fontSize: '11px', color: '#9ca3af', fontWeight: '700' }}>TARGET: 85%</div>
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#d97706', background: '#fef3c7' }}>
+                <TrendingUp size={20} />
+              </div>
+              <span className="kpi-tag">TARGET: 85%</span>
             </div>
-            <div style={{ position: 'relative', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="44" height="44" viewBox="0 0 36 36">
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="var(--bg-muted)"
-                  strokeWidth="4"
-                />
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="var(--text-primary)"
-                  strokeWidth="4"
-                  strokeDasharray={`${globalStats.rate}, 100`}
-                />
-              </svg>
+            <div className="kpi-body">
+              <div className="kpi-title">Collection Rate</div>
+              <div className="kpi-value">{globalStats.rate}%</div>
             </div>
           </div>
 

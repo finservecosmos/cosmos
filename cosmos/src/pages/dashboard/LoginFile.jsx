@@ -141,23 +141,16 @@ const emptyAddForm = { client: '', client_id: '', loan_type: 'Home Loan' }
 /* ─── Stat Card ─────────────────────────────────────────────── */
 function StatCard({ label, value, sub, icon, iconBg, accent }) {
   return (
-    <div style={{
-      background: 'var(--bg-surface)', borderRadius: 12, border: '1px solid #f0f0f0',
-      padding: '20px 24px', flex: '1 1 0', minWidth: 0,
-      display: 'flex', flexDirection: 'column', gap: 6,
-      boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
-    }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: accent || 'var(--text-primary)', lineHeight: 1.1 }}>{value}</div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginTop: 4 }}>{label}</div>
-          {sub && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>}
+    <div className="kpi-card" style={{ flex: '1 1 0', minWidth: 0 }}>
+      <div className="kpi-header">
+        <div className="kpi-icon-wrap" style={{ background: iconBg }}>
+          {icon}
         </div>
-        <div style={{
-          width: 44, height: 44, borderRadius: 10,
-          background: iconBg, display: 'flex', alignItems: 'center',
-          justifyContent: 'center', fontSize: 20, flexShrink: 0
-        }}>{icon}</div>
+        {sub && <span className="kpi-tag muted">{sub}</span>}
+      </div>
+      <div className="kpi-body">
+        <div className="kpi-title">{label}</div>
+        <div className="kpi-value" style={{ color: accent || 'var(--text-primary)' }}>{value}</div>
       </div>
     </div>
   )
@@ -526,8 +519,8 @@ export default function LoginFile() {
   }
 
   const inputStyle = {
-    border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px',
-    fontSize: 13, color: 'var(--text-secondary)', outline: 'none', width: '100%',
+    border: '1.5px solid var(--border-input)', borderRadius: 8, padding: '8px 12px',
+    fontSize: 13, color: 'var(--text-primary)', background: 'var(--bg-surface)', outline: 'none', width: '100%',
   }
 
   const labelStyle = { fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 4 }
@@ -555,15 +548,15 @@ export default function LoginFile() {
         </div>
 
         {/* Stats */}
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div className="kpi-row" style={{ marginBottom: 24 }}>
           {stats.map(s => <StatCard key={s.label} {...s} />)}
         </div>
 
         {/* Filters */}
         <div style={{
-          background: 'var(--bg-surface)', borderRadius: 12, border: '1px solid #f0f0f0',
+          background: 'var(--bg-surface)', borderRadius: 12, border: '1px solid var(--border)',
           padding: '16px 20px', marginBottom: 24,
-          boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+          boxShadow: 'var(--shadow-sm)',
         }}>
           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: 200 }}>
@@ -597,7 +590,7 @@ export default function LoginFile() {
               </label>
             </div>
             <button onClick={clearFilters} style={{
-              background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid #e5e7eb',
+              background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1.5px solid var(--border-input)',
               borderRadius: 8, padding: '9px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer',
             }}>Clear</button>
           </div>

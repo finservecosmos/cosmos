@@ -10,6 +10,7 @@ import InvestmentForm from '../../features/partner-ledger/components/InvestmentF
 import InvestmentTable from '../../features/partner-ledger/components/InvestmentTable';
 import '../../shared/ui/DataPage.css';
 import './FinanceInvestment.css';
+import { ExternalLink } from 'lucide-react';
 
 export default function FinanceInvestment() {
   const navigate = useNavigate();
@@ -257,7 +258,7 @@ export default function FinanceInvestment() {
                     rel="noopener noreferrer"
                     style={{ color: 'var(--accent)', fontWeight: 700, textDecoration: 'underline' }}
                   >
-                    Open Google Drive 🔗
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>Open Google Drive <ExternalLink size={14} /></span>
                   </a>
                 </div>
               )}

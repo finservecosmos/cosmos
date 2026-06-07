@@ -110,7 +110,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="stat-cards-row">
+        <div className="kpi-row">
           <StatCard
             title="New Enquiries"
             value={loading ? '—' : stats?.newEnquiries ?? 0}

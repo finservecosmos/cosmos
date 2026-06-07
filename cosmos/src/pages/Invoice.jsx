@@ -5,7 +5,7 @@ import Modal from '../shared/ui/Modal'
 import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
 import '../shared/ui/DataPage.css'
-import { Receipt } from 'lucide-react'
+import { FileText, CheckCircle, Clock, AlertTriangle } from 'lucide-react'
 
 function formatAmount(n) { return `₹${n.toLocaleString('en-IN')}` }
 
@@ -89,22 +89,53 @@ export default function Invoice() {
         </div>
 
         {/* Summary */}
-        <div className="data-summary">
-          <div className="data-summary-item">
-            <div className="data-summary-label">Total Invoices</div>
-            <div className="data-summary-value">{invoices.length}</div>
+        <div className="kpi-row">
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#3b82f6', background: '#dbeafe' }}>
+                <FileText size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Total Invoices</div>
+              <div className="kpi-value">{invoices.length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Collected</div>
-            <div className="data-summary-value accent">{formatAmount(totalPaid)}</div>
+          
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#16a34a', background: '#dcfce7' }}>
+                <CheckCircle size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Collected</div>
+              <div className="kpi-value">{formatAmount(totalPaid)}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Pending</div>
-            <div className="data-summary-value">{formatAmount(totalPending)}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#d97706', background: '#fef3c7' }}>
+                <Clock size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Pending</div>
+              <div className="kpi-value">{formatAmount(totalPending)}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Overdue</div>
-            <div className="data-summary-value" style={{ color: '#c0392b' }}>{formatAmount(totalOverdue)}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#dc2626', background: '#fecaca' }}>
+                <AlertTriangle size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Overdue</div>
+              <div className="kpi-value">{formatAmount(totalOverdue)}</div>
+            </div>
           </div>
         </div>
 
@@ -299,21 +330,9 @@ export default function Invoice() {
               {/* Summary Calculations */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: 12 }}>
                 <div style={{ width: '220px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Base Fee</span>
-                    <span style={{ fontWeight: 600 }}>{formatAmount(selectedInvoice.amount)}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>CGST (9%)</span>
-                    <span style={{ fontWeight: 600 }}>{formatAmount(Math.round(selectedInvoice.amount * 0.09))}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>SGST (9%)</span>
-                    <span style={{ fontWeight: 600 }}>{formatAmount(Math.round(selectedInvoice.amount * 0.09))}</span>
-                  </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderTop: '2px solid var(--border)', marginTop: 6, fontSize: 14 }}>
-                    <span style={{ fontWeight: 800 }}>Total (incl. GST)</span>
-                    <span style={{ fontWeight: 800, color: 'var(--accent)' }}>{formatAmount(Math.round(selectedInvoice.amount * 1.18))}</span>
+                    <span style={{ fontWeight: 800 }}>Total Amount</span>
+                    <span className="invoice-total" style={{ fontWeight: 800, color: 'var(--accent)' }}>{formatAmount(selectedInvoice.amount)}</span>
                   </div>
                 </div>
               </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Download, Eye, Edit, MoreVertical, Trash2 } from 'lucide-react';
 
 export default function InvestmentTable({
   paginatedRecords,
@@ -69,7 +70,7 @@ export default function InvestmentTable({
             onClick={handleExportCSV}
             style={{ display: 'inline-flex', alignSelf: 'center', gap: 6 }}
           >
-            📥 Export Excel
+            <Download size={16} style={{ marginRight: 4, verticalAlign: 'text-bottom' }} /> Export Excel
           </button>
         </div>
       </div>
@@ -127,7 +128,7 @@ export default function InvestmentTable({
                         title="View Details"
                         onClick={() => setViewRecord(rec)}
                       >
-                        👁️
+                        <Eye size={16} />
                       </button>
                       <button
                         type="button"
@@ -135,7 +136,7 @@ export default function InvestmentTable({
                         title="Edit Record"
                         onClick={() => handleEditRecord(rec)}
                       >
-                        ✏️
+                        <Edit size={16} />
                       </button>
                       <div className="action-menu-container">
                         <button
@@ -144,13 +145,13 @@ export default function InvestmentTable({
                           title="More Actions"
                           onClick={(e) => triggerActionMenu(e, rec.id)}
                         >
-                          ⋮
+                          <MoreVertical size={16} />
                         </button>
 
                         {activeMenuId === rec.id && (
                           <div className="action-popover" onClick={(e) => e.stopPropagation()}>
                             <button className="popover-item danger" onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}>
-                              🗑️ Deactivate
+                              <Trash2 size={16} style={{ marginRight: 6, verticalAlign: 'text-bottom' }} /> Deactivate
                             </button>
                           </div>
                         )}

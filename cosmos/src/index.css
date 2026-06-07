@@ -67,7 +67,7 @@
 
 body {
   margin: 0;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--bg-app);
@@ -103,3 +103,71 @@ svg {
 * svg {
   font-size: inherit;
 }
+
+/* ── Typography System ─────────────────────────────────────── */
+.numeric-data, 
+.data-summary-value, 
+.cell-amount, 
+.ps-kpi-value, 
+.ps-legend-val, 
+.invoice-amount, 
+.invoice-total,
+.metric-value,
+.donut-center-val,
+.donut-percent,
+.donut-tooltip-count,
+.donut-tooltip-pct {
+  font-family: 'Inter', sans-serif !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.section-heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.body-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748B;
+}
+
+.kpi-value {
+  font-family: 'Inter', sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.table-amount {
+  font-family: 'Inter', sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.status-badge {
+  font-size: 13px;
+  font-weight: 600;
+}
+

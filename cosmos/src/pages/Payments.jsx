@@ -4,7 +4,7 @@ import Modal from '../shared/ui/Modal'
 import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
 import '../shared/ui/DataPage.css'
-import { CreditCard } from 'lucide-react'
+import { CreditCard, ArrowDownCircle, ArrowUpCircle, Clock } from 'lucide-react'
 
 function formatAmount(n) {
   return `₹${n.toLocaleString('en-IN')}`
@@ -78,22 +78,53 @@ export default function Payments() {
         </div>
 
         {/* Summary */}
-        <div className="data-summary">
-          <div className="data-summary-item">
-            <div className="data-summary-label">Total Transactions</div>
-            <div className="data-summary-value">{payments.length}</div>
+        <div className="kpi-row">
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#3b82f6', background: '#dbeafe' }}>
+                <CreditCard size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Total Transactions</div>
+              <div className="kpi-value">{payments.length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Collections</div>
-            <div className="data-summary-value accent">{formatAmount(totalIn)}</div>
+          
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#16a34a', background: '#dcfce7' }}>
+                <ArrowDownCircle size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Collections</div>
+              <div className="kpi-value">{formatAmount(totalIn)}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Disbursements</div>
-            <div className="data-summary-value">{formatAmount(totalOut)}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#8b5cf6', background: '#ede9fe' }}>
+                <ArrowUpCircle size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Disbursements</div>
+              <div className="kpi-value">{formatAmount(totalOut)}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Pending</div>
-            <div className="data-summary-value">{pending}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#d97706', background: '#fef3c7' }}>
+                <Clock size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Pending</div>
+              <div className="kpi-value">{pending}</div>
+            </div>
           </div>
         </div>
 

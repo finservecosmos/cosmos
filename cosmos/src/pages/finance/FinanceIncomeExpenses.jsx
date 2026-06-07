@@ -5,6 +5,7 @@ import Modal from '../../shared/ui/Modal'
 import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import useConfirm from '../../shared/lib/useConfirm'
+import DonutChart from '../../shared/ui/DonutChart'
 import '../../shared/ui/DataPage.css'
 import './FinanceIncomeExpenses.css'
 import { X, Plus, Download, Edit, Trash2 } from 'lucide-react';
@@ -645,38 +646,12 @@ export default function FinanceIncomeExpenses() {
               <div className="donut-segment-column">
                 <h4 className="donut-header-title">Income Breakdown</h4>
                 <div className="donut-svg-legend-wrapper">
-                  <div className="donut-visual-box">
-                    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-                      <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--bg-muted)" strokeWidth={strokeW} />
-                      {incomeSegments.map((seg, i) => (
-                        <circle
-                          key={i}
-                          cx={cx}
-                          cy={cy}
-                          r={r}
-                          fill="none"
-                          stroke={seg.color}
-                          strokeWidth={strokeW}
-                          strokeDasharray={seg.dashArray}
-                          transform={`rotate(${seg.rotation} ${cx} ${cy})`}
-                          style={{ transition: 'stroke-width 0.2s' }}
-                        />
-                      ))}
-                      <g style={{ fontFamily: 'var(--font-sans)', fontWeight: 800 }}>
-                        <text x={cx} y={cy - 2} textAnchor="middle" fill="var(--text-primary)" style={{ fontSize: 11 }}>TOTAL</text>
-                        <text x={cx} y={cy + 12} textAnchor="middle" fill="var(--accent)" style={{ fontSize: 11.5 }}>{formatAmountLakhs(totalIncome)}</text>
-                      </g>
-                    </svg>
-                  </div>
-                  <div className="donut-legend-list">
-                    {incomeSegments.map((seg, i) => (
-                      <div key={i} className="donut-legend-row-item">
-                        <span className="legend-indicator-dot" style={{ background: seg.color }} />
-                        <span className="legend-label-text">{seg.type}</span>
-                        <span className="legend-percent-bold">{seg.percent}%</span>
-                      </div>
-                    ))}
-                  </div>
+                  <DonutChart
+                    data={incomeSegments}
+                    formatter={formatAmountLakhs}
+                    centerLabel="TOTAL"
+                    tooltipLabel="INR"
+                  />
                 </div>
               </div>
 
@@ -684,38 +659,12 @@ export default function FinanceIncomeExpenses() {
               <div className="donut-segment-column">
                 <h4 className="donut-header-title">Expense Breakdown</h4>
                 <div className="donut-svg-legend-wrapper">
-                  <div className="donut-visual-box">
-                    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-                      <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--bg-muted)" strokeWidth={strokeW} />
-                      {expenseSegments.map((seg, i) => (
-                        <circle
-                          key={i}
-                          cx={cx}
-                          cy={cy}
-                          r={r}
-                          fill="none"
-                          stroke={seg.color}
-                          strokeWidth={strokeW}
-                          strokeDasharray={seg.dashArray}
-                          transform={`rotate(${seg.rotation} ${cx} ${cy})`}
-                          style={{ transition: 'stroke-width 0.2s' }}
-                        />
-                      ))}
-                      <g style={{ fontFamily: 'var(--font-sans)', fontWeight: 800 }}>
-                        <text x={cx} y={cy - 2} textAnchor="middle" fill="var(--text-primary)" style={{ fontSize: 11 }}>TOTAL</text>
-                        <text x={cx} y={cy + 12} textAnchor="middle" fill="var(--accent)" style={{ fontSize: 11.5 }}>{formatAmountLakhs(totalExpenses)}</text>
-                      </g>
-                    </svg>
-                  </div>
-                  <div className="donut-legend-list">
-                    {expenseSegments.map((seg, i) => (
-                      <div key={i} className="donut-legend-row-item">
-                        <span className="legend-indicator-dot" style={{ background: seg.color }} />
-                        <span className="legend-label-text">{seg.type}</span>
-                        <span className="legend-percent-bold">{seg.percent}%</span>
-                      </div>
-                    ))}
-                  </div>
+                  <DonutChart
+                    data={expenseSegments}
+                    formatter={formatAmountLakhs}
+                    centerLabel="TOTAL"
+                    tooltipLabel="INR"
+                  />
                 </div>
               </div>
             </div>

@@ -4,7 +4,7 @@ import Modal from '../shared/ui/Modal'
 import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
 import '../shared/ui/DataPage.css'
-import { Users, TrendingUp, Search, Eye, Edit } from 'lucide-react'
+import { Users, TrendingUp, Search, Eye, Edit, Banknote, Coins } from 'lucide-react'
 
 function formatAmount(n) {
   if (n >= 10000000) return `₹${(n/10000000).toFixed(2)}Cr`
@@ -253,18 +253,41 @@ export default function AssociatesBook() {
         </div>
 
         {/* Summary */}
-        <div className="data-summary">
-          <div className="data-summary-item">
-            <div className="data-summary-label">Total Associates</div>
-            <div className="data-summary-value">{associates.length}</div>
+        <div className="kpi-row">
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#3b82f6', background: '#dbeafe' }}>
+                <Users size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Total Associates</div>
+              <div className="kpi-value">{associates.length}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Total Disbursed</div>
-            <div className="data-summary-value accent">{formatAmount(totalDisbursed)}</div>
+          
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#16a34a', background: '#dcfce7' }}>
+                <Banknote size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Total Disbursed</div>
+              <div className="kpi-value">{formatAmount(totalDisbursed)}</div>
+            </div>
           </div>
-          <div className="data-summary-item">
-            <div className="data-summary-label">Commission Paid</div>
-            <div className="data-summary-value">{formatAmount(totalCommission)}</div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ color: '#d97706', background: '#fef3c7' }}>
+                <Coins size={20} />
+              </div>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Commission Paid</div>
+              <div className="kpi-value">{formatAmount(totalCommission)}</div>
+            </div>
           </div>
         </div>
 
