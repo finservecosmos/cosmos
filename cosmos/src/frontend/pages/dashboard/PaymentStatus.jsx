@@ -5,6 +5,7 @@ import { useAppState } from '../../../context/AppStateContext'
 import { useToast } from '../../../context/ToastContext'
 import { useNavigate } from 'react-router-dom'
 import useConfirm from '../../hooks/useConfirm'
+import DonutChart from '../../components/DonutChart'
 import '../DataPage.css'
 import { Coins, CheckCircle, AlertTriangle, Clock, TrendingUp, CircleDot, BarChart, Download, FileSpreadsheet, FileText, Eye, RefreshCw, Edit, Trash2, Plus } from 'lucide-react';
 
@@ -275,7 +276,7 @@ export default function PaymentStatus() {
           <style>
             body { font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--text-primary); padding: 40px; }
             .header { display: flex; justify-content: space-between; border-bottom: 2px solid #850f1d; padding-bottom: 20px; margin-bottom: 30px; }
-            .logo { font-size: 24px; font-weight: 800; color: #850f1d; }
+            .logo { font-size: 24px; font-weight: 800; color: var(--accent); }
             .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
             .title { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
             .table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -315,7 +316,7 @@ export default function PaymentStatus() {
           </table>
           
           <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
-            <div style="background: #fafafa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px 20px; min-width: 250px;">
+            <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 15px 20px; min-width: 250px;">
               <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;">
                 <span>Total Outstanding Payouts:</span>
                 <span style="font-weight: 700; color: #b91c1c;">₹${globalStats.pending.toLocaleString('en-IN')}</span>
@@ -392,6 +393,70 @@ export default function PaymentStatus() {
     setUpdatePayment(null)
   }
 
+  useEffect(() => {
+    if (editCustomer) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setEditPaymentsLocal(editCustomer.payments.map(p => ({ ...p })))
+    } else {
+      setEditPaymentsLocal([])
+    }
+  }, [editCustomer])
+
+  useEffect(() => {
+    window.handleLocalPaymentEdit = (id, field, value) => {
+      setEditPaymentsLocal(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p))
+    }
+
+    window.handleLocalPaymentDelete = (id) => {
+      setEditPaymentsLocal(prev => prev.filter(p => p.id !== id))
+    }
+
+    window.handleLocalPaymentAdd = () => {
+      const tempId = `TEMP_${Date.now()}`
+      setEditPaymentsLocal(prev => [
+        ...prev,
+        {
+          id: tempId,
+          client: editCustomer?.client,
+          file_no: editCustomer?.file_no,
+          type: 'Collection',
+          amount: 10000,
+          bank: 'ICICI Bank',
+          date: new Date().toISOString().slice(0, 10),
+          status: 'Completed'
+        }
+      ])
+    }
+
+    window.handleSaveCustomerPayments = () => {
+      if (!editCustomer) return;
+      const initialIds = editCustomer.payments.map(p => p.id)
+      const currentIds = editPaymentsLocal.map(p => p.id)
+      const deletedIds = initialIds.filter(id => !currentIds.includes(id))
+      
+      deletedIds.forEach(id => removePayment(id))
+
+      editPaymentsLocal.forEach(p => {
+        if (String(p.id).startsWith('TEMP_')) {
+          addPayment({
+            client: p.client,
+            file_no: p.file_no,
+            type: p.type,
+            amount: p.amount,
+            bank: p.bank,
+            date: p.date,
+            status: p.status
+          })
+        } else {
+          updatePayment(p)
+        }
+      })
+
+      addToast(`Successfully updated payout record ledgers for ${editCustomer.client}!`, 'success')
+      setEditCustomer(null)
+    }
+  }, [editCustomer, editPaymentsLocal, addPayment, removePayment, updatePayment, addToast])
+
   return (
     <DashboardLayout>
       {/* ─── Stylesheet Redux ─────────────────────────────────── */}
@@ -411,10 +476,10 @@ export default function PaymentStatus() {
         }
 
         .ps-kpi-card {
-          background: #ffffff;
+          background: var(--bg-surface); border: 1px solid var(--border);
           border-radius: 12px;
           padding: 24px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+          box-shadow: var(--shadow-sm);
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -424,7 +489,7 @@ export default function PaymentStatus() {
 
         .ps-kpi-card:hover {
           transform: none;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          box-shadow: var(--shadow-md); border-color: var(--border-input);
         }
 
         .ps-kpi-label {
@@ -440,7 +505,7 @@ export default function PaymentStatus() {
           font-family: 'Inter', system-ui, -apple-system, sans-serif;
           font-size: 26px;
           font-weight: 900;
-          color: #000000;
+          color: var(--text-primary);
           line-height: 1;
           margin-bottom: 10px;
           letter-spacing: -0.5px;
@@ -468,9 +533,9 @@ export default function PaymentStatus() {
 
         .ps-main-card {
           background: var(--bg-surface);
-          border: 1px solid #f3f4f6;
+          border: 1px solid var(--border);
           border-radius: 16px;
-          box-shadow: 0 4px 25px rgba(0,0,0,0.02);
+          box-shadow: var(--shadow-sm);
           padding: 24px;
           display: flex;
           flex-direction: column;
@@ -481,7 +546,7 @@ export default function PaymentStatus() {
           align-items: center;
           justify-content: space-between;
           margin-bottom: 20px;
-          border-bottom: 1px solid #f9fafb;
+          border-bottom: 1px solid var(--border);
           padding-bottom: 14px;
         }
 
@@ -542,8 +607,8 @@ export default function PaymentStatus() {
           gap: 4px;
         }
 
-        .ps-legend-box.green { background: #f0fdf4; border: 1px solid #dcfce7; }
-        .ps-legend-box.red { background: #fef2f2; border: 1px solid #fee2e2; }
+        .ps-legend-box.green { background: var(--bg-muted); border: 1px solid rgba(22, 163, 74, 0.4); }
+        .ps-legend-box.red { background: var(--bg-muted); border: 1px solid rgba(220, 38, 38, 0.4); }
 
         .ps-legend-lbl {
           font-size: 10px;
@@ -572,9 +637,9 @@ export default function PaymentStatus() {
           font-weight: 700;
           padding: 4px 10px;
           border-radius: 6px;
-          background: #f3f4f6;
+          background: var(--bg-muted);
           color: var(--text-secondary);
-          border: 1px solid #e5e7eb;
+          border: 1px solid var(--border);
           text-transform: uppercase;
           letter-spacing: 0.02em;
         }
@@ -603,7 +668,7 @@ export default function PaymentStatus() {
 
         .ps-out-bar-bg {
           height: 10px;
-          background: #f1f5f9;
+          background: var(--bg-muted);
           border-radius: 6px;
           overflow: hidden;
           position: relative;
@@ -618,10 +683,10 @@ export default function PaymentStatus() {
 
         .ps-info-footer {
           margin-top: auto;
-          background: #f9fafb;
+          background: var(--bg-muted);
           border-radius: 10px;
           padding: 12px 14px;
-          border: 1px solid #f3f4f6;
+          border: 1px solid var(--border);
           font-size: 11px;
           color: var(--text-muted);
           font-weight: 600;
@@ -633,7 +698,7 @@ export default function PaymentStatus() {
         /* Dynamic Filter Toolbar */
         .ps-filter-card {
           background: var(--bg-surface);
-          border: 1px solid #f3f4f6;
+          border: 1px solid var(--border);
           border-radius: 16px;
           padding: 20px 24px;
           margin-bottom: 24px;
@@ -659,7 +724,7 @@ export default function PaymentStatus() {
         .ps-input, .ps-select {
           width: 100%;
           padding: 10px 14px;
-          border: 1px solid #d1d5db;
+          border: 1px solid var(--border-input);
           border-radius: 8px;
           font-size: 13px;
           background: var(--bg-surface);
@@ -669,12 +734,12 @@ export default function PaymentStatus() {
         }
 
         .ps-input:focus, .ps-select:focus {
-          border-color: #850f1d;
+          border-color: var(--accent);
           box-shadow: 0 0 0 3px rgba(133, 15, 29, 0.1);
         }
 
         .ps-btn-apply {
-          background: #850f1d;
+          background: var(--accent);
           color: #fff;
           border: none;
           padding: 10px 22px;
@@ -686,13 +751,13 @@ export default function PaymentStatus() {
         }
 
         .ps-btn-apply:hover {
-          background: #6e0b17;
+          background: var(--accent-hover);
         }
 
         .ps-btn-clear {
           background: var(--bg-surface);
           color: var(--text-secondary);
-          border: 1px solid #d1d5db;
+          border: 1px solid var(--border-input);
           padding: 10px 18px;
           border-radius: 8px;
           font-weight: 700;
@@ -702,15 +767,15 @@ export default function PaymentStatus() {
         }
 
         .ps-btn-clear:hover {
-          background: #f9fafb;
+          background: var(--bg-muted);
         }
 
         /* Custom Table aesthetics */
         .ps-table-card {
           background: var(--bg-surface);
-          border: 1px solid #f3f4f6;
+          border: 1px solid var(--border);
           border-radius: 16px;
-          box-shadow: 0 4px 25px rgba(0,0,0,0.02);
+          box-shadow: var(--shadow-sm);
           overflow: hidden;
           margin-bottom: 30px;
         }
@@ -722,7 +787,7 @@ export default function PaymentStatus() {
         }
 
         .ps-table th {
-          background: #fafafb;
+          background: var(--bg-surface);
           padding: 14px 20px;
           font-size: 11px;
           font-weight: 750;
@@ -743,9 +808,7 @@ export default function PaymentStatus() {
           border-bottom: none;
         }
 
-        .ps-table tr:hover td {
-          background: #fafafb;
-        }
+        .ps-table tr:hover td { background: var(--bg-hover); }
 
         .ps-avatar-badge {
           width: 32px;
@@ -768,9 +831,9 @@ export default function PaymentStatus() {
           display: inline-block;
         }
 
-        .ps-status-pill.paid { background: #dcfce7; color: #16a34a; }
-        .ps-status-pill.partial { background: #fef3c7; color: #d97706; }
-        .ps-status-pill.pending { background: #fde8e8; color: #dc2626; }
+        .ps-status-pill.paid { background: transparent; color: #16a34a; border: 1px solid #16a34a; }
+        .ps-status-pill.partial { background: transparent; color: #f59e0b; border: 1px solid #f59e0b; }
+        .ps-status-pill.pending { background: transparent; color: #dc2626; border: 1px solid #dc2626; }
 
         /* Actions button ⋮ */
         .ps-ellipsis-btn {
@@ -785,7 +848,7 @@ export default function PaymentStatus() {
         }
 
         .ps-ellipsis-btn:hover {
-          background: #f3f4f6;
+          background: var(--bg-muted);
           color: var(--text-secondary);
         }
 
@@ -796,7 +859,7 @@ export default function PaymentStatus() {
           z-index: 99;
           width: 150px;
           background: var(--bg-surface);
-          border: 1px solid #e5e7eb;
+          border: 1px solid var(--border);
           border-radius: 10px;
           box-shadow: 0 10px 25px rgba(0,0,0,0.08);
           overflow: hidden;
@@ -824,15 +887,15 @@ export default function PaymentStatus() {
         }
 
         .ps-action-item:hover {
-          background: #f9fafb;
-          color: #850f1d;
+          background: var(--bg-muted);
+          color: var(--accent);
         }
 
         /* Download drop controller */
         .ps-download-btn {
           background: none;
           border: none;
-          color: #850f1d;
+          color: var(--accent);
           font-size: 13.5px;
           font-weight: 700;
           cursor: pointer;
@@ -854,7 +917,7 @@ export default function PaymentStatus() {
           top: 50px;
           z-index: 100;
           background: var(--bg-surface);
-          border: 1px solid #e5e7eb;
+          border: 1px solid var(--border);
           border-radius: 10px;
           box-shadow: 0 10px 25px rgba(0,0,0,0.1);
           width: 160px;
@@ -867,7 +930,7 @@ export default function PaymentStatus() {
           align-items: center;
           justify-content: space-between;
           padding: 14px 24px;
-          background: #fafafb;
+          background: var(--bg-surface);
           border-top: 1px solid #f3f4f6;
         }
 
@@ -886,7 +949,7 @@ export default function PaymentStatus() {
         .ps-page-btn {
           padding: 6px 12px;
           border-radius: 6px;
-          border: 1px solid #d1d5db;
+          border: 1px solid var(--border-input);
           background: var(--bg-surface);
           font-size: 12px;
           font-weight: 700;
@@ -901,7 +964,7 @@ export default function PaymentStatus() {
         }
 
         .ps-page-btn:hover:not(:disabled) {
-          background: #f9fafb;
+          background: var(--bg-muted);
         }
 
         .ps-modal-body-payout {
@@ -918,7 +981,7 @@ export default function PaymentStatus() {
         }
 
         .ps-history-table th {
-          background: #f9fafb;
+          background: var(--bg-muted);
           padding: 10px 12px;
           font-weight: 700;
           color: var(--text-secondary);
@@ -928,69 +991,6 @@ export default function PaymentStatus() {
           max-width: 960px !important;
         }
       `}</style>
-
-      {/* ─── Local State hooks & transaction handlers ─────────── */}
-      {useEffect(() => {
-        if (editCustomer) {
-          setEditPaymentsLocal(editCustomer.payments.map(p => ({ ...p })))
-        } else {
-          setEditPaymentsLocal([])
-        }
-      }, [editCustomer])}
-
-      {(() => {
-        window.handleLocalPaymentEdit = (id, field, value) => {
-          setEditPaymentsLocal(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p))
-        }
-
-        window.handleLocalPaymentDelete = (id) => {
-          setEditPaymentsLocal(prev => prev.filter(p => p.id !== id))
-        }
-
-        window.handleLocalPaymentAdd = () => {
-          const tempId = `TEMP_${Date.now()}`
-          setEditPaymentsLocal(prev => [
-            ...prev,
-            {
-              id: tempId,
-              client: editCustomer.client,
-              file_no: editCustomer.file_no,
-              type: 'Collection',
-              amount: 10000,
-              bank: 'ICICI Bank',
-              date: new Date().toISOString().slice(0, 10),
-              status: 'Completed'
-            }
-          ])
-        }
-
-        window.handleSaveCustomerPayments = () => {
-          const initialIds = editCustomer.payments.map(p => p.id)
-          const currentIds = editPaymentsLocal.map(p => p.id)
-          const deletedIds = initialIds.filter(id => !currentIds.includes(id))
-          
-          deletedIds.forEach(id => removePayment(id))
-
-          editPaymentsLocal.forEach(p => {
-            if (String(p.id).startsWith('TEMP_')) {
-              addPayment({
-                client: p.client,
-                file_no: p.file_no,
-                type: p.type,
-                amount: p.amount,
-                bank: p.bank,
-                date: p.date,
-                status: p.status
-              })
-            } else {
-              updatePayment(p)
-            }
-          })
-
-          addToast(`Successfully updated payout record ledgers for ${editCustomer.client}!`, 'success')
-          setEditCustomer(null)
-        }
-      })()}
 
       <div className="ps-wrapper">
         
@@ -1006,8 +1006,8 @@ export default function PaymentStatus() {
                 ↗ 12% vs last month
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fcf3f3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Coins size={20} color="#000000" />
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Coins size={20} color="var(--text-primary)" />
             </div>
           </div>
 
@@ -1020,7 +1020,7 @@ export default function PaymentStatus() {
                 <div style={{ width: `${globalStats.rate}%`, height: '100%', background: '#16a34a' }} />
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fcf3f3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CheckCircle size={20} color="#16a34a" />
             </div>
           </div>
@@ -1034,7 +1034,7 @@ export default function PaymentStatus() {
                 <AlertTriangle size={12} color="#dc2626" /> {globalStats.overdueCount} overdue items
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fcf3f3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Clock size={20} color="#dc2626" />
             </div>
           </div>
@@ -1051,13 +1051,13 @@ export default function PaymentStatus() {
                 <path
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
-                  stroke="#f3f4f6"
+                  stroke="var(--bg-muted)"
                   strokeWidth="4"
                 />
                 <path
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
-                  stroke="#000000"
+                  stroke="var(--text-primary)"
                   strokeWidth="4"
                   strokeDasharray={`${globalStats.rate}, 100`}
                 />
@@ -1078,24 +1078,17 @@ export default function PaymentStatus() {
             </div>
 
             {/* Donut Chart SVG */}
-            <div className="ps-donut-wrap">
-              <svg width="180" height="180" viewBox="0 0 42 42" className="ps-donut">
-                <circle cx="21" cy="21" r="15.915" fill="transparent" stroke='var(--bg-hover)' strokeWidth="4.2" />
-                <circle
-                  cx="21"
-                  cy="21"
-                  r="15.915"
-                  fill="transparent"
-                  stroke="#16a34a"
-                  strokeWidth="4.2"
-                  strokeDasharray={`${globalStats.rate} ${100 - globalStats.rate}`}
-                  strokeDashoffset="25"
-                />
-              </svg>
-              <div className="ps-donut-center">
-                <span className="ps-donut-label">Total Payout</span>
-                <span className="ps-donut-val">{formatAmount(globalStats.actual)}</span>
-              </div>
+            <div className="ps-donut-wrap" style={{ margin: 'auto' }}>
+              <DonutChart 
+                data={[
+                  { type: 'Received', count: globalStats.received, percent: globalStats.rate, color: '#16a34a' },
+                  { type: 'Pending', count: globalStats.pending, percent: 100 - globalStats.rate, color: '#dc2626' }
+                ]}
+                formatter={formatAmount}
+                centerLabel="Total Payout"
+                tooltipLabel=""
+                hideLegend={true}
+              />
             </div>
 
             {/* Metrics cards below donut */}

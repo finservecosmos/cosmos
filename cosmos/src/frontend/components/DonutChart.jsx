@@ -3,7 +3,7 @@ import './DonutChart.css'
 
 const COLORS = ['#c0392b', '#e67e22', '#f1c40f', '#3498db']
 
-function DonutChart({ data }) {
+function DonutChart({ data, formatter, centerLabel, tooltipLabel, hideLegend }) {
   const [hoveredSegment, setHoveredSegment] = useState(null)
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
 
@@ -26,7 +26,8 @@ function DonutChart({ data }) {
     const dashArray = `${fraction * circumference} ${circumference}`
     const rotation = cumulative * 360 - 90
     cumulative += fraction
-    return { ...item, index: i, dashArray, rotation, color: COLORS[i % COLORS.length] }
+    const color = item.color || COLORS[i % COLORS.length]
+    return { ...item, index: i, dashArray, rotation, color }
   })
 
   const handleSegmentInteraction = (seg, e) => {
@@ -46,6 +47,10 @@ function DonutChart({ data }) {
   }
 
   const totalCount = data.reduce((sum, item) => sum + item.count, 0)
+
+  const formatVal = formatter || ((val) => val)
+  const tLabel = tooltipLabel !== undefined ? tooltipLabel : 'enquiries'
+  const cLabel = centerLabel || 'Total'
 
   return (
     <div className="donut-container">
@@ -108,7 +113,7 @@ function DonutChart({ data }) {
               textAnchor="middle"
               className="donut-center-val"
             >
-              {hoveredSegment ? hoveredSegment.count : totalCount}
+              {formatVal(hoveredSegment ? hoveredSegment.count : totalCount)}
             </text>
             <text
               x={cx}
@@ -116,7 +121,7 @@ function DonutChart({ data }) {
               textAnchor="middle"
               className="donut-center-lbl"
             >
-              {hoveredSegment ? hoveredSegment.type : 'Total'}
+              {hoveredSegment ? hoveredSegment.type : cLabel}
             </text>
           </g>
         </svg>
@@ -134,27 +139,29 @@ function DonutChart({ data }) {
               <span className="donut-tooltip-type">{hoveredSegment.type}</span>
             </div>
             <div className="donut-tooltip-body">
-              <span className="donut-tooltip-count">{hoveredSegment.count} enquiries</span>
+              <span className="donut-tooltip-count">{formatVal(hoveredSegment.count)} {tLabel}</span>
               <span className="donut-tooltip-pct">{hoveredSegment.percent}%</span>
             </div>
           </div>
         )}
 
         {/* Legend */}
-        <div className="donut-legend">
-          {segments.map((seg, i) => (
-            <div 
-              key={i} 
-              className={`donut-legend-item${hoveredSegment && hoveredSegment.index === seg.index ? ' active' : ''}`}
-              onMouseEnter={() => setHoveredSegment(seg)}
-              onMouseLeave={handleMouseLeave}
-            >
-              <span className="donut-dot" style={{ background: seg.color }} />
-              <span className="donut-label">{seg.type}</span>
-              <span className="donut-percent">{seg.percent}%</span>
-            </div>
-          ))}
-        </div>
+        {!hideLegend && (
+          <div className="donut-legend">
+            {segments.map((seg, i) => (
+              <div 
+                key={i} 
+                className={`donut-legend-item${hoveredSegment && hoveredSegment.index === seg.index ? ' active' : ''}`}
+                onMouseEnter={() => setHoveredSegment(seg)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <span className="donut-dot" style={{ background: seg.color }} />
+                <span className="donut-label">{seg.type}</span>
+                <span className="donut-percent">{seg.percent}%</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
