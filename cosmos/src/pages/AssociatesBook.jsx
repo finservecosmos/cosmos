@@ -4,6 +4,7 @@ import Modal from '../shared/ui/Modal'
 import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
 import '../shared/ui/DataPage.css'
+import { Users, TrendingUp, Search, Eye, Edit } from 'lucide-react'
 
 function formatAmount(n) {
   if (n >= 10000000) return `₹${(n/10000000).toFixed(2)}Cr`
@@ -42,7 +43,7 @@ function HybridLocationPicker({ value, onChange, disabled }) {
 
 const emptyAssociate = {
   name: '', email: '', phone: '', region: 'Mumbai', clients: 0,
-  disbursed: 0, commission: 0, joined: new Date().toISOString().slice(0, 10), status: 'active', id: null,
+  disbursed: 0, commission: 0, joined: new Date().toISOString().slice(0, 10), id: null,
 }
 
 export default function AssociatesBook() {
@@ -50,7 +51,6 @@ export default function AssociatesBook() {
   const { addToast } = useToast()
   const [search, setSearch]       = useState('')
   const [regionFilter, setRegion] = useState('All')
-  const [statusFilter, setStatus] = useState('All')
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState('add')
   const [formData, setFormData]   = useState(emptyAssociate)
@@ -73,8 +73,7 @@ export default function AssociatesBook() {
     const q = search.toLowerCase()
     const matchSearch = !q || a.name.toLowerCase().includes(q) || a.region.toLowerCase().includes(q) || a.email.toLowerCase().includes(q)
     const matchRegion = regionFilter === 'All' || a.region === regionFilter
-    const matchStatus = statusFilter === 'All' || a.status === statusFilter
-    return matchSearch && matchRegion && matchStatus
+    return matchSearch && matchRegion
   })
 
   const totalCommission = associates.reduce((s, a) => s + a.commission, 0)
@@ -147,7 +146,7 @@ export default function AssociatesBook() {
             <div className="wizard-form-body">
               {wizardStep === 1 && (
                 <div className="wizard-panel">
-                  <h3 className="wizard-panel-title">🤝 Setup Contact & Operation Hub</h3>
+                  <h3 className="wizard-panel-title"><Users size={18} style={{marginRight: 8, verticalAlign: "middle"}} /> Setup Contact & Operation Hub</h3>
                   <div className="form-grid">
                     <label>
                       Associate Name *
@@ -171,7 +170,7 @@ export default function AssociatesBook() {
 
               {wizardStep === 2 && (
                 <div className="wizard-panel">
-                  <h3 className="wizard-panel-title">📈 Metric baselines & Status</h3>
+                  <h3 className="wizard-panel-title"><TrendingUp size={18} style={{marginRight: 8, verticalAlign: "middle"}} /> Metric baselines & Status</h3>
                   <div className="form-grid">
                     <label>
                       Joined Date
@@ -188,13 +187,6 @@ export default function AssociatesBook() {
                     <label>
                       Commission Paid (₹)
                       <input type="number" min="0" placeholder="Commission earnings to date" value={formData.commission || ''} onChange={(e) => setFormData({ ...formData, commission: e.target.value })} />
-                    </label>
-                    <label className="form-grid-full">
-                      Activation Status
-                      <select value={formData.status || 'active'} onChange={(e) => setFormData({ ...formData, status: e.target.value })}>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </select>
                     </label>
                   </div>
                 </div>
@@ -267,10 +259,6 @@ export default function AssociatesBook() {
             <div className="data-summary-value">{associates.length}</div>
           </div>
           <div className="data-summary-item">
-            <div className="data-summary-label">Active</div>
-            <div className="data-summary-value">{associates.filter(a => a.status === 'active').length}</div>
-          </div>
-          <div className="data-summary-item">
             <div className="data-summary-label">Total Disbursed</div>
             <div className="data-summary-value accent">{formatAmount(totalDisbursed)}</div>
           </div>
@@ -291,11 +279,6 @@ export default function AssociatesBook() {
           <select className="data-filter-select" value={regionFilter} onChange={e => setRegion(e.target.value)}>
             {REGIONS.map(r => <option key={r}>{r}</option>)}
           </select>
-          <select className="data-filter-select" value={statusFilter} onChange={e => setStatus(e.target.value)}>
-            <option>All</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
           <button className="data-btn data-btn-outline">Export</button>
         </div>
 
@@ -310,15 +293,14 @@ export default function AssociatesBook() {
                 <th>Total Disbursed</th>
                 <th>Commission</th>
                 <th>Joined</th>
-                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={8}>
+                <tr><td colSpan={7}>
                   <div className="data-empty">
-                    <div className="data-empty-icon">🔍</div>
+                    <div className="data-empty-icon"><Search size={48} /></div>
                     <div className="data-empty-title">No associates found</div>
                     <div className="data-empty-sub">Try adjusting your search or filters</div>
                   </div>
@@ -339,7 +321,6 @@ export default function AssociatesBook() {
                   <td className="cell-amount">{formatAmount(a.disbursed)}</td>
                   <td className="cell-amount">{formatAmount(a.commission)}</td>
                   <td className="cell-muted">{a.joined}</td>
-                  <td><span className={`status-badge status-${a.status}`}>{a.status}</span></td>
                   <td>
                     <div className="action-menu-container">
                       <button
@@ -356,10 +337,10 @@ export default function AssociatesBook() {
                       {activeMenuId === a.id && (
                         <div className="action-popover" onClick={(e) => e.stopPropagation()}>
                           <button className="popover-item" onClick={() => { openViewModal(a); setActiveMenuId(null); }}>
-                            👁️ View details
+                            <Eye size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View details
                           </button>
                           <button className="popover-item" onClick={() => { openEditModal(a); setActiveMenuId(null); }}>
-                            ✏️ Edit record
+                            <Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit record
                           </button>
                         </div>
                       )}
@@ -386,7 +367,7 @@ export default function AssociatesBook() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
                 <h4 style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12, borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
-                  🤝 Associate Identity
+                  <Users size={14} style={{marginRight: 6, verticalAlign: "middle"}} /> Associate Identity
                 </h4>
                 <div className="form-grid">
                   <label>
@@ -410,7 +391,7 @@ export default function AssociatesBook() {
 
               <div>
                 <h4 style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12, borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
-                  📈 Performance Metrics
+                  <TrendingUp size={14} style={{marginRight: 6, verticalAlign: "middle"}} /> Performance Metrics
                 </h4>
                 <div className="form-grid">
                   <label>
@@ -428,13 +409,6 @@ export default function AssociatesBook() {
                   <label>
                     Commission (₹)
                     <input type="number" min="0" value={formData.commission} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, commission: e.target.value })} />
-                  </label>
-                  <label className="form-grid-full">
-                    Activation Status
-                    <select value={formData.status} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, status: e.target.value })}>
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
                   </label>
                 </div>
               </div>

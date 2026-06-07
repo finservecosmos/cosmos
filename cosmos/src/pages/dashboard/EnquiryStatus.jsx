@@ -5,9 +5,9 @@ import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import useConfirm from '../../shared/lib/useConfirm'
 import '../../shared/ui/DataPage.css'
+import { Check, X, Phone, ClipboardList, CheckCircle, Ban, Search, AlertTriangle, Calendar, Eye, Edit, Trash2, TrendingUp, MapPin } from 'lucide-react'
 
 /* ─── Constants ─────────────────────────────────────────────── */
-const STATUSES   = ['All', 'Accepted', 'Rejected', 'Callback', 'Others']
 const LOAN_TYPES = ['All Loan Types', 'Home Loan', 'Business Loan', 'Personal Loan', 'Gold Loan', 'Mortgage', 'Loan Against Property']
 const PROFESSIONS = ['Salaried', 'Self Employed', 'Professional', 'Business Owner']
 
@@ -18,18 +18,18 @@ const MAJOR_LOCATIONS = [
 ]
 
 const STATUS_META = {
-  Accepted: { color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0', icon: '✓' },
-  Rejected:  { color: '#dc2626', bg: '#fef2f2', border: '#fecaca', icon: '✕' },
-  Callback:  { color: '#d97706', bg: '#fffbeb', border: '#fed7aa', icon: '📞' },
-  Others:    { color: '#6b7280', bg: '#f9fafb', border: '#e5e7eb', icon: '…'  },
-  New:       { color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe', icon: '●'  },
+  Accepted: { color: '#16a34a', bg: 'var(--bg-hover)', border: '#bbf7d0', icon: <Check size={16} /> },
+  Rejected: { color: '#dc2626', bg: 'var(--bg-hover)', border: '#fecaca', icon: <X size={16} /> },
+  Callback: { color: '#d97706', bg: 'var(--bg-hover)', border: '#fed7aa', icon: <Phone size={16} /> },
+  Others: { color: 'var(--text-muted)', bg: 'var(--bg-input)', border: 'var(--border)', icon: '…' },
+  New: { color: '#2563eb', bg: 'var(--bg-hover)', border: '#bfdbfe', icon: '●' },
 }
 
 /* ─── Helpers ────────────────────────────────────────────────── */
 function formatAmount(n) {
   if (!n) return '₹0'
   if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)} Cr`
-  if (n >= 100000)   return `₹${(n / 100000).toFixed(2)} L`
+  if (n >= 100000) return `₹${(n / 100000).toFixed(2)} L`
   return `₹${Number(n).toLocaleString('en-IN')}`
 }
 
@@ -41,7 +41,7 @@ function avatarLetters(name) {
     : parts[0][0].toUpperCase()
 }
 
-const AVATAR_COLORS = ['#7c3aed','#2563eb','#059669','#d97706','#db2777','#0891b2','#65a30d']
+const AVATAR_COLORS = ['#7c3aed', '#2563eb', '#059669', '#d97706', '#db2777', '#0891b2', '#65a30d']
 function avatarColor(name) {
   if (!name) return '#7c3aed'
   let hash = 0
@@ -75,16 +75,16 @@ function HybridLocationPicker({ value, onChange, disabled }) {
 function StatCard({ label, value, sub, icon, iconBg }) {
   return (
     <div style={{
-      background: '#fff', borderRadius: 12, border: '1px solid #f0f0f0',
+      background: 'var(--bg-surface)', borderRadius: 12, border: '1px solid #f0f0f0',
       padding: '20px 24px', flex: '1 1 0', minWidth: 0,
       display: 'flex', flexDirection: 'column', gap: 6,
       boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
     }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: '#111', lineHeight: 1.1 }}>{value}</div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#374151', marginTop: 4 }}>{label}</div>
-          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{sub}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.1 }}>{value}</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginTop: 4 }}>{label}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>
         </div>
         <div style={{
           width: 44, height: 44, borderRadius: 10,
@@ -104,18 +104,18 @@ function StatusActionBtn({ status, active, onClick }) {
       onClick={() => onClick(status)}
       style={{
         padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: 'pointer',
-        border: isActive ? `1.5px solid ${meta.color}` : `1.5px solid ${meta.border || '#e5e7eb'}`,
+        border: isActive ? `1.5px solid ${meta.color}` : `1.5px solid ${meta.border || 'var(--border)'}`,
         background: isActive ? meta.bg : '#fff',
-        color: isActive ? meta.color : '#6b7280',
+        color: isActive ? meta.color : 'var(--text-muted)',
         display: 'flex', alignItems: 'center', gap: 5,
         transition: 'all 0.15s',
         whiteSpace: 'nowrap',
       }}
     >
-      {status === 'Accepted' && <span style={{ color: meta.color }}>✓</span>}
-      {status === 'Rejected' && <span style={{ color: meta.color, fontSize: 11 }}>✕</span>}
-      {status === 'Callback' && <span style={{ fontSize: 11 }}>📞</span>}
-      {status === 'Others'   && <span style={{ color: meta.color }}>…</span>}
+      {status === 'Accepted' && <Check size={16} color={meta.color} />}
+      {status === 'Rejected' && <X size={16} color={meta.color} />}
+      {status === 'Callback' && <Phone size={14} />}
+      {status === 'Others' && <span style={{ color: meta.color }}>…</span>}
       {status}
     </button>
   )
@@ -137,16 +137,16 @@ export default function EnquiryStatus() {
   const [convertingLead, setConvertingLead] = useState(null)
 
   // Filters
-  const [search, setSearch]         = useState('')
-  const [statusFilter, setStatus]   = useState('All')
-  const [loanFilter, setLoan]       = useState('All Loan Types')
-  const [fromDate, setFromDate]     = useState('')
-  const [toDate, setToDate]         = useState('')
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatus] = useState('All')
+  const [loanFilter, setLoan] = useState('All Loan Types')
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
 
   // Modal / wizard
-  const [modalOpen, setModalOpen]   = useState(false)
-  const [modalMode, setModalMode]   = useState('add')
-  const [formData, setFormData]     = useState(emptyEnquiry)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState('add')
+  const [formData, setFormData] = useState(emptyEnquiry)
 
   // Three-dot menu
   const [activeMenuId, setActiveMenuId] = useState(null)
@@ -163,10 +163,10 @@ export default function EnquiryStatus() {
       || (e.client_name && e.client_name.toLowerCase().includes(q))
       || (e.client_mobile_number && String(e.client_mobile_number).includes(q))
     const matchStatus = statusFilter === 'All' || e.status === statusFilter
-    const matchLoan   = loanFilter === 'All Loan Types' || e.loan_type === loanFilter
+    const matchLoan = loanFilter === 'All Loan Types' || e.loan_type === loanFilter
     let matchDate = true
     if (fromDate && e.created_at) matchDate = matchDate && e.created_at.slice(0, 10) >= fromDate
-    if (toDate   && e.created_at) matchDate = matchDate && e.created_at.slice(0, 10) <= toDate
+    if (toDate && e.created_at) matchDate = matchDate && e.created_at.slice(0, 10) <= toDate
     return matchSearch && matchStatus && matchLoan && matchDate
   })
 
@@ -189,10 +189,10 @@ export default function EnquiryStatus() {
   /* ── Stat counts ── */
   const countBy = (s) => enquiries.filter(e => e.status === s).length
   const stats = [
-    { label: 'New Enquiries', value: enquiries.length, sub: 'Total Enquiries', subColor: '#16a34a', icon: '📋', iconBg: '#eff6ff' },
-    { label: 'Accepted',      value: countBy('Accepted'), sub: 'Qualified Conversion', subColor: '#16a34a', icon: '✅', iconBg: '#f0fdf4' },
-    { label: 'Callback',      value: countBy('Callback'), sub: 'Follow-up Required', subColor: '#d97706', icon: '📞', iconBg: '#fffbeb' },
-    { label: 'Rejected',      value: countBy('Rejected'), sub: 'Not Approved', subColor: '#dc2626', icon: '🚫', iconBg: '#fef2f2' },
+    { label: 'New Enquiries', value: enquiries.length, sub: 'Total Enquiries', subColor: '#16a34a', icon: <ClipboardList size={20} color="#3b82f6" />, iconBg: 'var(--bg-hover)' },
+    { label: 'Accepted', value: countBy('Accepted'), sub: 'Qualified Conversion', subColor: '#16a34a', icon: <CheckCircle size={20} color="#16a34a" />, iconBg: 'var(--bg-hover)' },
+    { label: 'Callback', value: countBy('Callback'), sub: 'Follow-up Required', subColor: '#d97706', icon: <Phone size={16} />, iconBg: 'var(--bg-hover)' },
+    { label: 'Rejected', value: countBy('Rejected'), sub: 'Not Approved', subColor: '#dc2626', icon: <Ban size={20} color="#dc2626" />, iconBg: 'var(--bg-hover)' },
   ]
 
   /* ── Inline status update ── */
@@ -276,7 +276,7 @@ export default function EnquiryStatus() {
   // Handle lead conversion
   const handleLeadConversion = () => {
     if (!convertingLead) return
-    
+
     // Generate pre-filled client parameters
     const mockFileNo = `F-${Math.floor(1000 + Math.random() * 9000)}`
     const clientPayload = {
@@ -311,13 +311,13 @@ export default function EnquiryStatus() {
   ══════════════════════════════════════════ */
   return (
     <DashboardLayout>
-      <div className="data-page" style={{ background: '#f8f9fb', minHeight: '100vh' }}>
+      <div className="data-page">
 
         {/* ── Header ── */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: '#111827', margin: 0 }}>New Enquiry Status</h2>
-            <p style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>Track and manage the status of all loan enquiries.</p>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>New Enquiry Status</h2>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Track and manage the status of all loan enquiries.</p>
           </div>
           <button
             onClick={openAddModal}
@@ -341,40 +341,40 @@ export default function EnquiryStatus() {
 
         {/* ── Filter Panel ── */}
         <div style={{
-          background: '#fff', borderRadius: 12, border: '1px solid #f0f0f0',
+          background: 'var(--bg-surface)', borderRadius: 12, border: '1px solid #f0f0f0',
           padding: '20px 24px', marginBottom: 24,
           boxShadow: '0 1px 4px rgba(0,0,0,0.05)'
         }}>
           {/* Date + Search + Category row */}
           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: 16 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 160 }}>
-              <label style={{ fontSize: 12, fontWeight: 500, color: '#374151' }}>From Date</label>
+              <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>From Date</label>
               <input
                 type="date"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
                 style={{
                   border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px',
-                  fontSize: 13, color: '#374151', background: '#fff', outline: 'none'
+                  fontSize: 13, color: 'var(--text-secondary)', background: 'var(--bg-surface)', outline: 'none'
                 }}
               />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 160 }}>
-              <label style={{ fontSize: 12, fontWeight: 500, color: '#374151' }}>To Date</label>
+              <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>To Date</label>
               <input
                 type="date"
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
                 style={{
                   border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px',
-                  fontSize: 13, color: '#374151', background: '#fff', outline: 'none'
+                  fontSize: 13, color: 'var(--text-secondary)', background: 'var(--bg-surface)', outline: 'none'
                 }}
               />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, minWidth: 180 }}>
-              <label style={{ fontSize: 12, fontWeight: 500, color: '#374151' }}>Customer Search</label>
+              <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>Customer Search</label>
               <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: 14 }}>🔍</span>
+                <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-faint)' }} />
                 <input
                   type="text"
                   placeholder="Name or ID..."
@@ -382,19 +382,19 @@ export default function EnquiryStatus() {
                   onChange={(e) => setSearch(e.target.value)}
                   style={{
                     border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px 8px 32px',
-                    fontSize: 13, color: '#374151', width: '100%', outline: 'none', background: '#fff'
+                    fontSize: 13, color: 'var(--text-secondary)', width: '100%', outline: 'none', background: 'var(--bg-surface)'
                   }}
                 />
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 160 }}>
-              <label style={{ fontSize: 12, fontWeight: 500, color: '#374151' }}>Category</label>
+              <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>Category</label>
               <select
                 value={loanFilter}
                 onChange={(e) => setLoan(e.target.value)}
                 style={{
                   border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px',
-                  fontSize: 13, color: '#374151', background: '#fff', outline: 'none', cursor: 'pointer'
+                  fontSize: 13, color: 'var(--text-secondary)', background: 'var(--bg-surface)', outline: 'none', cursor: 'pointer'
                 }}
               >
                 {LOAN_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -403,7 +403,7 @@ export default function EnquiryStatus() {
             <button
               onClick={clearFilters}
               style={{
-                background: '#fff', color: '#374151', border: '1px solid #e5e7eb', borderRadius: 8,
+                background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid #e5e7eb', borderRadius: 8,
                 padding: '9px 20px', fontWeight: 600, fontSize: 13, cursor: 'pointer',
                 alignSelf: 'flex-end'
               }}
@@ -414,7 +414,7 @@ export default function EnquiryStatus() {
 
           {/* Status filter pills */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 13, fontWeight: 500, color: '#374151', marginRight: 4 }}>Filter Status:</span>
+            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginRight: 4 }}>Filter Status:</span>
             {['All', 'Accepted', 'Rejected', 'Callback', 'Others'].map((s) => {
               const isActive = statusFilter === s
               const meta = STATUS_META[s] || {}
@@ -432,7 +432,7 @@ export default function EnquiryStatus() {
                       : '#fff',
                     color: isActive
                       ? (s === 'All' ? '#fff' : meta.color)
-                      : '#6b7280',
+                      : 'var(--text-muted)',
                     transition: 'all 0.15s',
                   }}
                 >
@@ -445,7 +445,7 @@ export default function EnquiryStatus() {
 
         {/* ── Grouped Enquiry List ── */}
         {Object.keys(grouped).length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af', fontSize: 15 }}>
+          <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-faint)', fontSize: 15 }}>
             No enquiries found. Try adjusting your filters.
           </div>
         ) : (
@@ -453,19 +453,19 @@ export default function EnquiryStatus() {
             <div key={loanType} style={{ marginBottom: 28 }}>
               {/* Loan Type Section Header */}
               <div style={{
-                fontSize: 11, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.1em',
+                fontSize: 11, fontWeight: 700, color: 'var(--text-faint)', letterSpacing: '0.1em',
                 textTransform: 'uppercase', marginBottom: 10
               }}>
                 {loanType}
               </div>
 
               <div style={{
-                background: '#fff', borderRadius: 12, border: '1px solid #f0f0f0',
+                background: 'var(--bg-surface)', borderRadius: 12, border: '1px solid #f0f0f0',
                 overflow: 'visible', boxShadow: '0 1px 4px rgba(0,0,0,0.05)'
               }}>
                 {rows.map((e, idx) => {
                   const initials = avatarLetters(e.client_name)
-                  const bgColor  = avatarColor(e.client_name)
+                  const bgColor = avatarColor(e.client_name)
                   const meta = STATUS_META[e.status] || STATUS_META['Others']
 
                   // Calculate SLA stale status (> 48 hours for New/Callback)
@@ -495,7 +495,7 @@ export default function EnquiryStatus() {
                       {/* Name + phone + date */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                          <span style={{ fontWeight: 600, fontSize: 14, color: '#111827' }}>{e.client_name}</span>
+                          <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{e.client_name}</span>
                           <span style={{
                             fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
                             background: meta.bg, color: meta.color, border: `1px solid ${meta.border}`
@@ -506,17 +506,17 @@ export default function EnquiryStatus() {
                           {isStale && (
                             <span style={{
                               fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
-                              background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a',
+                              background: 'var(--bg-hover)', color: '#b45309', border: '1px solid #fde68a',
                               display: 'inline-flex', alignItems: 'center', gap: 3
                             }}>
-                              ⚠️ SLA Breach
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><AlertTriangle size={14} /> SLA Breach</span>
                             </span>
                           )}
                         </div>
-                        <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>
+                        <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 2 }}>
                           {e.profession} • +91 {e.client_mobile_number}
-                          {e.created_at ? ` • 📅 ${e.created_at.slice(0, 10)}` : ''}
-                          {e.location ? ` • 📍 ${e.location}` : ''}
+                          {e.created_at ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}> • <Calendar size={12} /> {e.created_at.slice(0, 10)}</span> : ''}
+                          {e.location ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}> • <MapPin size={12} /> {e.location}</span> : ''}
                         </div>
                       </div>
 
@@ -529,10 +529,10 @@ export default function EnquiryStatus() {
 
                       {/* Amount + bank */}
                       <div style={{ textAlign: 'right', flexShrink: 0, minWidth: 110 }}>
-                        <div style={{ fontWeight: 700, fontSize: 14, color: '#111827' }}>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>
                           {formatAmount(e.loan_amount)}
                         </div>
-                        <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 2 }}>
                           {e.bank_name || '—'}
                           {e.associate_name && e.associate_name !== 'Unassigned' ? ` • ${e.associate_name}` : ''}
                         </div>
@@ -545,7 +545,7 @@ export default function EnquiryStatus() {
                           onClick={(ev) => { ev.stopPropagation(); setActiveMenuId(activeMenuId === e.id ? null : e.id) }}
                           style={{
                             background: 'none', border: 'none', cursor: 'pointer',
-                            fontSize: 20, color: '#9ca3af', padding: '4px 6px', borderRadius: 6,
+                            fontSize: 20, color: 'var(--text-faint)', padding: '4px 6px', borderRadius: 6,
                             lineHeight: 1
                           }}
                           aria-label="Actions"
@@ -557,23 +557,23 @@ export default function EnquiryStatus() {
                             onClick={(ev) => ev.stopPropagation()}
                             style={{
                               position: 'absolute', right: 0, top: '110%', zIndex: 999,
-                              background: '#fff', borderRadius: 10, border: '1px solid #e5e7eb',
+                              background: 'var(--bg-surface)', borderRadius: 10, border: '1px solid #e5e7eb',
                               boxShadow: '0 8px 32px rgba(0,0,0,0.18)', minWidth: 180, overflow: 'visible'
                             }}
                           >
                             <button
                               className="popover-item"
-                              style={{ width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13, color: '#374151' }}
+                              style={{ width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13, color: 'var(--text-secondary)' }}
                               onClick={() => { openViewModal(e); setActiveMenuId(null) }}
                             >
-                              👁️ View details
+                              <Eye size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> View details
                             </button>
                             <button
                               className="popover-item"
-                              style={{ width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13, color: '#374151' }}
+                              style={{ width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13, color: 'var(--text-secondary)' }}
                               onClick={() => { openEditModal(e); setActiveMenuId(null) }}
                             >
-                              ✏️ Update / Assign
+                              <Edit size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Update / Assign
                             </button>
                             <div style={{ borderTop: '1px solid #f5f5f5', margin: '4px 0' }} />
                             <button
@@ -581,7 +581,7 @@ export default function EnquiryStatus() {
                               style={{ width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13, color: '#dc2626' }}
                               onClick={() => { handleDelete(e); setActiveMenuId(null) }}
                             >
-                              🗑️ Remove Enquiry
+                              <Trash2 size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Remove Enquiry
                             </button>
                           </div>
                         )}
@@ -630,9 +630,9 @@ export default function EnquiryStatus() {
                 <input type="number" min="0" value={formData.loan_amount || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, loan_amount: e.target.value })} />
               </label>
               <label>Assigned Associate
-                <select 
-                  value={formData.associate_name || 'Unassigned'} 
-                  disabled={modalMode === 'view'} 
+                <select
+                  value={formData.associate_name || 'Unassigned'}
+                  disabled={modalMode === 'view'}
                   onChange={(e) => setFormData({ ...formData, associate_name: e.target.value })}
                 >
                   <option value="Unassigned">Unassigned</option>
@@ -669,17 +669,17 @@ export default function EnquiryStatus() {
             <div
               onClick={(ev) => ev.stopPropagation()}
               style={{
-                background: '#fff', borderRadius: 16, width: 440, maxWidth: '90vw',
+                background: 'var(--bg-surface)', borderRadius: 16, width: 440, maxWidth: '90vw',
                 boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden'
               }}
             >
               {/* Green top bar */}
-              <div style={{ background: '#f0fdf4', padding: '24px 24px 16px', borderBottom: '1px solid #bbf7d0' }}>
+              <div style={{ background: 'var(--bg-hover)', padding: '24px 24px 16px', borderBottom: '1px solid #bbf7d0' }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: '50%', background: '#dcfce7',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 22, marginBottom: 12
-                }}>📈</div>
+                }}><TrendingUp size={24} /></div>
                 <div style={{ fontSize: 17, fontWeight: 700, color: '#14532d' }}>Convert to Client Record?</div>
                 <div style={{ fontSize: 13, color: '#15803d', marginTop: 4 }}>
                   This qualified lead will automatically be converted to a Client File.
@@ -689,7 +689,7 @@ export default function EnquiryStatus() {
               {/* Body */}
               <div style={{ padding: '20px 24px' }}>
                 <div style={{
-                  background: '#f9fafb', borderRadius: 10, padding: '14px 16px',
+                  background: 'var(--bg-input)', borderRadius: 10, padding: '14px 16px',
                   border: '1px solid #f0f0f0', marginBottom: 20
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -702,8 +702,8 @@ export default function EnquiryStatus() {
                       {avatarLetters(convertingLead.client_name)}
                     </div>
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: 14, color: '#111827' }}>{convertingLead.client_name}</div>
-                      <div style={{ fontSize: 12, color: '#9ca3af' }}>
+                      <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{convertingLead.client_name}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-faint)' }}>
                         {convertingLead.loan_type} • {formatAmount(convertingLead.loan_amount)}
                       </div>
                     </div>
@@ -715,7 +715,7 @@ export default function EnquiryStatus() {
                     onClick={() => setConvertingLead(null)}
                     style={{
                       flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid #e5e7eb',
-                      background: '#fff', color: '#374151', fontWeight: 600, fontSize: 14, cursor: 'pointer'
+                      background: 'var(--bg-surface)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: 14, cursor: 'pointer'
                     }}
                   >
                     Keep as Lead

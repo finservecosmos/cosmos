@@ -1,11 +1,11 @@
 import './RecentActivities.css'
 
 const typeConfig = {
-  approval: { color: '#c0392b', bg: '#fde8e8' },
-  file: { color: '#555', bg: '#f0f0f0' },
-  payment: { color: '#c0392b', bg: '#fde8e8' },
-  query: { color: '#d97706', bg: '#fef3c7' },
-  default: { color: '#888', bg: '#f5f5f5' },
+  approval: { color: 'var(--accent)', bg: 'var(--bg-hover)' },
+  file: { color: 'var(--text-secondary)', bg: 'var(--bg-input)' },
+  payment: { color: 'var(--accent)', bg: 'var(--bg-hover)' },
+  query: { color: '#f59e0b', bg: 'var(--bg-hover)' },
+  default: { color: 'var(--text-muted)', bg: 'var(--bg-input)' },
 }
 
 function timeAgo(dateStr) {

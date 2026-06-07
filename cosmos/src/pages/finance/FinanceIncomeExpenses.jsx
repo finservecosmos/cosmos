@@ -6,6 +6,7 @@ import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import useConfirm from '../../shared/lib/useConfirm'
 import './FinanceIncomeExpenses.css'
+import { X, Plus, Download, Edit, Trash2 } from 'lucide-react';
 
 export default function FinanceIncomeExpenses() {
   const navigate = useNavigate()
@@ -356,7 +357,7 @@ export default function FinanceIncomeExpenses() {
               }
             }}
           >
-            {isFormOpen ? '✕ Close Form' : '+ New Entry'}
+            {isFormOpen ? '<X size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> Close Form' : '<Plus size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> New Entry'}
           </button>
         </div>
 
@@ -766,7 +767,7 @@ export default function FinanceIncomeExpenses() {
                 onClick={handleExportCSV}
                 style={{ display: 'inline-flex', alignSelf: 'center', gap: 6 }}
               >
-                📥 Export CSV
+                <Download size={16} style={{marginRight: 6, verticalAlign: "middle"}} /> Export CSV
               </button>
             </div>
           </div>
@@ -823,7 +824,7 @@ export default function FinanceIncomeExpenses() {
                             title="Edit Record"
                             onClick={() => handleEditRecord(rec)}
                           >
-                            ✏️
+                            <Edit size={16} />
                           </button>
                           <button 
                             type="button" 
@@ -838,7 +839,7 @@ export default function FinanceIncomeExpenses() {
                         {activeMenuId === rec.id && (
                           <div className="profile-dropdown" style={{ top: 'auto', right: 0, bottom: '100%', zIndex: 100, width: 140 }}>
                             <button type="button" className="profile-dropdown-item danger" onClick={() => handleDeleteRecord(rec)}>
-                              🗑️ Delete Record
+                              <Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Delete Record
                             </button>
                           </div>
                         )}

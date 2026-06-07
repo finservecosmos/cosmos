@@ -1,9 +1,9 @@
 import './PendingFollowUps.css'
 
 const priorityConfig = {
-  high: { label: 'HIGH PRIORITY', color: '#c0392b', bg: '#fde8e8' },
-  medium: { label: 'MEDIUM', color: '#d97706', bg: '#fef3c7' },
-  low: { label: 'LOW', color: '#16a34a', bg: '#dcfce7' },
+  high: { label: 'HIGH PRIORITY', color: 'var(--accent)', bg: 'var(--bg-hover)' },
+  medium: { label: 'MEDIUM', color: '#f59e0b', bg: 'var(--bg-hover)' },
+  low: { label: 'LOW', color: '#10b981', bg: 'var(--bg-hover)' },
 }
 
 function PendingFollowUps({ followUps, loading, onViewAll }) {

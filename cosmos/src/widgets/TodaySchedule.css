@@ -1,6 +1,6 @@
 .schedule-card {
-  background: #fff;
-  border: 1px solid #ebebeb;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 20px;
   position: relative;
@@ -17,7 +17,7 @@
 .schedule-title {
   font-size: 15px;
   font-weight: 700;
-  color: #111;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -31,18 +31,18 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 1px solid #e8e8e8;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #555;
+  color: var(--text-secondary);
   transition: background 0.15s;
 }
 
 .schedule-nav button:hover {
-  background: #f5f5f5;
+  background: var(--bg-hover);
 }
 
 .schedule-nav svg {
@@ -53,13 +53,13 @@
 .schedule-date {
   font-size: 12px;
   font-weight: 600;
-  color: #555;
+  color: var(--text-secondary);
 }
 
 .schedule-loading,
 .schedule-empty {
   font-size: 13px;
-  color: #aaa;
+  color: var(--text-muted);
   text-align: center;
   padding: 20px 0;
 }
@@ -82,7 +82,7 @@
 .schedule-time {
   font-size: 11.5px;
   font-weight: 600;
-  color: #888;
+  color: var(--text-muted);
   min-width: 60px;
   padding-top: 3px;
   white-space: nowrap;
@@ -90,27 +90,27 @@
 
 .schedule-event {
   flex: 1;
-  background: #f8f8f8;
+  background: var(--bg-input);
   border-radius: 8px;
   padding: 8px 12px;
   border-left: 3px solid transparent;
 }
 
 .schedule-event.highlight {
-  background: #eef2ff;
+  background: var(--bg-hover);
   border-left-color: #4f46e5;
 }
 
 .schedule-event-title {
   font-size: 13px;
   font-weight: 600;
-  color: #111;
+  color: var(--text-primary);
   margin: 0 0 2px;
 }
 
 .schedule-event-desc {
   font-size: 11.5px;
-  color: #888;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -122,8 +122,8 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #c0392b;
-  color: #fff;
+  background: var(--accent);
+  color: #ffffff;
   border: none;
   display: flex;
   align-items: center;
@@ -134,7 +134,7 @@
 }
 
 .schedule-fab:hover {
-  background: #a93226;
+  background: var(--accent-hover);
   transform: scale(1.05);
 }
 

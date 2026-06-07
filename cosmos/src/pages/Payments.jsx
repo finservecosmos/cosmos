@@ -4,6 +4,7 @@ import Modal from '../shared/ui/Modal'
 import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
 import '../shared/ui/DataPage.css'
+import { CreditCard } from 'lucide-react'
 
 function formatAmount(n) {
   return `₹${n.toLocaleString('en-IN')}`
@@ -133,7 +134,7 @@ export default function Payments() {
               {paginatedPayments.length === 0 ? (
                 <tr><td colSpan={9}>
                   <div className="data-empty">
-                    <div className="data-empty-icon">💳</div>
+                    <div className="data-empty-icon"><CreditCard size={48} /></div>
                     <div className="data-empty-title">No payments found</div>
                     <div className="data-empty-sub">Try adjusting your filters</div>
                   </div>

@@ -115,14 +115,7 @@ const financeOpsItems = [
 function Sidebar({ isOpen, onClose }) {
   const navigate = useNavigate()
   const { user } = useUser()
-  const { addEnquiry } = useAppState()
   const { addToast } = useToast()
-  
-  // Quick Enquiry Modal Trigger
-  const [enquiryModalOpen, setEnquiryModalOpen] = useState(false)
-  const [enquiryData, setEnquiryData] = useState({
-    name: '', phone: '', loan_type: 'Home Loan', amount: '', date: new Date().toISOString().slice(0, 10), associate: 'Unassigned', status: 'Enquiry'
-  })
 
   const handleLogout = async () => {
     sessionStorage.removeItem('dev_auth')
@@ -130,26 +123,7 @@ function Sidebar({ isOpen, onClose }) {
     navigate('/')
   }
 
-  const handleSaveEnquiry = () => {
-    if (!enquiryData.name || !enquiryData.phone) {
-      addToast('Client name and phone number are required.', 'error')
-      return
-    }
-    if (!/^\d{10}$/.test(enquiryData.phone)) {
-      addToast('Phone number must be exactly 10 digits.', 'error')
-      return
-    }
-    
-    addEnquiry({
-      ...enquiryData,
-      amount: Number(enquiryData.amount) || 0
-    })
-    addToast('Loan enquiry added successfully.', 'success')
-    setEnquiryModalOpen(false)
-    setEnquiryData({
-      name: '', phone: '', loan_type: 'Home Loan', amount: '', date: new Date().toISOString().slice(0, 10), associate: 'Unassigned', status: 'Enquiry'
-    })
-  }
+
 
   return (
     <aside className={`sidebar${isOpen ? ' mobile-open' : ''}`}>
@@ -287,20 +261,7 @@ function Sidebar({ isOpen, onClose }) {
           )}
         </ul>
 
-        {/* Quick New Enquiry shortcut button */}
-        <div style={{ padding: '0 16px', marginTop: 24, marginBottom: 16 }}>
-          <button 
-            type="button" 
-            className="new-enquiry-shortcut-btn"
-            onClick={() => setEnquiryModalOpen(true)}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14, marginRight: 6, display: 'inline-block', verticalAlign: 'middle' }}>
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            New Enquiry
-          </button>
-        </div>
+
       </nav>
 
       {/* User info footer */}
@@ -321,65 +282,7 @@ function Sidebar({ isOpen, onClose }) {
         </button>
       </div>
 
-      {/* New Enquiry Modal */}
-      {enquiryModalOpen && (
-        <Modal title="Create New Enquiry" onClose={() => setEnquiryModalOpen(false)} size="sm">
-          <div className="form-grid">
-            <label>
-              Client Name *
-              <input 
-                type="text" 
-                placeholder="Full Name"
-                value={enquiryData.name} 
-                onChange={(e) => setEnquiryData({ ...enquiryData, name: e.target.value })} 
-              />
-            </label>
-            <label>
-              Phone Number *
-              <input 
-                type="text" 
-                placeholder="10-digit Mobile"
-                value={enquiryData.phone} 
-                onChange={(e) => setEnquiryData({ ...enquiryData, phone: e.target.value })} 
-              />
-            </label>
-            <label>
-              Loan Type
-              <select 
-                value={enquiryData.loan_type} 
-                onChange={(e) => setEnquiryData({ ...enquiryData, loan_type: e.target.value })}
-              >
-                <option value="Home Loan">Home Loan</option>
-                <option value="Business Loan">Business Loan</option>
-                <option value="Personal Loan">Personal Loan</option>
-                <option value="Gold Loan">Gold Loan</option>
-                <option value="Mortgage">Mortgage</option>
-              </select>
-            </label>
-            <label>
-              Requested Loan Amount (₹)
-              <input 
-                type="number" 
-                placeholder="e.g. 500000"
-                value={enquiryData.amount} 
-                onChange={(e) => setEnquiryData({ ...enquiryData, amount: e.target.value })} 
-              />
-            </label>
-            <label>
-              Creation Date
-              <input 
-                type="date" 
-                value={enquiryData.date} 
-                onChange={(e) => setEnquiryData({ ...enquiryData, date: e.target.value })} 
-              />
-            </label>
-          </div>
-          <div className="modal-actions" style={{ marginTop: 24 }}>
-            <button type="button" className="admin-action-btn" onClick={() => setEnquiryModalOpen(false)}>Cancel</button>
-            <button type="button" className="admin-primary-btn" onClick={handleSaveEnquiry}>Save Enquiry</button>
-          </div>
-        </Modal>
-      )}
+
     </aside>
   )
 }

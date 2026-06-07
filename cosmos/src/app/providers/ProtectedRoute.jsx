@@ -56,6 +56,14 @@ function ProtectedRoute({ children, allowedRoles }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!active) return
       
+      // ── Dev bypass check ──
+      const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || import.meta.env.DEV
+      if (isDev && sessionStorage.getItem('dev_auth') === 'true') {
+        setStatus('authorized')
+        return
+      }
+      // ──────────────────────
+      
       if (event === 'SIGNED_OUT') {
         setStatus('unauthorized')
       } else if (event === 'TOKEN_REFRESH_INITIALIZED' || event === 'SIGNED_IN' || event === 'USER_UPDATED') {
