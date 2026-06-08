@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Eye, Edit } from 'lucide-react';
 
 export default function ClientRecordsTable({
   paginatedClients,
@@ -37,7 +38,7 @@ export default function ClientRecordsTable({
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
           <input 
-            placeholder="Search by name, file no, phone..." 
+            placeholder="Search by name, phone..." 
             value={search} 
             onChange={e => setSearch(e.target.value)} 
           />
@@ -57,7 +58,6 @@ export default function ClientRecordsTable({
           <thead>
             <tr>
               <th>Client</th>
-              <th>File No.</th>
               <th>Loan Type</th>
               <th>Amount</th>
               <th>Associate</th>
@@ -69,7 +69,7 @@ export default function ClientRecordsTable({
           <tbody>
             {paginatedClients.length === 0 ? (
               <tr>
-                <td colSpan={8}>
+                <td colSpan={7}>
                   <div className="data-empty">
                     <div className="data-empty-icon">🔍</div>
                     <div className="data-empty-title">No clients found</div>
@@ -82,14 +82,13 @@ export default function ClientRecordsTable({
                 <tr key={c.id}>
                   <td>
                     <div className="cell-name">
-                      <div className="cell-avatar">{c.name ? c.name.charAt(0) : '?'}</div>
+                      <div className="cell-avatar">{typeof c.name === 'string' && c.name ? c.name.charAt(0).toUpperCase() : '?'}</div>
                       <div>
-                        <div style={{ fontWeight: 600 }}>{c.name}</div>
-                        <div className="cell-muted" style={{ fontSize: 11 }}>{c.phone}</div>
+                        <div style={{ fontWeight: 600 }}>{c.name || 'Unknown'}</div>
+                        <div className="cell-muted" style={{ fontSize: 11 }}>{c.phone || '—'}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="cell-muted">{c.file_no}</td>
                   <td>{c.loan_type}</td>
                   <td className="cell-amount">{formatAmount(c.amount)}</td>
                   <td className="cell-muted">{c.associate}</td>
@@ -110,11 +109,11 @@ export default function ClientRecordsTable({
                       </button>
                       {activeMenuId === c.id && (
                         <div className="action-popover" onClick={(e) => e.stopPropagation()}>
-                          <button className="popover-item" onClick={() => { openViewModal(c); setActiveMenuId(null); }}>
-                            👁️ View details
+                          <button className="popover-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => { openViewModal(c); setActiveMenuId(null); }}>
+                            <Eye size={16} /> View details
                           </button>
-                          <button className="popover-item" onClick={() => { openEditModal(c); setActiveMenuId(null); }}>
-                            ✏️ Edit record
+                          <button className="popover-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => { openEditModal(c); setActiveMenuId(null); }}>
+                            <Edit size={16} /> Edit record
                           </button>
                         </div>
                       )}

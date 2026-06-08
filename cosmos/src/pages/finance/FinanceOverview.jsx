@@ -621,53 +621,65 @@ export default function FinanceOverview() {
               </div>
             </div>
 
-            <div className="bar-chart-container">
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)' }}>Collection Rate (%)</span>
-              <div className="bar-chart-y-axis">
-                {/* Visual gridlines */}
-                <div className="bar-chart-grid-line"><span style={{ position: 'absolute', left: -32, top: -8, fontSize: 10, color: 'var(--text-muted)' }}>100%</span></div>
-                <div className="bar-chart-grid-line"><span style={{ position: 'absolute', left: -32, top: -8, fontSize: 10, color: 'var(--text-muted)' }}>75%</span></div>
-                <div className="bar-chart-grid-line"><span style={{ position: 'absolute', left: -32, top: -8, fontSize: 10, color: 'var(--text-muted)' }}>50%</span></div>
-                <div className="bar-chart-grid-line"><span style={{ position: 'absolute', left: -32, top: -8, fontSize: 10, color: 'var(--text-muted)' }}>25%</span></div>
-                <div className="bar-chart-grid-line"><span style={{ position: 'absolute', left: -32, top: -8, fontSize: 10, color: 'var(--text-muted)' }}>0%</span></div>
+            <div className="vertical-bar-chart-container">
+              {/* Y Axis Gridlines */}
+              <div className="chart-vertical-axis">
+                <div className="chart-gridline-label"><span>100%</span></div>
+                <div className="chart-gridline-label"><span>80%</span></div>
+                <div className="chart-gridline-label"><span>60%</span></div>
+                <div className="chart-gridline-label"><span>40%</span></div>
+                <div className="chart-gridline-label"><span>20%</span></div>
+                <div className="chart-gridline-label"><span>0%</span></div>
+              </div>
 
-                {/* Bars */}
-                <div className="bar-chart-bars-wrap">
-                  <div className="bar-column">
-                    <div className="bar-graphic-wrap">
-                      <div className="bar-fill" style={{ height: '12%' }}>
-                        <span className="bar-label-top">12%</span>
-                      </div>
+              {/* Graphical Bars */}
+              <div className="chart-bars-graphics-container">
+                <div className="chart-graphics-column">
+                  <div className="chart-bar-fill-wrapper">
+                    <div
+                      className="chart-bar-rect income-bar"
+                      style={{ height: '12%' }}
+                    >
+                      <span className="bar-hover-badge">12%</span>
                     </div>
-                    <span className="bar-column-label">&lt; 3 Days</span>
                   </div>
+                  <span className="bar-column-axis-label">&lt; 3 Days</span>
+                </div>
 
-                  <div className="bar-column">
-                    <div className="bar-graphic-wrap">
-                      <div className="bar-fill" style={{ height: '24%' }}>
-                        <span className="bar-label-top">24%</span>
-                      </div>
+                <div className="chart-graphics-column">
+                  <div className="chart-bar-fill-wrapper">
+                    <div
+                      className="chart-bar-rect income-bar"
+                      style={{ height: '24%' }}
+                    >
+                      <span className="bar-hover-badge">24%</span>
                     </div>
-                    <span className="bar-column-label">&lt; 7 Days</span>
                   </div>
+                  <span className="bar-column-axis-label">&lt; 7 Days</span>
+                </div>
 
-                  <div className="bar-column">
-                    <div className="bar-graphic-wrap">
-                      <div className="bar-fill" style={{ height: '58%' }}>
-                        <span className="bar-label-top" style={{ color: 'var(--accent)', fontWeight: 800 }}>58%</span>
-                      </div>
+                <div className="chart-graphics-column">
+                  <div className="chart-bar-fill-wrapper">
+                    <div
+                      className="chart-bar-rect profit-bar"
+                      style={{ height: '58%' }}
+                    >
+                      <span className="bar-hover-badge">58%</span>
                     </div>
-                    <span className="bar-column-label">&lt; 15 Days</span>
                   </div>
+                  <span className="bar-column-axis-label">&lt; 15 Days</span>
+                </div>
 
-                  <div className="bar-column">
-                    <div className="bar-graphic-wrap">
-                      <div className="bar-fill" style={{ height: '6%' }}>
-                        <span className="bar-label-top">6%</span>
-                      </div>
+                <div className="chart-graphics-column">
+                  <div className="chart-bar-fill-wrapper">
+                    <div
+                      className="chart-bar-rect expense-bar"
+                      style={{ height: '6%' }}
+                    >
+                      <span className="bar-hover-badge">6%</span>
                     </div>
-                    <span className="bar-column-label">&lt; 30 Days</span>
                   </div>
+                  <span className="bar-column-axis-label">&lt; 30 Days</span>
                 </div>
               </div>
             </div>

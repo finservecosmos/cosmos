@@ -25,7 +25,7 @@ function maskPAN(pan) {
   return `${clean.slice(0, 5)}••••${clean.slice(-1)}`;
 }
 
-const statusClass = (s) => 'status-badge status-' + s.toLowerCase().replace(' ', '-');
+const statusClass = (s) => 'status-badge status-' + String(s || '').toLowerCase().replace(' ', '-');
 
 function formatAmount(n) {
   if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)}Cr`;
@@ -86,7 +86,7 @@ export default function ClientRecordBook() {
 
   const filtered = clients.filter((c) => {
     const q = search.toLowerCase();
-    const matchSearch = !q || c.name.toLowerCase().includes(q) || c.file_no.includes(q) || c.phone.includes(q);
+    const matchSearch = !q || String(c.name || '').toLowerCase().includes(q) || String(c.phone || '').includes(q);
     const matchLoan = loanFilter === 'All' || c.loan_type === loanFilter;
     const matchStatus = statusFilter === 'All' || c.status === statusFilter;
     return matchSearch && matchLoan && matchStatus;
@@ -97,7 +97,7 @@ export default function ClientRecordBook() {
 
   const totalDisbursed = clients
     .filter(c => ['Approved', 'Disbursed'].includes(c.status))
-    .reduce((s, c) => s + c.amount, 0);
+    .reduce((s, c) => s + (Number(c.amount) || 0), 0);
 
   if (showAddWizard) {
     return (

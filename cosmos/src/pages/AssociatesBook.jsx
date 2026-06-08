@@ -44,6 +44,7 @@ function HybridLocationPicker({ value, onChange, disabled }) {
 const emptyAssociate = {
   name: '', email: '', phone: '', region: 'Mumbai', clients: 0,
   disbursed: 0, commission: 0, joined: new Date().toISOString().slice(0, 10), id: null,
+  associate_id: '', expertise: '', vintage: '', financial_institution: '', institution_type: 'Bank', branch: ''
 }
 
 export default function AssociatesBook() {
@@ -55,9 +56,8 @@ export default function AssociatesBook() {
   const [modalMode, setModalMode] = useState('add')
   const [formData, setFormData]   = useState(emptyAssociate)
 
-  // Stepper Wizard states
+  // Add Wizard state
   const [showAddWizard, setShowAddWizard] = useState(false)
-  const [wizardStep, setWizardStep] = useState(1)
 
   // Three-dot ellipsis menu states
   const [activeMenuId, setActiveMenuId] = useState(null)
@@ -83,7 +83,6 @@ export default function AssociatesBook() {
     setModalMode('add')
     setFormData(emptyAssociate)
     setShowAddWizard(true)
-    setWizardStep(1)
   }
 
   const openEditModal = (associate) => {
@@ -132,107 +131,89 @@ export default function AssociatesBook() {
           </div>
 
           <div className="wizard-container">
-            <div className="wizard-steps-header">
-              <div className={`wizard-step-indicator ${wizardStep === 1 ? 'active' : wizardStep > 1 ? 'completed' : ''}`}>
-                <span className="wizard-step-label-num">Step 1</span>
-                <span className="wizard-step-label-title">Contact & Regional Mapping</span>
-              </div>
-              <div className={`wizard-step-indicator ${wizardStep === 2 ? 'active' : ''}`}>
-                <span className="wizard-step-label-num">Step 2</span>
-                <span className="wizard-step-label-title">Activation & Performance Metrics</span>
-              </div>
-            </div>
-
             <div className="wizard-form-body">
-              {wizardStep === 1 && (
-                <div className="wizard-panel">
-                  <h3 className="wizard-panel-title"><Users size={18} style={{marginRight: 8, verticalAlign: "middle"}} /> Setup Contact & Operation Hub</h3>
-                  <div className="form-grid">
-                    <label>
-                      Associate Name *
-                      <input type="text" placeholder="Full Name" value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-                    </label>
-                    <label>
-                      Contact Phone
-                      <input type="tel" placeholder="Mobile Number" value={formData.phone || ''} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-                    </label>
-                    <label className="form-grid-full">
-                      Email Address *
-                      <input type="email" placeholder="associate@email.com" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-                    </label>
-                    <label className="form-grid-full">
-                      Operation Region / Hub
-                      <HybridLocationPicker value={formData.region || ''} onChange={(value) => setFormData({ ...formData, region: value })} />
-                    </label>
-                  </div>
+              <div className="wizard-panel">
+                <h3 className="wizard-panel-title"><Users size={18} style={{marginRight: 8, verticalAlign: "middle"}} /> Setup Contact & Operation Hub</h3>
+                <div className="form-grid">
+                  <label>
+                    Associate Name *
+                    <input type="text" placeholder="Full Name" value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                  </label>
+                  <label>
+                    Contact Phone
+                    <input type="tel" placeholder="Mobile Number" value={formData.phone || ''} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                  </label>
+                  <label>
+                    Email Address *
+                    <input type="email" placeholder="associate@email.com" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                  </label>
+                  <label>
+                    Joined Date
+                    <input type="date" value={formData.joined || ''} onChange={(e) => setFormData({ ...formData, joined: e.target.value })} />
+                  </label>
+                  <label>
+                    Associate ID
+                    <input type="text" placeholder="Associate ID" value={formData.associate_id || ''} onChange={(e) => setFormData({ ...formData, associate_id: e.target.value })} />
+                  </label>
+                  <label>
+                    Field of Expertise
+                    <input type="text" placeholder="e.g. Home Loans" value={formData.expertise || ''} onChange={(e) => setFormData({ ...formData, expertise: e.target.value })} />
+                  </label>
+                  <label>
+                    Vintage
+                    <input type="text" placeholder="Years of experience" value={formData.vintage || ''} onChange={(e) => setFormData({ ...formData, vintage: e.target.value })} />
+                  </label>
+                  <label className="form-grid-full">
+                    Operation Region / Hub
+                    <HybridLocationPicker value={formData.region || ''} onChange={(value) => setFormData({ ...formData, region: value })} />
+                  </label>
                 </div>
-              )}
 
-              {wizardStep === 2 && (
-                <div className="wizard-panel">
-                  <h3 className="wizard-panel-title"><TrendingUp size={18} style={{marginRight: 8, verticalAlign: "middle"}} /> Metric baselines & Status</h3>
-                  <div className="form-grid">
-                    <label>
-                      Joined Date
-                      <input type="date" value={formData.joined || ''} onChange={(e) => setFormData({ ...formData, joined: e.target.value })} />
-                    </label>
-                    <label>
-                      Active Clients
-                      <input type="number" min="0" placeholder="Active client count" value={formData.clients || ''} onChange={(e) => setFormData({ ...formData, clients: e.target.value })} />
-                    </label>
-                    <label>
-                      Total Disbursed (₹)
-                      <input type="number" min="0" placeholder="Total portfolio disbursed" value={formData.disbursed || ''} onChange={(e) => setFormData({ ...formData, disbursed: e.target.value })} />
-                    </label>
-                    <label>
-                      Commission Paid (₹)
-                      <input type="number" min="0" placeholder="Commission earnings to date" value={formData.commission || ''} onChange={(e) => setFormData({ ...formData, commission: e.target.value })} />
-                    </label>
-                  </div>
+                <h3 className="wizard-panel-title" style={{ marginTop: 24 }}><Banknote size={18} style={{marginRight: 8, verticalAlign: "middle"}} /> Financial Institution Details</h3>
+                <div className="form-grid">
+                  <label>
+                    Name of Financial Institution
+                    <input type="text" placeholder="Institution Name" value={formData.financial_institution || ''} onChange={(e) => setFormData({ ...formData, financial_institution: e.target.value })} />
+                  </label>
+                  <label>
+                    Type of Financial Institution
+                    <select value={formData.institution_type || 'Bank'} onChange={(e) => setFormData({ ...formData, institution_type: e.target.value })}>
+                      <option value="Bank">Bank</option>
+                      <option value="Non-bank">Non-bank</option>
+                      <option value="Private Finance">Private Finance</option>
+                    </select>
+                  </label>
+                  <label className="form-grid-full">
+                    Branch
+                    <input type="text" placeholder="Branch location" value={formData.branch || ''} onChange={(e) => setFormData({ ...formData, branch: e.target.value })} />
+                  </label>
                 </div>
-              )}
+              </div>
             </div>
 
             <div className="wizard-actions">
               <button
                 type="button"
                 className="data-btn data-btn-outline"
-                disabled={wizardStep === 1}
-                onClick={() => setWizardStep(s => s - 1)}
+                onClick={() => setShowAddWizard(false)}
               >
-                Back
+                Cancel
               </button>
-              {wizardStep < 2 ? (
-                <button
-                  type="button"
-                  className="data-btn data-btn-primary"
-                  onClick={() => {
-                    if (!formData.name || !formData.email) {
-                      addToast('Associate name and email are required to proceed.', 'error');
-                      return;
-                    }
-                    setWizardStep(s => s + 1);
-                  }}
-                >
-                  Continue
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="data-btn data-btn-primary"
-                  style={{ background: '#10b981' }}
-                  onClick={() => {
-                    if (!formData.name || !formData.email) {
-                      addToast('Associate name and email are required to submit.', 'error');
-                      return;
-                    }
-                    saveAssociate();
-                    setShowAddWizard(false);
-                  }}
-                >
-                  Complete Registration & Save
-                </button>
-              )}
+              <button
+                type="button"
+                className="data-btn data-btn-primary"
+                style={{ background: '#10b981' }}
+                onClick={() => {
+                  if (!formData.name || !formData.email) {
+                    addToast('Associate name and email are required to submit.', 'error');
+                    return;
+                  }
+                  saveAssociate();
+                  setShowAddWizard(false);
+                }}
+              >
+                Complete Registration & Save
+              </button>
             </div>
           </div>
         </div>
@@ -334,7 +315,7 @@ export default function AssociatesBook() {
                     <div className="cell-name">
                       <div className="cell-avatar blue">{a.name.charAt(0)}</div>
                       <div>
-                        <div style={{ fontWeight: 600 }}>{a.name}</div>
+                        <div style={{ fontWeight: 600 }}>{a.name} {a.associate_id ? `(${a.associate_id})` : ''}</div>
                         <div className="cell-muted" style={{ fontSize: 11 }}>{a.email}</div>
                       </div>
                     </div>
@@ -408,6 +389,42 @@ export default function AssociatesBook() {
                   <label>
                     Joined Date
                     <input type="date" value={formData.joined} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, joined: e.target.value })} />
+                  </label>
+                  <label>
+                    Associate ID
+                    <input type="text" value={formData.associate_id || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, associate_id: e.target.value })} />
+                  </label>
+                  <label>
+                    Field of Expertise
+                    <input type="text" value={formData.expertise || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, expertise: e.target.value })} />
+                  </label>
+                  <label>
+                    Vintage
+                    <input type="text" value={formData.vintage || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, vintage: e.target.value })} />
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <h4 style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12, borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
+                  <Banknote size={14} style={{marginRight: 6, verticalAlign: "middle"}} /> Financial Institution Details
+                </h4>
+                <div className="form-grid">
+                  <label>
+                    Name of Financial Institution
+                    <input type="text" value={formData.financial_institution || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, financial_institution: e.target.value })} />
+                  </label>
+                  <label>
+                    Type of Financial Institution
+                    <select value={formData.institution_type || 'Bank'} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, institution_type: e.target.value })}>
+                      <option value="Bank">Bank</option>
+                      <option value="Non-bank">Non-bank</option>
+                      <option value="Private Finance">Private Finance</option>
+                    </select>
+                  </label>
+                  <label className="form-grid-full">
+                    Branch
+                    <input type="text" value={formData.branch || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, branch: e.target.value })} />
                   </label>
                 </div>
               </div>

@@ -139,8 +139,10 @@ export default function EnquiryStatus() {
         co_applicate_name: convertingLead.co_applicate_name || '',
         loan_type: convertingLead.loan_type || '',
         loan_amount: convertingLead.loan_amount || '',
-        associate_name: convertingLead.associate_name || 'Unassigned',
         client_mobile_number: convertingLead.client_mobile_number || '',
+        associate_name: convertingLead.associate_name || 'Unassigned',
+        associate_amount: '',
+
         profession: 'Job',
         company_name: '',
         salary_type: 'Account Credit',
@@ -515,11 +517,6 @@ export default function EnquiryStatus() {
                   const bgColor = avatarColor(e.client_name)
                   const meta = STATUS_META[e.status] || STATUS_META['Others']
 
-                  // Calculate SLA stale status (> 48 hours for New/Callback)
-                  const isStale = (e.status === 'New' || e.status === 'Callback') && e.created_at && (
-                    (Date.now() - new Date(e.created_at).getTime()) > 48 * 60 * 60 * 1000
-                  )
-
                   return (
                     <div
                       key={e.id}
@@ -550,20 +547,11 @@ export default function EnquiryStatus() {
                             {e.status === 'Accepted' ? '● ' : ''}
                             {e.status}
                           </span>
-                          {isStale && (
-                            <span style={{
-                              fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
-                              background: 'var(--bg-hover)', color: '#b45309', border: '1px solid #fde68a',
-                              display: 'inline-flex', alignItems: 'center', gap: 3
-                            }}>
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><AlertTriangle size={14} /> SLA Breach</span>
-                            </span>
-                          )}
                         </div>
-                        <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 2 }}>
-                          {e.profession} • +91 {e.client_mobile_number}
-                          {e.created_at ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}> • <Calendar size={12} /> {e.created_at.slice(0, 10)}</span> : ''}
-                          {e.location ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}> • <MapPin size={12} /> {e.location}</span> : ''}
+                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px', fontSize: 12, color: 'var(--text-faint)', marginTop: 4 }}>
+                          <span>{e.profession} • +91 {e.client_mobile_number}</span>
+                          {e.created_at ? <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>•<Calendar size={12} style={{ marginLeft: 2 }} /> {e.created_at.slice(0, 10)}</span> : ''}
+                          {e.location ? <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>•<MapPin size={12} style={{ marginLeft: 2 }} /> {e.location}</span> : ''}
                         </div>
                       </div>
 
@@ -695,9 +683,9 @@ export default function EnquiryStatus() {
               <label className="form-grid-full">Google Drive Link
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input type="text" value={formData.google_drive_link || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, google_drive_link: e.target.value })} placeholder="https://drive.google.com/..." style={{ flex: 1 }} />
-                  <button 
-                    type="button" 
-                    className="admin-action-btn" 
+                  <button
+                    type="button"
+                    className="admin-action-btn"
                     onClick={() => {
                       if (formData.google_drive_link) {
                         navigator.clipboard.writeText(formData.google_drive_link);
@@ -756,7 +744,7 @@ export default function EnquiryStatus() {
 
               {/* Scrollable Body */}
               <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
-                
+
                 {/* Basic Details */}
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 16, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>Basic Details</h3>
                 <div className="form-grid">
@@ -775,11 +763,14 @@ export default function EnquiryStatus() {
                   <label>Loan Amount
                     <input type="number" value={convertFormData.loan_amount} onChange={(e) => setConvertFormData({ ...convertFormData, loan_amount: e.target.value })} />
                   </label>
+                  <label>Client Mobile Number
+                    <input type="number" value={convertFormData.client_mobile_number} onChange={(e) => setConvertFormData({ ...convertFormData, client_mobile_number: e.target.value })} />
+                  </label>
                   <label>Associate Name
                     <input type="text" value={convertFormData.associate_name} onChange={(e) => setConvertFormData({ ...convertFormData, associate_name: e.target.value })} />
                   </label>
-                  <label>Client Mobile Number
-                    <input type="number" value={convertFormData.client_mobile_number} onChange={(e) => setConvertFormData({ ...convertFormData, client_mobile_number: e.target.value })} />
+                  <label>Associate Amount
+                    <input type="number" value={convertFormData.associate_amount} onChange={(e) => setConvertFormData({ ...convertFormData, associate_amount: e.target.value })} />
                   </label>
                 </div>
 
