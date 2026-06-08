@@ -120,7 +120,6 @@ export default function ClientRecordBook() {
             <h2 className="data-page-title">Client Record Book</h2>
             <p className="data-page-sub">{clients.length} total clients</p>
           </div>
-          <button className="data-btn data-btn-primary" onClick={openAddModal}>+ Add Client</button>
         </div>
 
         {/* Summary Card Metrics */}

@@ -8,7 +8,7 @@ import '../../shared/ui/DataPage.css'
 import { Check, X, Phone, ClipboardList, CheckCircle, Ban, Search, AlertTriangle, Calendar, Eye, Edit, Trash2, TrendingUp, MapPin } from 'lucide-react'
 
 /* ─── Constants ─────────────────────────────────────────────── */
-const LOAN_TYPES = ['All Loan Types', 'Home Loan', 'Business Loan', 'Personal Loan', 'Gold Loan', 'Mortgage', 'Loan Against Property']
+const LOAN_TYPES = ['All Loan Types', 'Home Loan', 'Business Loan', 'Personal Loan', 'Loan Against Property']
 const PROFESSIONS = ['Salaried', 'Self Employed', 'Professional', 'Business Owner']
 
 const MAJOR_LOCATIONS = [
@@ -117,7 +117,8 @@ function StatusActionBtn({ status, active, onClick }) {
 const emptyEnquiry = {
   client_name: '', co_applicate_name: '', loan_type: 'Home Loan', loan_amount: 0,
   note: '', status: 'New', associate_name: 'Unassigned', profession: 'Salaried',
-  id: null, client_mobile_number: '', location: '', bank_name: ''
+  id: null, client_mobile_number: '', location: '', bank_name: '',
+  google_drive_link: ''
 }
 
 /* ─── Main Component ─────────────────────────────────────────── */
@@ -128,6 +129,55 @@ export default function EnquiryStatus() {
 
   // Qualified lead to client record conversion overlay
   const [convertingLead, setConvertingLead] = useState(null)
+  const [convertFormData, setConvertFormData] = useState(null)
+
+  useEffect(() => {
+    if (convertingLead) {
+      setConvertFormData({
+        client_name: convertingLead.client_name || '',
+        client_id: convertingLead.id || `C-${Math.floor(1000 + Math.random() * 9000)}`,
+        co_applicate_name: convertingLead.co_applicate_name || '',
+        loan_type: convertingLead.loan_type || '',
+        loan_amount: convertingLead.loan_amount || '',
+        associate_name: convertingLead.associate_name || 'Unassigned',
+        client_mobile_number: convertingLead.client_mobile_number || '',
+        profession: 'Job',
+        company_name: '',
+        salary_type: 'Account Credit',
+        job_title: '',
+        years_in_company: '',
+        esi_pf: 'Yes',
+        urn: '',
+        manager_name: '',
+        manager_mobile: '',
+        gst: '',
+        gst_vintage: '',
+        udyam: '',
+        udyam_vintage: '',
+        other_gov_cert: '',
+        vintage_proof: '',
+        proprietor_type: 'Solo Proprietor',
+        self_employed_others: '',
+        property_value: '',
+        banker_name: '',
+        bank_manager_name: '',
+        bank_manager_number: '',
+        cibil_applicant: '',
+        cibil_co_applicant: '',
+        applicant_total_loans: '',
+        co_applicant_total_loans: '',
+        applicant_cibil_briefing: '',
+        co_applicant_cibil_briefing: '',
+        document_issues: 'None',
+        business_issues: 'None',
+        family_issues: 'None',
+        convert_notes: '',
+        login_date: new Date().toISOString().slice(0, 10),
+      })
+    } else {
+      setConvertFormData(null)
+    }
+  }, [convertingLead])
 
   // Filters
   const [search, setSearch] = useState('')
@@ -243,6 +293,9 @@ export default function EnquiryStatus() {
     } else {
       addEnquiry(payload)
       addToast('Enquiry added successfully.', 'success')
+      if (payload.status === 'Accepted') {
+        setConvertingLead(payload)
+      }
     }
     setModalOpen(false)
   }
@@ -268,34 +321,35 @@ export default function EnquiryStatus() {
 
   // Handle lead conversion
   const handleLeadConversion = () => {
-    if (!convertingLead) return
+    if (!convertFormData) return
 
     // Generate pre-filled client parameters
     const mockFileNo = `F-${Math.floor(1000 + Math.random() * 9000)}`
     const clientPayload = {
-      id: null, // assigned dynamically by client provider
-      name: convertingLead.client_name,
-      phone: String(convertingLead.client_mobile_number),
-      email: `${convertingLead.client_name.toLowerCase().replace(/ /g, '')}@email.com`,
-      loan_type: convertingLead.loan_type,
-      amount: Number(convertingLead.loan_amount || 0),
+      id: null,
+      name: convertFormData.client_name,
+      phone: String(convertFormData.client_mobile_number),
+      email: `${convertFormData.client_name.toLowerCase().replace(/ /g, '')}@email.com`,
+      loan_type: convertFormData.loan_type,
+      amount: Number(convertFormData.loan_amount || 0),
       status: 'Processing',
       file_no: mockFileNo,
-      date: new Date().toISOString().slice(0, 10),
-      associate: convertingLead.associate_name !== 'Unassigned' ? convertingLead.associate_name : '',
-      location: convertingLead.location || '',
-      employment_status: convertingLead.profession === 'Salaried' ? 'Salaried' : 'Self-Employed',
+      date: convertFormData.login_date,
+      associate: convertFormData.associate_name !== 'Unassigned' ? convertFormData.associate_name : '',
+      location: '',
+      employment_status: convertFormData.profession === 'Job' ? 'Salaried' : 'Self-Employed',
       pan_card: '',
       aadhaar_number: '',
       residential_status: 'Resident Indian',
       monthly_net_income: '',
       co_applicant_income: '',
       dwelling_status: 'Owned',
-      tenure_at_address: ''
+      tenure_at_address: '',
+      extended_data: { ...convertFormData }
     }
 
     addClient(clientPayload)
-    addToast(`Successfully converted ${convertingLead.client_name} into a qualified Client Record file!`, 'success')
+    addToast(`Successfully converted ${convertFormData.client_name} into a qualified Client Record file!`, 'success')
     setConvertingLead(null)
   }
 
@@ -594,25 +648,11 @@ export default function EnquiryStatus() {
             onClose={() => setModalOpen(false)}
           >
             <div className="form-grid">
-              <label>Applicant Name
+              <label>Client Name
                 <input type="text" value={formData.client_name} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, client_name: e.target.value })} />
               </label>
               <label>Co-Applicant Name
                 <input type="text" value={formData.co_applicate_name || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, co_applicate_name: e.target.value })} />
-              </label>
-              <label>Mobile Number
-                <input type="number" value={formData.client_mobile_number || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, client_mobile_number: e.target.value })} />
-              </label>
-              <label>Profession
-                <select value={formData.profession || 'Salaried'} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, profession: e.target.value })}>
-                  {PROFESSIONS.map((prof) => <option key={prof} value={prof}>{prof}</option>)}
-                </select>
-              </label>
-              <label>Location / City
-                <HybridLocationPicker value={formData.location || ''} disabled={modalMode === 'view'} onChange={(value) => setFormData({ ...formData, location: value })} />
-              </label>
-              <label>Bank Name
-                <input type="text" placeholder="e.g. HDFC Bank" value={formData.bank_name || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })} />
               </label>
               <label>Loan Type
                 <select value={formData.loan_type} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, loan_type: e.target.value })}>
@@ -636,6 +676,42 @@ export default function EnquiryStatus() {
                   ))}
                 </select>
               </label>
+              <label>Client Mobile Number
+                <input type="number" value={formData.client_mobile_number || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, client_mobile_number: e.target.value })} />
+              </label>
+              <label>Client Status
+                <select
+                  value={formData.status || 'New'}
+                  disabled={modalMode === 'view'}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                >
+                  <option value="New">New</option>
+                  <option value="Accepted">Accepted</option>
+                  <option value="Rejected">Rejected</option>
+                  <option value="Callback">Callback</option>
+                  <option value="Others">Others</option>
+                </select>
+              </label>
+              <label className="form-grid-full">Google Drive Link
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input type="text" value={formData.google_drive_link || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, google_drive_link: e.target.value })} placeholder="https://drive.google.com/..." style={{ flex: 1 }} />
+                  <button 
+                    type="button" 
+                    className="admin-action-btn" 
+                    onClick={() => {
+                      if (formData.google_drive_link) {
+                        navigator.clipboard.writeText(formData.google_drive_link);
+                        addToast('Google Drive link copied!', 'success');
+                      } else {
+                        addToast('No link to copy.', 'error');
+                      }
+                    }}
+                    style={{ padding: '8px 12px' }}
+                  >
+                    Copy
+                  </button>
+                </div>
+              </label>
               <label className="form-grid-full">Notes & Description
                 <textarea rows={4} value={formData.note} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, note: e.target.value })} placeholder="Loan details, remarks, follow-up notes..." />
               </label>
@@ -649,9 +725,8 @@ export default function EnquiryStatus() {
           </Modal>
         )}
 
-
         {/* ── Convert Lead to Client Confirmation Overlay ── */}
-        {convertingLead && (
+        {convertingLead && convertFormData && (
           <div style={{
             position: 'fixed', inset: 0, zIndex: 1000,
             background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(3px)',
@@ -662,69 +737,228 @@ export default function EnquiryStatus() {
             <div
               onClick={(ev) => ev.stopPropagation()}
               style={{
-                background: 'var(--bg-surface)', borderRadius: 16, width: 440, maxWidth: '90vw',
+                background: 'var(--bg-surface)', borderRadius: 16, width: 800, maxWidth: '90vw',
+                height: '90vh', display: 'flex', flexDirection: 'column',
                 boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden'
               }}
             >
-              {/* Green top bar */}
-              <div style={{ background: 'var(--bg-hover)', padding: '24px 24px 16px', borderBottom: '1px solid #bbf7d0' }}>
+              {/* Header */}
+              <div style={{ background: 'var(--bg-hover)', padding: '20px 24px', borderBottom: '1px solid #bbf7d0', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 16 }}>
                 <div style={{
-                  width: 48, height: 48, borderRadius: '50%', background: '#dcfce7',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 22, marginBottom: 12
-                }}><TrendingUp size={24} /></div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: '#14532d' }}>Convert to Client Record?</div>
-                <div style={{ fontSize: 13, color: '#15803d', marginTop: 4 }}>
-                  This qualified lead will automatically be converted to a Client File.
+                  width: 40, height: 40, borderRadius: '50%', background: '#dcfce7',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a'
+                }}><TrendingUp size={20} /></div>
+                <div>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: '#14532d' }}>Convert to Client Record</div>
+                  <div style={{ fontSize: 13, color: '#15803d', marginTop: 2 }}>Please fill the missing details to complete the file.</div>
                 </div>
               </div>
 
-              {/* Body */}
-              <div style={{ padding: '20px 24px' }}>
-                <div style={{
-                  background: 'var(--bg-input)', borderRadius: 10, padding: '14px 16px',
-                  border: '1px solid #f0f0f0', marginBottom: 20
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{
-                      width: 38, height: 38, borderRadius: '50%',
-                      background: avatarColor(convertingLead.client_name),
-                      color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontWeight: 700, fontSize: 13, flexShrink: 0
-                    }}>
-                      {avatarLetters(convertingLead.client_name)}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{convertingLead.client_name}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-faint)' }}>
-                        {convertingLead.loan_type} • {formatAmount(convertingLead.loan_amount)}
-                      </div>
-                    </div>
-                  </div>
+              {/* Scrollable Body */}
+              <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
+                
+                {/* Basic Details */}
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 16, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>Basic Details</h3>
+                <div className="form-grid">
+                  <label>Client Name
+                    <input type="text" value={convertFormData.client_name} onChange={(e) => setConvertFormData({ ...convertFormData, client_name: e.target.value })} />
+                  </label>
+                  <label>Client ID
+                    <input type="text" value={convertFormData.client_id} onChange={(e) => setConvertFormData({ ...convertFormData, client_id: e.target.value })} />
+                  </label>
+                  <label>Co-Applicant Name
+                    <input type="text" value={convertFormData.co_applicate_name} onChange={(e) => setConvertFormData({ ...convertFormData, co_applicate_name: e.target.value })} />
+                  </label>
+                  <label>Loan Type
+                    <input type="text" value={convertFormData.loan_type} onChange={(e) => setConvertFormData({ ...convertFormData, loan_type: e.target.value })} />
+                  </label>
+                  <label>Loan Amount
+                    <input type="number" value={convertFormData.loan_amount} onChange={(e) => setConvertFormData({ ...convertFormData, loan_amount: e.target.value })} />
+                  </label>
+                  <label>Associate Name
+                    <input type="text" value={convertFormData.associate_name} onChange={(e) => setConvertFormData({ ...convertFormData, associate_name: e.target.value })} />
+                  </label>
+                  <label>Client Mobile Number
+                    <input type="number" value={convertFormData.client_mobile_number} onChange={(e) => setConvertFormData({ ...convertFormData, client_mobile_number: e.target.value })} />
+                  </label>
                 </div>
 
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button
-                    onClick={() => setConvertingLead(null)}
-                    style={{
-                      flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid #e5e7eb',
-                      background: 'var(--bg-surface)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: 14, cursor: 'pointer'
-                    }}
-                  >
-                    Keep as Lead
-                  </button>
-                  <button
-                    onClick={handleLeadConversion}
-                    style={{
-                      flex: 1, padding: '10px 0', borderRadius: 8, border: 'none',
-                      background: '#16a34a', color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer',
-                      boxShadow: '0 2px 8px rgba(22,163,74,0.3)'
-                    }}
-                  >
-                    Yes, Convert Client
-                  </button>
+                {/* Professional Details */}
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)', margin: '24px 0 16px', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>Professional Details</h3>
+                <div className="form-grid">
+                  <label className="form-grid-full">Profession
+                    <select value={convertFormData.profession} onChange={(e) => setConvertFormData({ ...convertFormData, profession: e.target.value })}>
+                      <option value="Job">Job</option>
+                      <option value="Self Employed">Self Employed</option>
+                    </select>
+                  </label>
+
+                  {convertFormData.profession === 'Job' && (
+                    <>
+                      <label>Name of Company
+                        <input type="text" value={convertFormData.company_name} onChange={(e) => setConvertFormData({ ...convertFormData, company_name: e.target.value })} />
+                      </label>
+                      <label>Salary Type
+                        <select value={convertFormData.salary_type} onChange={(e) => setConvertFormData({ ...convertFormData, salary_type: e.target.value })}>
+                          <option value="Account Credit">Account Credit</option>
+                          <option value="Cash on Hand">Cash on Hand</option>
+                        </select>
+                      </label>
+                      <label>Job Title
+                        <input type="text" value={convertFormData.job_title} onChange={(e) => setConvertFormData({ ...convertFormData, job_title: e.target.value })} />
+                      </label>
+                      <label>Years in Company
+                        <input type="text" value={convertFormData.years_in_company} onChange={(e) => setConvertFormData({ ...convertFormData, years_in_company: e.target.value })} />
+                      </label>
+                      <label>ESI & PF
+                        <select value={convertFormData.esi_pf} onChange={(e) => setConvertFormData({ ...convertFormData, esi_pf: e.target.value })}>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
+                        </select>
+                      </label>
+                      <label>URN
+                        <input type="text" value={convertFormData.urn} onChange={(e) => setConvertFormData({ ...convertFormData, urn: e.target.value })} />
+                      </label>
+                      <label>Manager Name
+                        <input type="text" value={convertFormData.manager_name} onChange={(e) => setConvertFormData({ ...convertFormData, manager_name: e.target.value })} />
+                      </label>
+                      <label>Manager Mobile Number
+                        <input type="text" value={convertFormData.manager_mobile} onChange={(e) => setConvertFormData({ ...convertFormData, manager_mobile: e.target.value })} />
+                      </label>
+                    </>
+                  )}
+
+                  {convertFormData.profession === 'Self Employed' && (
+                    <>
+                      <label>GST Number
+                        <input type="text" value={convertFormData.gst} onChange={(e) => setConvertFormData({ ...convertFormData, gst: e.target.value })} />
+                      </label>
+                      <label>GST Total Year
+                        <input type="text" value={convertFormData.gst_vintage} onChange={(e) => setConvertFormData({ ...convertFormData, gst_vintage: e.target.value })} />
+                      </label>
+                      <label>UDYAM Number
+                        <input type="text" value={convertFormData.udyam} onChange={(e) => setConvertFormData({ ...convertFormData, udyam: e.target.value })} />
+                      </label>
+                      <label>UDYAM Vintage
+                        <input type="text" value={convertFormData.udyam_vintage} onChange={(e) => setConvertFormData({ ...convertFormData, udyam_vintage: e.target.value })} />
+                      </label>
+                      <label>Other Government Certificate
+                        <input type="text" value={convertFormData.other_gov_cert} onChange={(e) => setConvertFormData({ ...convertFormData, other_gov_cert: e.target.value })} />
+                      </label>
+                      <label>Vintage Proof
+                        <input type="text" value={convertFormData.vintage_proof} onChange={(e) => setConvertFormData({ ...convertFormData, vintage_proof: e.target.value })} />
+                      </label>
+                      <label>Proprietor Type
+                        <select value={convertFormData.proprietor_type} onChange={(e) => setConvertFormData({ ...convertFormData, proprietor_type: e.target.value })}>
+                          <option value="Solo Proprietor">Solo Proprietor</option>
+                          <option value="Partnership">Partnership</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </label>
+                      <label>Others
+                        <input type="text" value={convertFormData.self_employed_others} onChange={(e) => setConvertFormData({ ...convertFormData, self_employed_others: e.target.value })} />
+                      </label>
+                    </>
+                  )}
                 </div>
+
+                {/* Main Details (Back to main) */}
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)', margin: '24px 0 16px', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>Property & Banking</h3>
+                <div className="form-grid">
+                  <label>Property Value
+                    <input type="text" value={convertFormData.property_value} onChange={(e) => setConvertFormData({ ...convertFormData, property_value: e.target.value })} />
+                  </label>
+                  <label>Name of Banker
+                    <input type="text" value={convertFormData.banker_name} onChange={(e) => setConvertFormData({ ...convertFormData, banker_name: e.target.value })} />
+                  </label>
+                  <label>Bank Manager Name
+                    <input type="text" value={convertFormData.bank_manager_name} onChange={(e) => setConvertFormData({ ...convertFormData, bank_manager_name: e.target.value })} />
+                  </label>
+                  <label>Bank Manager Number
+                    <input type="text" value={convertFormData.bank_manager_number} onChange={(e) => setConvertFormData({ ...convertFormData, bank_manager_number: e.target.value })} />
+                  </label>
+                  <label>CIBIL Score (Applicant)
+                    <input type="text" value={convertFormData.cibil_applicant} onChange={(e) => setConvertFormData({ ...convertFormData, cibil_applicant: e.target.value })} />
+                  </label>
+                  <label>CIBIL Score (Co-Applicant)
+                    <input type="text" value={convertFormData.cibil_co_applicant} onChange={(e) => setConvertFormData({ ...convertFormData, cibil_co_applicant: e.target.value })} />
+                  </label>
+                  <label>Applicant Total Loans
+                    <input type="text" value={convertFormData.applicant_total_loans} onChange={(e) => setConvertFormData({ ...convertFormData, applicant_total_loans: e.target.value })} />
+                  </label>
+                  <label>Co-Applicant Total Loans
+                    <input type="text" value={convertFormData.co_applicant_total_loans} onChange={(e) => setConvertFormData({ ...convertFormData, co_applicant_total_loans: e.target.value })} />
+                  </label>
+                  <label className="form-grid-full">Applicant CIBIL Briefing
+                    <input type="text" value={convertFormData.applicant_cibil_briefing} onChange={(e) => setConvertFormData({ ...convertFormData, applicant_cibil_briefing: e.target.value })} />
+                  </label>
+                  <label className="form-grid-full">Co-Applicant CIBIL Briefing
+                    <input type="text" value={convertFormData.co_applicant_cibil_briefing} onChange={(e) => setConvertFormData({ ...convertFormData, co_applicant_cibil_briefing: e.target.value })} />
+                  </label>
+                </div>
+
+                {/* Issues & Notes */}
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)', margin: '24px 0 16px', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>Issues & Final Details</h3>
+                <div className="form-grid">
+                  <label>Document Related Issues
+                    <select value={convertFormData.document_issues} onChange={(e) => setConvertFormData({ ...convertFormData, document_issues: e.target.value })}>
+                      <option value="None">None</option>
+                      <option value="Private Finance Holding">Private Finance Holding</option>
+                      <option value="Relative Base Holding">Relative Base Holding</option>
+                      <option value="Join Family Issue">Join Family Issue</option>
+                      <option value="Document Not Available">Document Not Available</option>
+                      <option value="Other Issue">Other Issue</option>
+                    </select>
+                  </label>
+                  <label>Business Related Issues
+                    <select value={convertFormData.business_issues} onChange={(e) => setConvertFormData({ ...convertFormData, business_issues: e.target.value })}>
+                      <option value="None">None</option>
+                      <option value="Partner Not Accepted">Partner Not Accepted</option>
+                      <option value="Vintage Proof Not Supported">Vintage Proof Not Supported</option>
+                      <option value="Others">Others</option>
+                    </select>
+                  </label>
+                  <label>Family Related Issues
+                    <select value={convertFormData.family_issues} onChange={(e) => setConvertFormData({ ...convertFormData, family_issues: e.target.value })}>
+                      <option value="None">None</option>
+                      <option value="Wife Not Support">Wife Not Support</option>
+                      <option value="Parent Not Support">Parent Not Support</option>
+                      <option value="Others">Others</option>
+                    </select>
+                  </label>
+                  <label>Login File Date
+                    <input type="date" value={convertFormData.login_date} onChange={(e) => setConvertFormData({ ...convertFormData, login_date: e.target.value })} />
+                  </label>
+                  <label className="form-grid-full">Notes
+                    <textarea rows={3} value={convertFormData.convert_notes} onChange={(e) => setConvertFormData({ ...convertFormData, convert_notes: e.target.value })} />
+                  </label>
+                </div>
+
               </div>
+
+              {/* Footer Actions */}
+              <div style={{ display: 'flex', gap: 12, padding: '16px 24px', borderTop: '1px solid #e5e7eb', background: '#fafafa', flexShrink: 0 }}>
+                <button
+                  onClick={() => setConvertingLead(null)}
+                  style={{
+                    flex: 1, padding: '12px 0', borderRadius: 8, border: '1px solid #d1d5db',
+                    background: '#fff', color: 'var(--text-secondary)', fontWeight: 600, fontSize: 14, cursor: 'pointer'
+                  }}
+                >
+                  Cancel / Keep as Lead
+                </button>
+                <button
+                  onClick={handleLeadConversion}
+                  style={{
+                    flex: 1, padding: '12px 0', borderRadius: 8, border: 'none',
+                    background: '#16a34a', color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(22,163,74,0.3)'
+                  }}
+                >
+                  Submit to Login File
+                </button>
+              </div>
+
             </div>
           </div>
         )}
