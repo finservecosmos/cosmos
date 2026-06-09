@@ -1,4 +1,5 @@
 import React from 'react';
+import Modal from '../../../shared/ui/Modal';
 
 export default function FinanceEntryForm({
   clientName,
@@ -38,18 +39,13 @@ export default function FinanceEntryForm({
   handleSaveEntry
 }) {
   return (
-    <div className="new-client-form-card">
-      <div className="form-header-row">
-        <div className="form-title-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="8.5" cy="7" r="4" /><line x1="20" y1="8" x2="20" y2="14" /><line x1="23" y1="11" x2="17" y2="11" />
-          </svg>
-          <span>{editId ? 'Edit Finance Record' : 'New Client Form'}</span>
-        </div>
-        <span className="entry-id-badge">{displayEntryId}</span>
-      </div>
-
-      <div className="entry-form-grid">
+    <Modal
+      size="lg"
+      title={editId ? 'Edit Finance Record' : 'New Client Form'}
+      subtitle="Please fill out the details below."
+      onClose={handleCancel}
+    >
+      <div className="entry-form-grid" style={{ paddingTop: '10px' }}>
         <label className="span-2">
           Client Name *
           <input 
@@ -150,14 +146,14 @@ export default function FinanceEntryForm({
           />
         </label>
 
-        <label className="span-2 row-span-2">
+        <label className="span-2">
           Address
           <textarea 
-            rows={4}
+            rows={2}
             placeholder="Residential/Business address" 
             value={address} 
             onChange={e => setAddress(e.target.value)} 
-            style={{ resize: 'none', height: '100%' }}
+            style={{ resize: 'none' }}
           />
         </label>
 
@@ -184,15 +180,13 @@ export default function FinanceEntryForm({
             <button 
               type="button" 
               className="data-btn data-btn-outline" 
-              onClick={() => {
-                if (googleDriveLink) {
-                  navigator.clipboard.writeText(googleDriveLink);
-                }
-              }}
-              title="Copy Link"
-              style={{ padding: '0 12px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              onClick={() => { if (googleDriveLink) window.open(googleDriveLink, '_blank', 'noopener,noreferrer'); }}
+              disabled={!googleDriveLink}
+              title="Open Drive"
+              style={{ padding: '0 12px', height: '40px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', opacity: !googleDriveLink ? 0.5 : 1, cursor: !googleDriveLink ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              Open Drive
             </button>
           </div>
         </label>
@@ -218,11 +212,11 @@ export default function FinanceEntryForm({
         </label>
       </div>
 
-      <div className="modal-actions" style={{ marginTop: 24, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
+      <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '24px', marginTop: 16, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
         <button type="button" className="admin-action-btn" onClick={handleCancel}>Cancel</button>
         <button type="button" className="data-btn data-btn-outline" onClick={handleResetForm}>Reset</button>
         <button type="button" className="admin-primary-btn" onClick={handleSaveEntry}>Save Entry</button>
       </div>
-    </div>
+    </Modal>
   );
 }

@@ -32,6 +32,7 @@ export function AppStateProvider({ children }) {
   const [associates, setAssociates]       = useState(dummyAssociates)
   const [payments, setPayments]           = useState(dummyPayments)
   const [invoices, setInvoices]           = useState(dummyInvoices)
+  const [financeInvoices, setFinanceInvoices] = useState([])
   const [products, setProducts]           = useState(dummyProducts)
   const [reminders, setReminders]         = useState(dummyReminders)
   const [notifications, setNotifications] = useState(dummyNotifications)
@@ -163,6 +164,7 @@ export function AppStateProvider({ children }) {
   const updatePayment = (pay) => setPayments(p => p.map(x => x.id === pay.id ? pay : x))
   const removePayment = (id)  => setPayments(p => p.filter(x => x.id !== id))
   const addInvoice    = (inv) => setInvoices(p => [{ ...inv, id: `INV-${String(p.length+1).padStart(3,'0')}` }, ...p])
+  const addFinanceInvoice = (inv) => setFinanceInvoices(p => [{ ...inv, id: `FINV-${String(p.length+1).padStart(3,'0')}` }, ...p])
   const addProduct    = (pr)  => setProducts(p => [{ ...pr, id: `PS${String(p.length+1).padStart(3,'0')}` }, ...p])
   const updateProduct = (pr)  => setProducts(p => p.map(x => x.id === pr.id ? pr : x))
   const addReminder    = (r)  => setReminders(p => [{ ...r, id: `R${String(p.length+1).padStart(3,'0')}`, done: false }, ...p])
@@ -226,24 +228,35 @@ export function AppStateProvider({ children }) {
         return c
       }))
 
-      // Auto-append Disbursement transaction to Payment Ledger
+      // Auto-append Disbursement/Collection transaction to Payment Ledger
       setPayments(p => {
-        const hasPayment = p.some(x => x.file_no === f.client_id && x.type === 'Disbursement')
+        const isPayout = f.amount_paid !== undefined
+        const paymentType = isPayout ? 'Collection' : 'Disbursement'
+        const hasPayment = p.some(x => x.file_no === f.client_id && x.type === paymentType)
         if (hasPayment) return p
+        
         const payPayload = {
           id: `P${String(p.length + 1).padStart(3, '0')}`,
           client: f.client,
           file_no: f.client_id,
-          type: 'Disbursement',
+          type: paymentType,
           amount: 2500000,
           bank: 'ICICI Bank',
           date: today,
           status: 'Completed'
         }
-        const matchingClient = clients.find(c => c.file_no === f.client_id || c.name === f.client)
-        if (matchingClient) {
-          payPayload.amount = matchingClient.amount
+
+        if (isPayout) {
+          payPayload.amount = f.amount_paid
+          payPayload.particular = 'Cosmos Payout Collection'
+          payPayload.category = 'Processing Fee'
+        } else {
+          const matchingClient = clients.find(c => c.file_no === f.client_id || c.name === f.client)
+          if (matchingClient) {
+            payPayload.amount = matchingClient.amount
+          }
         }
+        
         return [payPayload, ...p]
       })
     }
@@ -270,6 +283,7 @@ export function AppStateProvider({ children }) {
       associates: computedAssociates, addAssociate, updateAssociate,
       payments, addPayment, updatePayment, removePayment,
       invoices, addInvoice,
+      financeInvoices, addFinanceInvoice,
       products, addProduct, updateProduct,
       reminders, addReminder, updateReminder, deleteReminder,
       notifications, markNotifRead, markAllNotifsRead,

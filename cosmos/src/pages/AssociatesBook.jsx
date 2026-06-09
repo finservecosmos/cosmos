@@ -56,8 +56,7 @@ export default function AssociatesBook() {
   const [modalMode, setModalMode] = useState('add')
   const [formData, setFormData]   = useState(emptyAssociate)
 
-  // Add Wizard state
-  const [showAddWizard, setShowAddWizard] = useState(false)
+
 
   // Three-dot ellipsis menu states
   const [activeMenuId, setActiveMenuId] = useState(null)
@@ -82,7 +81,7 @@ export default function AssociatesBook() {
   const openAddModal = () => {
     setModalMode('add')
     setFormData(emptyAssociate)
-    setShowAddWizard(true)
+    setModalOpen(true)
   }
 
   const openEditModal = (associate) => {
@@ -118,108 +117,7 @@ export default function AssociatesBook() {
     setModalOpen(false)
   }
 
-  if (showAddWizard) {
-    return (
-      <DashboardLayout>
-        <div className="data-page">
-          <div className="data-page-header">
-            <div>
-              <h2 className="data-page-title">Register New Associate</h2>
-              <p className="data-page-sub">Step-by-step credentials allocation and region mapping</p>
-            </div>
-            <button className="data-btn data-btn-outline" onClick={() => setShowAddWizard(false)}>Cancel Registration</button>
-          </div>
 
-          <div className="wizard-container">
-            <div className="wizard-form-body">
-              <div className="wizard-panel">
-                <h3 className="wizard-panel-title"><Users size={18} style={{marginRight: 8, verticalAlign: "middle"}} /> Setup Contact & Operation Hub</h3>
-                <div className="form-grid">
-                  <label>
-                    Associate Name *
-                    <input type="text" placeholder="Full Name" value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-                  </label>
-                  <label>
-                    Contact Phone
-                    <input type="tel" placeholder="Mobile Number" value={formData.phone || ''} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-                  </label>
-                  <label>
-                    Email Address *
-                    <input type="email" placeholder="associate@email.com" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-                  </label>
-                  <label>
-                    Joined Date
-                    <input type="date" value={formData.joined || ''} onChange={(e) => setFormData({ ...formData, joined: e.target.value })} />
-                  </label>
-                  <label>
-                    Associate ID
-                    <input type="text" placeholder="Associate ID" value={formData.associate_id || ''} onChange={(e) => setFormData({ ...formData, associate_id: e.target.value })} />
-                  </label>
-                  <label>
-                    Field of Expertise
-                    <input type="text" placeholder="e.g. Home Loans" value={formData.expertise || ''} onChange={(e) => setFormData({ ...formData, expertise: e.target.value })} />
-                  </label>
-                  <label>
-                    Vintage
-                    <input type="text" placeholder="Years of experience" value={formData.vintage || ''} onChange={(e) => setFormData({ ...formData, vintage: e.target.value })} />
-                  </label>
-                  <label className="form-grid-full">
-                    Operation Region / Hub
-                    <HybridLocationPicker value={formData.region || ''} onChange={(value) => setFormData({ ...formData, region: value })} />
-                  </label>
-                </div>
-
-                <h3 className="wizard-panel-title" style={{ marginTop: 24 }}><Banknote size={18} style={{marginRight: 8, verticalAlign: "middle"}} /> Financial Institution Details</h3>
-                <div className="form-grid">
-                  <label>
-                    Name of Financial Institution
-                    <input type="text" placeholder="Institution Name" value={formData.financial_institution || ''} onChange={(e) => setFormData({ ...formData, financial_institution: e.target.value })} />
-                  </label>
-                  <label>
-                    Type of Financial Institution
-                    <select value={formData.institution_type || 'Bank'} onChange={(e) => setFormData({ ...formData, institution_type: e.target.value })}>
-                      <option value="Bank">Bank</option>
-                      <option value="Non-bank">Non-bank</option>
-                      <option value="Private Finance">Private Finance</option>
-                    </select>
-                  </label>
-                  <label className="form-grid-full">
-                    Branch
-                    <input type="text" placeholder="Branch location" value={formData.branch || ''} onChange={(e) => setFormData({ ...formData, branch: e.target.value })} />
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div className="wizard-actions">
-              <button
-                type="button"
-                className="data-btn data-btn-outline"
-                onClick={() => setShowAddWizard(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="data-btn data-btn-primary"
-                style={{ background: '#10b981' }}
-                onClick={() => {
-                  if (!formData.name || !formData.email) {
-                    addToast('Associate name and email are required to submit.', 'error');
-                    return;
-                  }
-                  saveAssociate();
-                  setShowAddWizard(false);
-                }}
-              >
-                Complete Registration & Save
-              </button>
-            </div>
-          </div>
-        </div>
-      </DashboardLayout>
-    )
-  }
 
   return (
     <DashboardLayout>

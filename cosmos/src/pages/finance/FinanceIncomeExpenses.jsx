@@ -8,7 +8,7 @@ import useConfirm from '../../shared/lib/useConfirm'
 import DonutChart from '../../shared/ui/DonutChart'
 import '../../shared/ui/DataPage.css'
 import './FinanceIncomeExpenses.css'
-import { X, Plus, Download, Edit, Trash2 } from 'lucide-react';
+import { X, Plus, Download, Edit, Trash2, FileText } from 'lucide-react';
 
 export default function FinanceIncomeExpenses() {
   const navigate = useNavigate()
@@ -434,39 +434,35 @@ export default function FinanceIncomeExpenses() {
 
         {/* Collapsible Add Entry Form & Running Balance Info */}
         {isFormOpen && (
-          <div className="form-balance-flex-row">
-            {/* Entry Form */}
-            <div className="investment-form-card entry-form-panel">
-              <div className="form-header-row">
-                <div className="form-title-wrap">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-                  </svg>
-                  <span>{editId ? 'Modify Transaction Entry' : 'Add New Income / Expense Entry'}</span>
-                </div>
-                <div className="form-type-toggles">
-                  <label className={`toggle-btn ${entryType === 'Income' ? 'active income' : ''}`}>
-                    <input
-                      type="radio"
-                      name="entryType"
-                      checked={entryType === 'Income'}
-                      onChange={() => setEntryType('Income')}
-                    />
-                    Income
-                  </label>
-                  <label className={`toggle-btn ${entryType === 'Expense' ? 'active expense' : ''}`}>
-                    <input
-                      type="radio"
-                      name="entryType"
-                      checked={entryType === 'Expense'}
-                      onChange={() => setEntryType('Expense')}
-                    />
-                    Expense
-                  </label>
-                </div>
+          <Modal
+            size="lg"
+            title={editId ? 'Modify Transaction Entry' : 'Add New Income / Expense Entry'}
+            subtitle="Please enter the transaction details below."
+            onClose={() => setIsFormOpen(false)}
+            headerAction={
+              <div className="form-type-toggles" style={{ margin: 0 }}>
+                <label className={`toggle-btn ${entryType === 'Income' ? 'active income' : ''}`}>
+                  <input
+                    type="radio"
+                    name="entryType"
+                    checked={entryType === 'Income'}
+                    onChange={() => setEntryType('Income')}
+                  />
+                  Income
+                </label>
+                <label className={`toggle-btn ${entryType === 'Expense' ? 'active expense' : ''}`}>
+                  <input
+                    type="radio"
+                    name="entryType"
+                    checked={entryType === 'Expense'}
+                    onChange={() => setEntryType('Expense')}
+                  />
+                  Expense
+                </label>
               </div>
-
-              <div className="investment-form-grid text-fields-grid">
+            }
+          >
+            <div className="investment-form-grid text-fields-grid" style={{ paddingTop: '10px' }}>
                 <label>
                   Date *
                   <input
@@ -532,40 +528,13 @@ export default function FinanceIncomeExpenses() {
                   />
                 </label>
 
-                <div className="span-4 form-action-btns">
+                <div className="span-4 form-action-btns" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '16px' }}>
                   <button type="button" className="admin-action-btn" onClick={handleCancelForm} style={{ color: '#ef4444', textDecoration: 'none', background: 'transparent', border: 'none' }}>Cancel</button>
                   <button type="button" className="data-btn data-btn-outline" onClick={handleResetForm}>Reset</button>
                   <button type="button" className="admin-primary-btn" onClick={handleSaveEntry}>Save Entry</button>
                 </div>
               </div>
-            </div>
-
-            {/* Running Balance */}
-            <div className="investment-form-card running-balance-panel">
-              <div className="panel-header" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 12, marginBottom: 16 }}>
-                <h3 className="panel-title" style={{ fontSize: 13.5 }}>Running Balance</h3>
-              </div>
-              <div className="balance-breakdown-rows">
-                <div className="balance-breakdown-row">
-                  <span className="balance-label">Opening Balance</span>
-                  <span className="balance-value">₹10,000</span>
-                </div>
-                <div className="balance-breakdown-row">
-                  <span className="balance-label">Total Income (+)</span>
-                  <span className="balance-value text-green">₹{totalIncome.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="balance-breakdown-row">
-                  <span className="balance-label">Total Expenses (-)</span>
-                  <span className="balance-value text-red">₹{totalExpenses.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="balance-breakdown-divider" />
-                <div className="balance-breakdown-row balance-total">
-                  <span className="balance-label bold-label">Current Balance</span>
-                  <span className="balance-value grand-total">₹{currentBalance.toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          </Modal>
         )}
 
         {/* Charts Row */}
@@ -791,6 +760,12 @@ export default function FinanceIncomeExpenses() {
 
                             {activeMenuId === rec.id && (
                               <div className="action-popover" onClick={(e) => e.stopPropagation()}>
+                                <button className="popover-item" onClick={() => { 
+                                  setActiveMenuId(null);
+                                  navigate('/finance/invoice', { state: { prefillName: rec.name, prefillParticular: rec.particular, prefillAmount: rec.amount, prefillType: rec.type, prefillDate: rec.date } });
+                                }}>
+                                  <FileText size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Generate Invoice
+                                </button>
                                 <button className="popover-item danger" onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}>
                                   <Trash2 size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Delete Record
                                 </button>
@@ -823,6 +798,7 @@ export default function FinanceIncomeExpenses() {
           )}
         </div>
       </div>
+
     </DashboardLayout>
   )
 }

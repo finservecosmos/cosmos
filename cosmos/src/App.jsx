@@ -25,6 +25,7 @@ const FinanceOverview    = lazy(() => import('./pages/finance/FinanceOverview'))
 const FinanceEntry       = lazy(() => import('./pages/finance/FinanceEntry'))
 const FinanceInvestment  = lazy(() => import('./pages/finance/FinanceInvestment'))
 const FinanceIncomeExpenses = lazy(() => import('./pages/finance/FinanceIncomeExpenses'))
+const FinanceInvoice     = lazy(() => import('./pages/finance/FinanceInvoice'))
 
 const PR = ({ roles, children }) => <ProtectedRoute allowedRoles={roles}>{children}</ProtectedRoute>
 
@@ -58,6 +59,7 @@ function App() {
             <Route path="/finance/entry"     element={<PR roles={['admin','advisor','staff']}><FinanceEntry /></PR>} />
             <Route path="/finance/investment" element={<PR roles={['admin','advisor','staff']}><FinanceInvestment /></PR>} />
             <Route path="/finance/income-expenses" element={<PR roles={['admin','advisor','staff']}><FinanceIncomeExpenses /></PR>} />
+            <Route path="/finance/invoice"   element={<PR roles={['admin','advisor','staff']}><FinanceInvoice /></PR>} />
             <Route path="/backup"            element={<PR roles={['admin']}><BackupData /></PR>} />
             <Route path="/profile"           element={<PR roles={['admin','advisor','staff']}><ProfilePage /></PR>} />
             <Route path="/notifications"     element={<PR roles={['admin','advisor','staff']}><NotificationsPage /></PR>} />

@@ -72,17 +72,23 @@
 }
 
 body {
-  @apply m-0 font-sans antialiased bg-bgApp text-textPrimary transition-colors duration-200;
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  transition: background 0.2s, color 0.2s;
 }
 
 #root {
-  @apply min-h-screen;
+  min-height: 100vh;
 }
 
-h1, h2, h3, h4, h5, h6 { @apply m-0 text-textPrimary; }
-p { @apply m-0; }
-button { @apply font-inherit cursor-pointer; }
-input { @apply font-inherit; }
+h1, h2, h3, h4, h5, h6 { margin: 0; color: var(--text-primary); }
+p { margin: 0; }
+button { font-family: inherit; cursor: pointer; }
+input { font-family: inherit; }
 
 /* ── SVG Normalization ─────────────────────────────────────── */
 svg {
@@ -104,56 +110,70 @@ svg {
   font-size: inherit;
 }
 
-@layer components {
-  /* ── Typography System ─────────────────────────────────────── */
-  .numeric-data, 
-  .data-summary-value, 
-  .cell-amount, 
-  .ps-kpi-value, 
-  .ps-legend-val, 
-  .invoice-amount, 
-  .invoice-total,
-  .metric-value,
-  .donut-center-val,
-  .donut-percent,
-  .donut-tooltip-count,
-  .donut-tooltip-pct,
-  .kpi-value,
-  .table-amount {
-    font-family: 'Inter', sans-serif !important;
-    font-variant-numeric: tabular-nums !important;
-  }
+/* ── Typography System ─────────────────────────────────────── */
+.numeric-data, 
+.data-summary-value, 
+.cell-amount, 
+.ps-kpi-value, 
+.ps-legend-val, 
+.invoice-amount, 
+.invoice-total,
+.metric-value,
+.donut-center-val,
+.donut-percent,
+.donut-tooltip-count,
+.donut-tooltip-pct {
+  font-family: 'Inter', sans-serif !important;
+  font-variant-numeric: tabular-nums !important;
+}
 
-  .page-title {
-    @apply text-[32px] font-[800] text-textPrimary;
-  }
+.page-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
 
-  .section-heading {
-    @apply text-[22px] font-[700] text-textPrimary;
-  }
+.section-heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
 
-  .card-title {
-    @apply text-[16px] font-[600] text-textPrimary;
-  }
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
 
-  .body-text {
-    @apply text-[14px] font-[500] text-textPrimary;
-  }
+.body-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
 
-  .form-label {
-    @apply text-[13px] font-[500] text-[#64748B];
-  }
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748B;
+}
 
-  .kpi-value {
-    @apply text-[32px] font-[800] text-textPrimary;
-  }
+.kpi-value {
+  font-family: 'Inter', sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
 
-  .table-amount {
-    @apply text-[15px] font-[700];
-  }
+.table-amount {
+  font-family: 'Inter', sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  font-weight: 700;
+}
 
-  .status-badge {
-    @apply text-[13px] font-[600];
-  }
+.status-badge {
+  font-size: 13px;
+  font-weight: 600;
 }
 

@@ -683,21 +683,19 @@ export default function EnquiryStatus() {
               <label className="form-grid-full">Google Drive Link
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input type="text" value={formData.google_drive_link || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, google_drive_link: e.target.value })} placeholder="https://drive.google.com/..." style={{ flex: 1 }} />
-                  <button
-                    type="button"
-                    className="admin-action-btn"
-                    onClick={() => {
-                      if (formData.google_drive_link) {
-                        navigator.clipboard.writeText(formData.google_drive_link);
-                        addToast('Google Drive link copied!', 'success');
-                      } else {
-                        addToast('No link to copy.', 'error');
-                      }
-                    }}
-                    style={{ padding: '8px 12px' }}
-                  >
-                    Copy
-                  </button>
+                  {formData.google_drive_link && (
+                    <button
+                      type="button"
+                      className="admin-action-btn"
+                      onClick={() => {
+                        window.open(formData.google_drive_link, '_blank', 'noopener,noreferrer');
+                      }}
+                      style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                      Open Drive
+                    </button>
+                  )}
                 </div>
               </label>
               <label className="form-grid-full">Notes & Description
@@ -715,37 +713,15 @@ export default function EnquiryStatus() {
 
         {/* ── Convert Lead to Client Confirmation Overlay ── */}
         {convertingLead && convertFormData && (
-          <div style={{
-            position: 'fixed', inset: 0, zIndex: 1000,
-            background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(3px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}
-            onClick={() => setConvertingLead(null)}
+          <Modal
+            size="lg"
+            title="Convert to Client Record"
+            subtitle="Please fill the missing details to complete the file."
+            icon={<TrendingUp size={20} />}
+            headerTheme="success"
+            onClose={() => setConvertingLead(null)}
           >
-            <div
-              onClick={(ev) => ev.stopPropagation()}
-              style={{
-                background: 'var(--bg-surface)', borderRadius: 16, width: 800, maxWidth: '90vw',
-                height: '90vh', display: 'flex', flexDirection: 'column',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden'
-              }}
-            >
-              {/* Header */}
-              <div style={{ background: 'var(--bg-hover)', padding: '20px 24px', borderBottom: '1px solid #bbf7d0', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{
-                  width: 40, height: 40, borderRadius: '50%', background: '#dcfce7',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a'
-                }}><TrendingUp size={20} /></div>
-                <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: '#14532d' }}>Convert to Client Record</div>
-                  <div style={{ fontSize: 13, color: '#15803d', marginTop: 2 }}>Please fill the missing details to complete the file.</div>
-                </div>
-              </div>
-
-              {/* Scrollable Body */}
-              <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
-
-                {/* Basic Details */}
+            {/* Basic Details */}
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 16, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>Basic Details</h3>
                 <div className="form-grid">
                   <label>Client Name
@@ -924,11 +900,8 @@ export default function EnquiryStatus() {
                     <textarea rows={3} value={convertFormData.convert_notes} onChange={(e) => setConvertFormData({ ...convertFormData, convert_notes: e.target.value })} />
                   </label>
                 </div>
-
-              </div>
-
               {/* Footer Actions */}
-              <div style={{ display: 'flex', gap: 12, padding: '16px 24px', borderTop: '1px solid #e5e7eb', background: '#fafafa', flexShrink: 0 }}>
+              <div style={{ display: 'flex', gap: 12, marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
                 <button
                   onClick={() => setConvertingLead(null)}
                   style={{
@@ -949,9 +922,7 @@ export default function EnquiryStatus() {
                   Submit to Login File
                 </button>
               </div>
-
-            </div>
-          </div>
+          </Modal>
         )}
 
       </div>

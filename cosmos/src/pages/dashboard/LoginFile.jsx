@@ -345,6 +345,9 @@ export default function LoginFile() {
   const [formData, setFormData]     = useState(emptyAddForm)
   const [editData, setEditData]     = useState(null)
 
+  const [payoutModalOpen, setPayoutModalOpen] = useState(false)
+  const [payoutData, setPayoutData] = useState({ amount: '', file: null })
+
   const [activeMenuId, setActiveMenuId] = useState(null)
   useEffect(() => {
     const handler = () => setActiveMenuId(null)
@@ -427,6 +430,12 @@ export default function LoginFile() {
   }
 
   const handleMarkDoneRequest = async (f) => {
+    if (f.currentStageIndex === STAGES.length - 1) {
+      setPayoutData({ amount: '', file: f })
+      setPayoutModalOpen(true)
+      return
+    }
+
     const ok = await confirm({
       title: 'Mark Stage as Done?',
       message: `This will complete "${STAGES[f.currentStageIndex]}" and advance to the next stage for ${f.client}.`,
@@ -444,6 +453,20 @@ export default function LoginFile() {
         addToast(`${stageName} marked done. Now at ${STAGES[updated.currentStageIndex]}.`, 'success')
       }
     }
+  }
+
+  const savePayoutAmount = () => {
+    if (!payoutData.amount || isNaN(Number(payoutData.amount)) || Number(payoutData.amount) <= 0) {
+      addToast('Please enter a valid amount paid by the client.', 'error')
+      return
+    }
+    const f = payoutData.file
+    const updated = advanceStage(f)
+    updated.amount_paid = Number(payoutData.amount)
+    
+    updateLoginFile(updated)
+    addToast(`${f.client} — Cosmos Payout marked done and payment recorded!`, 'success')
+    setPayoutModalOpen(false)
   }
 
   const handleDelete = async (f) => {
@@ -772,6 +795,30 @@ export default function LoginFile() {
             <ProgressTimeline file={editData} />
             <div className="modal-actions">
               <button type="button" className="data-btn data-btn-outline" onClick={() => setModalOpen(false)}>Close</button>
+            </div>
+          </Modal>
+        )}
+
+        {/* Payout Modal */}
+        {payoutModalOpen && payoutData.file && (
+          <Modal title="Cosmos Payout" onClose={() => setPayoutModalOpen(false)}>
+            <div className="form-grid" style={{ gridTemplateColumns: '1fr' }}>
+              <label>Amount Client Paid (INR) *
+                <input
+                  type="number"
+                  placeholder="e.g. 50000"
+                  value={payoutData.amount}
+                  onChange={e => setPayoutData({ ...payoutData, amount: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-input)', borderRadius: 8, marginTop: 6 }}
+                />
+              </label>
+            </div>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '12px 0 0' }}>
+              Enter the final payout amount received. This will complete the file and move the data to Payment Status.
+            </p>
+            <div className="modal-actions">
+              <button type="button" className="data-btn data-btn-outline" onClick={() => setPayoutModalOpen(false)}>Cancel</button>
+              <button type="button" className="data-btn data-btn-primary" onClick={savePayoutAmount}>Mark Done & Save</button>
             </div>
           </Modal>
         )}

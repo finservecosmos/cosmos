@@ -9,7 +9,7 @@ import ClientOnboardingWizard from '../features/client-onboarding/components/Cli
 import ClientRecordsTable from '../features/client-onboarding/components/ClientRecordsTable';
 import ClientOnboardingForm from '../features/client-onboarding/components/ClientOnboardingForm';
 import '../shared/ui/DataPage.css';
-import { Users, RefreshCw, CheckCircle, Banknote } from 'lucide-react';
+import { Users, RefreshCw, CheckCircle, Banknote, Folder, Hourglass, FileText } from 'lucide-react';
 
 function maskAadhaar(num) {
   if (!num) return '';
@@ -215,62 +215,7 @@ export default function ClientRecordBook() {
               STATUSES={STATUSES}
             />
 
-            {modalMode !== 'add' && (
-              <div style={{ marginTop: 24, borderTop: '1px solid var(--border)', paddingTop: 18 }}>
-                <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-primary)' }}>
-                  <span>📁</span> KYC Documents Verification
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
-                  {['PAN Card', 'Aadhaar Card', 'IT Return', 'Bank Statement'].map((doc) => {
-                    const clientKey = formData.id || 'new';
-                    const clientDocStatus = (clientDocs[clientKey] && clientDocs[clientKey][doc]) || 'pending';
-                    const progress = uploadProgress[doc];
 
-                    return (
-                      <div key={doc} style={{
-                        display: 'flex', alignItems: 'center',
-                        padding: '10px 14px', borderRadius: 8, background: 'var(--bg-muted)',
-                        border: '1px solid var(--border)', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 16 }}>
-                            {clientDocStatus === 'success' ? '✅' : progress !== undefined ? '⏳' : '📄'}
-                          </span>
-                          <div>
-                            <div style={{ fontWeight: 600, fontSize: 12, color: 'var(--text-primary)' }}>{doc}</div>
-                            {progress !== undefined && progress < 100 && (
-                              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Uploading: {progress}%</div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div>
-                          {clientDocStatus === 'success' ? (
-                            <span style={{
-                              fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 4,
-                              background: '#dcfce7', color: '#16a34a'
-                            }}>Verified</span>
-                          ) : progress !== undefined && progress < 100 ? (
-                            <div style={{ width: 80, height: 6, background: 'var(--border-input)', borderRadius: 3, overflow: 'hidden' }}>
-                              <div style={{ width: `${progress}%`, height: '100%', background: 'var(--accent)' }} />
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              className="row-btn"
-                              style={{ padding: '3px 8px', fontSize: 11, background: 'var(--bg-surface)' }}
-                              onClick={() => handleDocumentUpload(doc)}
-                            >
-                              Upload
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
 
             <div className="modal-actions">
               <button type="button" className="admin-action-btn" onClick={() => setModalOpen(false)}>Close</button>

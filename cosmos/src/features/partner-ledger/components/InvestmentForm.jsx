@@ -1,4 +1,5 @@
 import React from 'react';
+import Modal from '../../../shared/ui/Modal';
 
 export default function InvestmentForm({
   partnerName,
@@ -34,20 +35,13 @@ export default function InvestmentForm({
   handleSaveInvestment
 }) {
   return (
-    <div className="investment-form-card">
-      <div className="form-header-row">
-        <div className="form-title-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-          <span>{editId ? 'Modify Investment Record' : 'Investment Entry Form'}</span>
-        </div>
-        <span className="entry-id-badge" style={{ background: '#fde8e8', color: '#c0392b' }}>
-          {editId ? `ID: ${editId}` : 'NEW ENTRY'}
-        </span>
-      </div>
-
-      <div className="investment-form-grid">
+    <Modal
+      size="lg"
+      title={editId ? 'Modify Investment Record' : 'Investment Entry Form'}
+      subtitle="Please fill out the details below."
+      onClose={handleCancel}
+    >
+      <div className="investment-form-grid" style={{ paddingTop: '10px' }}>
         <label>
           Partner Name *
           <input
@@ -70,12 +64,26 @@ export default function InvestmentForm({
         
         <label className="span-2" style={{ marginTop: -8 }}>
           Google Drive Link
-          <input
-            type="url"
-            placeholder="https://drive.google.com/..."
-            value={googleDriveLink}
-            onChange={e => setGoogleDriveLink(e.target.value)}
-          />
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              type="url"
+              placeholder="https://drive.google.com/..."
+              value={googleDriveLink}
+              onChange={e => setGoogleDriveLink(e.target.value)}
+              style={{ flex: 1, margin: 0 }}
+            />
+            <button 
+              type="button" 
+              className="data-btn data-btn-outline" 
+              onClick={() => { if (googleDriveLink) window.open(googleDriveLink, '_blank', 'noopener,noreferrer'); }}
+              disabled={!googleDriveLink}
+              title="Open Drive"
+              style={{ padding: '0 12px', height: '40px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', opacity: !googleDriveLink ? 0.5 : 1, cursor: !googleDriveLink ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              Open Drive
+            </button>
+          </div>
         </label>
 
         <label className="span-2">
@@ -177,12 +185,6 @@ export default function InvestmentForm({
           />
         </label>
 
-        <div className="span-2" style={{ display: 'flex', gap: 12, alignItems: 'flex-end', justifyContent: 'flex-end' }}>
-          <button type="button" className="admin-action-btn" onClick={handleCancel} style={{ textDecoration: 'none', color: '#ef4444', border: 'none', background: 'transparent' }}>Cancel</button>
-          <button type="button" className="data-btn data-btn-outline" onClick={handleResetForm}>Reset</button>
-          <button type="button" className="admin-primary-btn" onClick={handleSaveInvestment} style={{ minWidth: 150 }}>Save Investment</button>
-        </div>
-
         <label className="span-2" style={{ marginTop: -8 }}>
           Address
           <textarea
@@ -193,7 +195,13 @@ export default function InvestmentForm({
             style={{ resize: 'none' }}
           />
         </label>
+
+        <div className="span-2" style={{ display: 'flex', gap: 24, alignItems: 'flex-end', justifyContent: 'flex-end', borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '16px' }}>
+          <button type="button" className="admin-action-btn" onClick={handleCancel} style={{ textDecoration: 'none', color: '#ef4444', border: 'none', background: 'transparent' }}>Cancel</button>
+          <button type="button" className="data-btn data-btn-outline" onClick={handleResetForm}>Reset</button>
+          <button type="button" className="admin-primary-btn" onClick={handleSaveInvestment} style={{ minWidth: 150 }}>Save Investment</button>
+        </div>
       </div>
-    </div>
+    </Modal>
   );
 }
