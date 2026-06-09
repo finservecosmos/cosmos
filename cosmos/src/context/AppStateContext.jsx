@@ -235,29 +235,77 @@ export function AppStateProvider({ children }) {
         const hasPayment = p.some(x => x.file_no === f.client_id && x.type === paymentType)
         if (hasPayment) return p
         
-        const payPayload = {
-          id: `P${String(p.length + 1).padStart(3, '0')}`,
-          client: f.client,
-          file_no: f.client_id,
-          type: paymentType,
-          amount: 2500000,
-          bank: 'ICICI Bank',
-          date: today,
-          status: 'Completed'
-        }
-
         if (isPayout) {
-          payPayload.amount = f.amount_paid
-          payPayload.particular = 'Cosmos Payout Collection'
-          payPayload.category = 'Processing Fee'
+          const actualPayout = f.actual_payout || f.amount_paid;
+          const amountPaid = f.amount_paid;
+          const pendingAmount = actualPayout - amountPaid;
+
+          const paymentsToAdd = [];
+
+          if (amountPaid > 0) {
+            paymentsToAdd.push({
+              id: `P${String(p.length + 1).padStart(3, '0')}`,
+              client: f.client,
+              file_no: f.client_id,
+              type: paymentType,
+              amount: amountPaid,
+              bank: 'ICICI Bank',
+              date: today,
+              status: 'Completed',
+              particular: 'Cosmos Payout Collection',
+              category: 'Processing Fee'
+            });
+          }
+
+          if (pendingAmount > 0) {
+            paymentsToAdd.push({
+              id: `P${String(p.length + 1 + (amountPaid > 0 ? 1 : 0)).padStart(3, '0')}`,
+              client: f.client,
+              file_no: f.client_id,
+              type: paymentType,
+              amount: pendingAmount,
+              bank: 'ICICI Bank',
+              date: today,
+              status: 'Pending',
+              particular: 'Cosmos Payout Pending',
+              category: 'Processing Fee'
+            });
+          }
+
+          if (paymentsToAdd.length === 0) {
+            paymentsToAdd.push({
+              id: `P${String(p.length + 1).padStart(3, '0')}`,
+              client: f.client,
+              file_no: f.client_id,
+              type: paymentType,
+              amount: 0,
+              bank: 'ICICI Bank',
+              date: today,
+              status: 'Completed',
+              particular: 'Cosmos Payout Collection',
+              category: 'Processing Fee'
+            });
+          }
+
+          return [...paymentsToAdd, ...p];
         } else {
+          const payPayload = {
+            id: `P${String(p.length + 1).padStart(3, '0')}`,
+            client: f.client,
+            file_no: f.client_id,
+            type: paymentType,
+            amount: 2500000,
+            bank: 'ICICI Bank',
+            date: today,
+            status: 'Completed'
+          }
+
           const matchingClient = clients.find(c => c.file_no === f.client_id || c.name === f.client)
           if (matchingClient) {
             payPayload.amount = matchingClient.amount
           }
+          return [payPayload, ...p]
         }
-        
-        return [payPayload, ...p]
       })
     }
   }

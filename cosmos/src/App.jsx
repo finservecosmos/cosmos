@@ -21,6 +21,7 @@ const UserManagement     = lazy(() => import('./pages/admin/UserManagement'))
 const RolesAccess        = lazy(() => import('./pages/admin/RolesAccess'))
 const AuditLog           = lazy(() => import('./pages/admin/AuditLog'))
 const SystemSettings     = lazy(() => import('./pages/admin/SystemSettings'))
+const AdminSettingsHub   = lazy(() => import('./pages/admin/AdminSettingsHub'))
 const FinanceOverview    = lazy(() => import('./pages/finance/FinanceOverview'))
 const FinanceEntry       = lazy(() => import('./pages/finance/FinanceEntry'))
 const FinanceInvestment  = lazy(() => import('./pages/finance/FinanceInvestment'))
@@ -65,6 +66,7 @@ function App() {
             <Route path="/notifications"     element={<PR roles={['admin','advisor','staff']}><NotificationsPage /></PR>} />
 
             {/* Admin */}
+            <Route path="/admin"           element={<PR roles={['admin']}><AdminSettingsHub /></PR>} />
             <Route path="/admin/users"     element={<PR roles={['admin']}><UserManagement /></PR>} />
             <Route path="/admin/roles"     element={<PR roles={['admin']}><RolesAccess /></PR>} />
             <Route path="/admin/audit-log" element={<PR roles={['admin']}><AuditLog /></PR>} />

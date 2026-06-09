@@ -24,14 +24,14 @@ const STATUS_FILTERS = ['All Status', 'Processing', 'Completed', 'Delayed']
 
 const PRIORITY_META = {
   Normal: { label: 'NORMAL', color: 'var(--text-muted)', bg: 'var(--bg-input)', border: 'var(--border)' },
-  High:   { label: 'HIGH PRIORITY', color: '#dc2626', bg: 'var(--bg-hover)', border: '#fecaca' },
+  High: { label: 'HIGH PRIORITY', color: '#dc2626', bg: 'var(--bg-hover)', border: '#fecaca' },
   Urgent: { label: 'URGENT', color: '#dc2626', bg: 'var(--bg-hover)', border: '#fecaca' },
 }
 
 const FILE_STATUS_META = {
   Processing: { label: 'PROCESSING', color: '#2563eb', bg: 'var(--bg-hover)', border: '#bfdbfe' },
-  Completed:  { label: 'COMPLETED',  color: '#16a34a', bg: 'var(--bg-hover)', border: '#bbf7d0' },
-  Delayed:    { label: 'DELAYED',    color: '#dc2626', bg: 'var(--bg-hover)', border: '#fecaca' },
+  Completed: { label: 'COMPLETED', color: '#16a34a', bg: 'var(--bg-hover)', border: '#bbf7d0' },
+  Delayed: { label: 'DELAYED', color: '#dc2626', bg: 'var(--bg-hover)', border: '#fecaca' },
 }
 
 /* ─── Helpers ────────────────────────────────────────────────── */
@@ -174,9 +174,9 @@ function StepNode({ status, stageName, stageData }) {
 
   const nodeStyle = {
     completed: { bg: '#16a34a', border: '#16a34a', icon: <Check size={14} />, color: '#fff' },
-    current:   { bg: '#fbbf24', border: '#f59e0b', icon: <Hourglass size={14} />, color: '#78350f' },
-    delayed:   { bg: '#dc2626', border: '#dc2626', icon: '!', color: '#fff' },
-    pending:   { bg: '#fff', border: 'var(--border-input)', icon: '', color: 'var(--text-faint)' },
+    current: { bg: '#fbbf24', border: '#f59e0b', icon: <Hourglass size={14} />, color: '#78350f' },
+    delayed: { bg: '#dc2626', border: '#dc2626', icon: '!', color: '#fff' },
+    pending: { bg: '#fff', border: 'var(--border-input)', icon: '', color: 'var(--text-faint)' },
   }[status]
 
   let subLabel = ''
@@ -244,7 +244,7 @@ function ProgressTimeline({ file }) {
 }
 
 /* ─── File Card ─────────────────────────────────────────────── */
-function FileCard({ file, onMenu, activeMenuId,  onView, onEdit, onRemove, onMarkDone }) {
+function FileCard({ file, onMenu, activeMenuId, onView, onEdit, onRemove, onMarkDone }) {
   const fileStatus = getFileStatus(file)
   const statusMeta = FILE_STATUS_META[fileStatus]
   const priorityMeta = PRIORITY_META[file.priority || 'Normal']
@@ -296,18 +296,18 @@ function FileCard({ file, onMenu, activeMenuId,  onView, onEdit, onRemove, onMar
               }}
             >
               <button onClick={() => onView(file)}
-                style={menuBtn}><Eye size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View Details</button>
+                style={menuBtn}><Eye size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> View Details</button>
               <button onClick={() => onEdit(file)}
-                style={menuBtn}><Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit File</button>
+                style={menuBtn}><Edit size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Edit File</button>
               {!file.done && (
                 <button onClick={() => onMarkDone(file)}
                   style={{ ...menuBtn, color: '#16a34a' }}>
-                  <CheckCircle size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Mark as Done{currentStage ? ` (${currentStage})` : ''}
+                  <CheckCircle size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Mark as Done{currentStage ? ` (${currentStage})` : ''}
                 </button>
               )}
               <div style={{ borderTop: '1px solid #f5f5f5', margin: '4px 0' }} />
               <button onClick={() => onRemove(file)}
-                style={{ ...menuBtn, color: '#dc2626' }}><Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Remove</button>
+                style={{ ...menuBtn, color: '#dc2626' }}><Trash2 size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Remove</button>
             </div>
           )}
         </div>
@@ -334,19 +334,19 @@ export default function LoginFile() {
 
   const files = useMemo(() => loginFiles.map(normalizeFile), [loginFiles])
 
-  const [search, setSearch]         = useState('')
-  const [loanFilter, setLoan]       = useState('All Loan Types')
-  const [fromDate, setFromDate]     = useState('')
-  const [toDate, setToDate]         = useState('')
-  const [statusFilter, setStatus]   = useState('All Status')
+  const [search, setSearch] = useState('')
+  const [loanFilter, setLoan] = useState('All Loan Types')
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
+  const [statusFilter, setStatus] = useState('All Status')
 
-  const [modalOpen, setModalOpen]   = useState(false)
-  const [modalMode, setModalMode]   = useState('add')
-  const [formData, setFormData]     = useState(emptyAddForm)
-  const [editData, setEditData]     = useState(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState('add')
+  const [formData, setFormData] = useState(emptyAddForm)
+  const [editData, setEditData] = useState(null)
 
   const [payoutModalOpen, setPayoutModalOpen] = useState(false)
-  const [payoutData, setPayoutData] = useState({ amount: '', file: null })
+  const [payoutData, setPayoutData] = useState({ amount_paid: '', actual_payout: '', file: null })
 
   const [activeMenuId, setActiveMenuId] = useState(null)
   useEffect(() => {
@@ -372,16 +372,16 @@ export default function LoginFile() {
   })
 
   /* ── Stats ── */
-  const total      = files.length
-  const completed  = files.filter(f => f.done).length
-  const delayed    = files.filter(f => !f.done && getFileStatus(f) === 'Delayed').length
+  const total = files.length
+  const completed = files.filter(f => f.done).length
+  const delayed = files.filter(f => !f.done && getFileStatus(f) === 'Delayed').length
   const processing = files.filter(f => !f.done && getFileStatus(f) === 'Processing').length
 
   const stats = [
-    { label: 'Total Files', value: total,      sub: total > 0 ? `+${Math.round((processing / total) * 100)}% active` : '', icon: <ClipboardList size={20} color="#3b82f6" />, iconBg: 'var(--bg-hover)' },
-    { label: 'Processing',  value: processing, sub: 'Currently in pipeline', icon: <RefreshCw size={20} color="#f59e0b" />, iconBg: 'var(--bg-hover)' },
-    { label: 'Completed',   value: completed,  sub: 'Fully disbursed',       icon: <CheckCircle size={20} color="#16a34a" />, iconBg: 'var(--bg-hover)', accent: '#16a34a' },
-    { label: 'Delayed',     value: delayed,    sub: 'Needs attention',       icon: <AlertTriangle size={20} color="#dc2626" />, iconBg: 'var(--bg-hover)', accent: '#dc2626' },
+    { label: 'Total Files', value: total, sub: total > 0 ? `+${Math.round((processing / total) * 100)}% active` : '', icon: <ClipboardList size={20} color="#3b82f6" />, iconBg: 'var(--bg-hover)' },
+    { label: 'Processing', value: processing, sub: 'Currently in pipeline', icon: <RefreshCw size={20} color="#f59e0b" />, iconBg: 'var(--bg-hover)' },
+    { label: 'Completed', value: completed, sub: 'Fully disbursed', icon: <CheckCircle size={20} color="#16a34a" />, iconBg: 'var(--bg-hover)', accent: '#16a34a' },
+    { label: 'Delayed', value: delayed, sub: 'Needs attention', icon: <AlertTriangle size={20} color="#dc2626" />, iconBg: 'var(--bg-hover)', accent: '#dc2626' },
   ]
 
   /* ── Handlers ── */
@@ -431,7 +431,7 @@ export default function LoginFile() {
 
   const handleMarkDoneRequest = async (f) => {
     if (f.currentStageIndex === STAGES.length - 1) {
-      setPayoutData({ amount: '', file: f })
+      setPayoutData({ amount_paid: '', actual_payout: '', file: f })
       setPayoutModalOpen(true)
       return
     }
@@ -456,14 +456,27 @@ export default function LoginFile() {
   }
 
   const savePayoutAmount = () => {
-    if (!payoutData.amount || isNaN(Number(payoutData.amount)) || Number(payoutData.amount) <= 0) {
+    const amtPaidNum = Number(payoutData.amount_paid)
+    const actualPayoutNum = Number(payoutData.actual_payout)
+
+    if (!payoutData.actual_payout || isNaN(actualPayoutNum) || actualPayoutNum <= 0) {
+      addToast('Please enter a valid actual payout amount.', 'error')
+      return
+    }
+    if (payoutData.amount_paid === '' || isNaN(amtPaidNum) || amtPaidNum < 0) {
       addToast('Please enter a valid amount paid by the client.', 'error')
       return
     }
+    if (amtPaidNum > actualPayoutNum) {
+      addToast('Amount paid cannot be greater than actual payout.', 'error')
+      return
+    }
+
     const f = payoutData.file
     const updated = advanceStage(f)
-    updated.amount_paid = Number(payoutData.amount)
-    
+    updated.amount_paid = amtPaidNum
+    updated.actual_payout = actualPayoutNum
+
     updateLoginFile(updated)
     addToast(`${f.client} — Cosmos Payout marked done and payment recorded!`, 'success')
     setPayoutModalOpen(false)
@@ -517,7 +530,7 @@ export default function LoginFile() {
   const handleStageStatusChange = (stageIndex, newStatus) => {
     const k = Number(stageIndex)
     const stageName = STAGES[k]
-    
+
     if (newStatus === 'completed') {
       setCurrentStage(k + 1)
     } else if (newStatus === 'pending') {
@@ -803,20 +816,29 @@ export default function LoginFile() {
         {payoutModalOpen && payoutData.file && (
           <Modal title="Cosmos Payout" onClose={() => setPayoutModalOpen(false)}>
             <div className="form-grid" style={{ gridTemplateColumns: '1fr' }}>
+              <label>Actual Payout (INR) *
+                <input
+                  type="number"
+                  placeholder="e.g. 100000"
+                  value={payoutData.actual_payout}
+                  onChange={e => setPayoutData({ ...payoutData, actual_payout: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-input)', borderRadius: 8, marginTop: 6 }}
+                />
+              </label>
               <label>Amount Client Paid (INR) *
                 <input
                   type="number"
                   placeholder="e.g. 50000"
-                  value={payoutData.amount}
-                  onChange={e => setPayoutData({ ...payoutData, amount: e.target.value })}
+                  value={payoutData.amount_paid}
+                  onChange={e => setPayoutData({ ...payoutData, amount_paid: e.target.value })}
                   style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-input)', borderRadius: 8, marginTop: 6 }}
                 />
               </label>
             </div>
             <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '12px 0 0' }}>
-              Enter the final payout amount received. This will complete the file and move the data to Payment Status.
+              Enter the actual payout and amount paid. This will complete the file and move the data to Payment Status.
             </p>
-            <div className="modal-actions">
+            <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '20px' }}>
               <button type="button" className="data-btn data-btn-outline" onClick={() => setPayoutModalOpen(false)}>Cancel</button>
               <button type="button" className="data-btn data-btn-primary" onClick={savePayoutAmount}>Mark Done & Save</button>
             </div>

@@ -85,7 +85,6 @@ export default function Invoice() {
             <h2 className="data-page-title">Invoice</h2>
             <p className="data-page-sub">Service invoices for all clients</p>
           </div>
-          <button className="data-btn data-btn-primary" onClick={openCreateModal}>+ Create Invoice</button>
         </div>
 
         {/* Summary */}
