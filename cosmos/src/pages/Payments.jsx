@@ -3,6 +3,7 @@ import DashboardLayout from '../widgets/DashboardLayout'
 import Modal from '../shared/ui/Modal'
 import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
+import { useNavigate } from 'react-router-dom'
 import '../shared/ui/DataPage.css'
 import { CreditCard, ArrowDownCircle, ArrowUpCircle, Clock } from 'lucide-react'
 
@@ -18,12 +19,14 @@ const emptyPayment = {
 }
 
 export default function Payments() {
-  const { payments, addPayment } = useAppState()
+  const { payments, addPayment, updatePayment } = useAppState()
   const { addToast } = useToast()
+  const navigate = useNavigate()
   const [search, setSearch]       = useState('')
   const [typeFilter, setType]     = useState('All')
   const [statusFilter, setStatus] = useState('All')
   const [modalOpen, setModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState('add')
   const [formData, setFormData]   = useState(emptyPayment)
 
   // Pagination states
@@ -51,7 +54,14 @@ export default function Payments() {
   const pending  = payments.filter(p => p.status === 'Pending').length
 
   const openAddModal = () => {
+    setModalMode('add')
     setFormData(emptyPayment)
+    setModalOpen(true)
+  }
+
+  const openEditModal = (p) => {
+    setModalMode('edit')
+    setFormData(p)
     setModalOpen(true)
   }
 
@@ -60,8 +70,13 @@ export default function Payments() {
       addToast('Client and file number are required.', 'error')
       return
     }
-    addPayment({ ...formData, amount: Number(formData.amount) })
-    addToast('Payment recorded successfully.', 'success')
+    if (modalMode === 'edit') {
+      updatePayment({ ...formData, amount: Number(formData.amount) })
+      addToast('Payment updated successfully.', 'success')
+    } else {
+      addPayment({ ...formData, amount: Number(formData.amount) })
+      addToast('Payment recorded successfully.', 'success')
+    }
     setModalOpen(false)
   }
 
@@ -187,8 +202,13 @@ export default function Payments() {
                   <td className="cell-muted">{p.date}</td>
                   <td><span className={`status-badge status-${p.status.toLowerCase()}`}>{p.status}</span></td>
                   <td>
-                    <div className="row-actions">
-                      <button className="row-btn" onClick={() => addToast('Payment details shown in list.', 'info')}>View</button>
+                    <div className="row-actions" style={{ display: 'flex', gap: '8px' }}>
+                      <button className="row-btn" onClick={() => openEditModal(p)}>Edit</button>
+                      <button className="row-btn" onClick={() => {
+                        navigate('/payments/invoice', {
+                          state: { prefillClient: p.client, prefillFileNo: p.file_no, prefillAmount: p.amount }
+                        })
+                      }}>Invoice</button>
                     </div>
                   </td>
                 </tr>
@@ -212,7 +232,7 @@ export default function Payments() {
         </div>
 
         {modalOpen && (
-          <Modal title="Record payment" onClose={() => setModalOpen(false)}>
+          <Modal title={modalMode === 'edit' ? 'Update payment' : 'Record payment'} onClose={() => setModalOpen(false)}>
             <div className="form-grid">
               <label>
                 Client
@@ -249,7 +269,7 @@ export default function Payments() {
             </div>
             <div className="modal-actions">
               <button type="button" className="admin-action-btn" onClick={() => setModalOpen(false)}>Cancel</button>
-              <button type="button" className="admin-primary-btn" onClick={savePayment}>Save payment</button>
+              <button type="button" className="admin-primary-btn" onClick={savePayment}>{modalMode === 'edit' ? 'Update payment' : 'Save payment'}</button>
             </div>
           </Modal>
         )}

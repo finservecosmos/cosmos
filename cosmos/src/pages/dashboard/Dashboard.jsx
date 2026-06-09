@@ -8,13 +8,7 @@ import {
   getPendingFollowUps,
   getTodaySchedule,
 } from '../../lib/api/dashboard'
-import {
-  dummyStats,
-  dummyLoanBreakdown,
-  dummyActivities,
-  dummyFollowUps,
-  dummySchedule,
-} from '../../lib/dummyData'
+
 import StatCard from '../../shared/ui/StatCard'
 import DonutChart from '../../shared/ui/DonutChart'
 import RecentActivities from '../../widgets/RecentActivities'
@@ -23,7 +17,6 @@ import TodaySchedule from '../../widgets/TodaySchedule'
 import DashboardLayout from '../../widgets/DashboardLayout'
 import './Dashboard.css'
 
-const isDev = !!import.meta.env.VITE_DEV_EMAIL
 const DATE_RANGES = ['Today', 'This Week', 'This Month']
 
 function Dashboard() {
@@ -44,30 +37,25 @@ function Dashboard() {
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true)
-      if (isDev) {
-        setStats(dummyStats)
-        setLoanBreakdown(dummyLoanBreakdown)
-        setActivities(dummyActivities)
-        setFollowUps(dummyFollowUps)
-        setSchedule(dummySchedule)
+      try {
+        const [s, lb, a, f, sc] = await Promise.all([
+          getDashboardStats(),
+          getLoanEnquiryBreakdown(),
+          getRecentActivities(),
+          getPendingFollowUps(),
+          getTodaySchedule(),
+        ])
+        setStats(s)
+        setLoanBreakdown(lb)
+        setActivities(a)
+        setFollowUps(f)
+        setSchedule(sc)
+      } catch (err) {
+        console.error('Dashboard fetch error:', err)
+      } finally {
         setLoading(false)
-        return
       }
-      const [s, lb, a, f, sc] = await Promise.all([
-        getDashboardStats(),
-        getLoanEnquiryBreakdown(),
-        getRecentActivities(),
-        getPendingFollowUps(),
-        getTodaySchedule(),
-      ])
-      setStats(s)
-      setLoanBreakdown(lb)
-      setActivities(a)
-      setFollowUps(f)
-      setSchedule(sc)
-      setLoading(false)
     }
-
     fetchAll()
   }, [])
 

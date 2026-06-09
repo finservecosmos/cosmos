@@ -1,11 +1,14 @@
-import { createContext, useContext, useState } from 'react'
-import {
-  dummyClients, dummyAssociates, dummyPayments, dummyInvoices,
-  dummyProducts, dummyReminders, dummyNotifications, dummyEnquiries,
-  dummyLoginFiles, dummyBackups
-} from '../lib/dummyData'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { supabase } from '../shared/api/supabaseClient'
+// We keep dummy data as a fallback to avoid crashing if DB is empty,
+// or just initialize with empty arrays. For this refactor, we initialize with empty arrays.
 
 const AppStateContext = createContext()
+
+/* ─── Unique ID Generator ────────────────────────────────── */
+function uid(prefix = '') {
+  return `${prefix}${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`
+}
 
 /* ─── Constants for Stages ──────────────────────────────────── */
 const STAGES = [
@@ -28,55 +31,76 @@ function createStageDates(startDate) {
 }
 
 export function AppStateProvider({ children }) {
-  const [clients, setClients]             = useState(dummyClients)
-  const [associates, setAssociates]       = useState(dummyAssociates)
-  const [payments, setPayments]           = useState(dummyPayments)
-  const [invoices, setInvoices]           = useState(dummyInvoices)
+
+  const [clients, setClients]             = useState([])
+  const [associates, setAssociates]       = useState([])
+  const [payments, setPayments]           = useState([])
+  const [invoices, setInvoices]           = useState([])
   const [financeInvoices, setFinanceInvoices] = useState([])
-  const [products, setProducts]           = useState(dummyProducts)
-  const [reminders, setReminders]         = useState(dummyReminders)
-  const [notifications, setNotifications] = useState(dummyNotifications)
-  const [enquiries, setEnquiries]         = useState(dummyEnquiries)
-  const [loginFiles, setLoginFiles]       = useState(dummyLoginFiles)
-  const [backups, setBackups]             = useState(dummyBackups)
-  const [users, setUsers]                 = useState([
-    { id: 1, name: 'Dev User',      email: 'dev@cosmos.local',    role: 'admin',   status: 'active' },
-    { id: 2, name: 'Meena Sharma',  email: 'meena@cosmos.local',  role: 'advisor', status: 'active' },
-    { id: 3, name: 'Ravi Patel',    email: 'ravi@cosmos.local',   role: 'staff',   status: 'active' },
-    { id: 4, name: 'Sunita Rao',    email: 'sunita@cosmos.local', role: 'advisor', status: 'inactive' },
-  ])
-  const [investments, setInvestments] = useState([
-    { id: 'I001', partner: 'Charles', amount: 500000, interest_rate: 0.08, duration: '12 Months', start_date: '2025-12-15', nominee_name: 'Jane Doe', remarks: 'Seed funding', status: 'Active', pan_card: 'ABCDE1234F', aadhaar_number: '987654321012', mobile: '9000080000', nominee_aadhaar: '123456789012', nominee_pan: 'FGHIJ5678K', address: '123, Main Street, Mumbai' },
-    { id: 'I002', partner: 'Prabhu', amount: 200000, interest_rate: 0.07, duration: '6 Months', start_date: '2026-03-05', nominee_name: 'Rajesh P', remarks: 'Core investment', status: 'Active', pan_card: 'FGHIJ5678K', aadhaar_number: '876543210987', mobile: '9000080000', nominee_aadhaar: '234567890123', nominee_pan: 'KLMNO9012P', address: '456, Park Road, Bangalore' },
-    { id: 'I003', partner: 'MP Kumar', amount: 1000000, interest_rate: 0.09, duration: '24 Months', start_date: '2026-01-01', nominee_name: 'Suresh Kumar', remarks: 'Expansion capital', status: 'Active', pan_card: 'KLMNO9012P', aadhaar_number: '765432109876', mobile: '9000080000', nominee_aadhaar: '345678901234', nominee_pan: 'PQRST3456Q', address: '789, Residency Lane, Pune' }
-  ])
-  const [transactions, setTransactions] = useState([
-    { id: 'TX001', date: '2026-06-20', type: 'Income', name: 'Prabhu', particular: 'Processing Fee Received', category: 'Processing Fee', amount: 10000, status: 'Received', remarks: '' },
-    { id: 'TX002', date: '2026-06-20', type: 'Expense', name: 'Office Rent', particular: 'Office Rent Payment', category: 'Office Rent', amount: 50000, status: 'Paid', remarks: 'June 2026' },
-    { id: 'TX003', date: '2026-06-19', type: 'Income', name: 'Ravi Varma', particular: 'Interest Collection', category: 'Interest Collection', amount: 5000, status: 'Received', remarks: '' },
-    { id: 'TX004', date: '2026-06-19', type: 'Expense', name: 'Manikandan', particular: 'Petrol Expense', category: 'Petrol', amount: 2500, status: 'Paid', remarks: 'Local Travel' },
-    { id: 'TX005', date: '2026-06-18', type: 'Expense', name: 'HDFC Bank', particular: 'Loan Processing Service', category: 'Operational', amount: 10000, status: 'Paid', remarks: 'Direct Debit' },
-    { id: 'TX006', date: '2026-06-18', type: 'Income', name: 'Rajesh Kumar', particular: 'Home Loan processing fee', category: 'Processing Fee', amount: 120000, status: 'Received', remarks: 'HDFC Payout' },
-    { id: 'TX007', date: '2026-06-17', type: 'Income', name: 'Meena Sharma', particular: 'Partner Commission Recd', category: 'Commission', amount: 45000, status: 'Received', remarks: 'June Cycle' },
-    { id: 'TX008', date: '2026-06-17', type: 'Expense', name: 'Salary Staff', particular: 'Monthly staff salary', category: 'Salaries', amount: 84000, status: 'Paid', remarks: 'June Salaries' },
-    { id: 'TX009', date: '2026-06-16', type: 'Income', name: 'MP Kumar', particular: 'Partner Interest Collection', category: 'Interest Collection', amount: 35000, status: 'Received', remarks: 'P2P ledger' },
-    { id: 'TX010', date: '2026-06-15', type: 'Expense', name: 'Office Rent Addl', particular: 'Storage room rent', category: 'Office Rent', amount: 76000, status: 'Paid', remarks: 'Godown rent' },
-    { id: 'TX011', date: '2026-06-14', type: 'Income', name: 'Kiran Mehta', particular: 'Processing Fee Received', category: 'Processing Fee', amount: 140000, status: 'Received', remarks: 'Axis Payout' },
-    { id: 'TX012', date: '2026-06-13', type: 'Income', name: 'Sunita Rao', particular: 'Advisor Commission Recd', category: 'Commission', amount: 67500, status: 'Received', remarks: 'Q2 cycle' },
-    { id: 'TX013', date: '2026-06-12', type: 'Income', name: 'Charles', particular: 'Partner Interest Collection', category: 'Interest Collection', amount: 27500, status: 'Received', remarks: 'P2P ledger' },
-    { id: 'TX014', date: '2026-06-11', type: 'Expense', name: 'Aadhaar verification', particular: 'API verification usage fee', category: 'Operational', amount: 2000, status: 'Paid', remarks: 'UIDAI Portal' },
-    { id: 'TX015', date: '2026-06-10', type: 'Expense', name: 'Sulekha Media', particular: 'Lead generation ads', category: 'Operational', amount: 15000, status: 'Paid', remarks: 'Google Ads' },
-    { id: 'TX016', date: '2026-06-09', type: 'Expense', name: 'Tata Power', particular: 'Electricity bill', category: 'Operational', amount: 8000, status: 'Paid', remarks: 'June bill' },
-    { id: 'TX017', date: '2026-06-08', type: 'Expense', name: 'Stationery Hub', particular: 'Printers and papers', category: 'Operational', amount: 4000, status: 'Paid', remarks: 'Office Supplies' },
-    { id: 'TX018', date: '2026-06-07', type: 'Expense', name: 'Manikandan', particular: 'Petrol Expense', category: 'Petrol', amount: 2500, status: 'Paid', remarks: 'Site visits' },
-    { id: 'TX019', date: '2026-06-06', type: 'Expense', name: 'Swiggy Client Meeting', particular: 'Food & beverage', category: 'Operational', amount: 2000, status: 'Paid', remarks: 'Client lunch' },
-    { id: 'TX020', date: '2026-06-05', type: 'Expense', name: 'ACT Fiber', particular: 'Internet subscription', category: 'Operational', amount: 1000, status: 'Paid', remarks: 'June broadband' },
-    { id: 'TX021', date: '2026-06-04', type: 'Expense', name: 'Coffee Vendor', particular: 'Pantry supplies', category: 'Operational', amount: 3000, status: 'Paid', remarks: 'Milk and tea' },
-    { id: 'TX022', date: '2026-06-03', type: 'Expense', name: 'ZOHO Books', particular: 'Accounting software renewal', category: 'Operational', amount: 4000, status: 'Paid', remarks: 'Annual plan' },
-    { id: 'TX023', date: '2026-06-02', type: 'Expense', name: 'Shiva Travels', particular: 'Cab service for client site', category: 'Operational', amount: 8000, status: 'Paid', remarks: 'Travel exp' },
-    { id: 'TX024', date: '2026-06-01', type: 'Expense', name: 'Water Supplier', particular: 'Drinking water cans', category: 'Operational', amount: 6000, status: 'Paid', remarks: 'June supply' },
-    { id: 'TX025', date: '2026-06-01', type: 'Expense', name: 'Miscellaneous', particular: 'Office petty cash', category: 'Operational', amount: 2000, status: 'Paid', remarks: 'Sundry expenses' }
-  ])
+  const [products, setProducts]           = useState([])
+  const [reminders, setReminders]         = useState([])
+  const [notifications, setNotifications] = useState([])
+  const [enquiries, setEnquiries]         = useState([])
+  const [loginFiles, setLoginFiles]       = useState([])
+  const [backups, setBackups]             = useState([])
+  const [users, setUsers]                 = useState([])
+  const [investments, setInvestments]     = useState([])
+  const [transactions, setTransactions]   = useState([])
+  
+  const [loading, setLoading] = useState(true)
+
+  const fetchInitialData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const [
+        { data: clientsData }, { data: associatesData }, { data: paymentsData },
+        { data: invoicesData }, { data: financeInvoicesData }, { data: productsData },
+        { data: remindersData }, { data: notificationsData }, { data: enquiriesData },
+        { data: loginFilesData }, { data: backupsData }, { data: usersData },
+        { data: investmentsData }, { data: transactionsData }
+      ] = await Promise.all([
+        supabase.from('clients').select('*').order('created_at', { ascending: false }),
+        supabase.from('associates').select('*').order('created_at', { ascending: false }),
+        supabase.from('payments').select('*').order('created_at', { ascending: false }),
+        supabase.from('invoices').select('*').order('created_at', { ascending: false }),
+        supabase.from('finance_invoices').select('*').order('created_at', { ascending: false }),
+        supabase.from('products').select('*').order('created_at', { ascending: false }),
+        supabase.from('reminders').select('*').order('created_at', { ascending: false }),
+        supabase.from('notifications').select('*').order('created_at', { ascending: false }),
+        supabase.from('enquiries').select('*').order('created_at', { ascending: false }),
+        supabase.from('login_files').select('*').order('created_at', { ascending: false }),
+        supabase.from('backups').select('*').order('created_at', { ascending: false }),
+        supabase.from('system_users').select('*').order('created_at', { ascending: false }),
+        supabase.from('investments').select('*').order('created_at', { ascending: false }),
+        supabase.from('transactions').select('*').order('created_at', { ascending: false })
+      ])
+
+      setClients(clientsData || [])
+      setAssociates(associatesData || [])
+      setPayments(paymentsData || [])
+      setInvoices(invoicesData || [])
+      setFinanceInvoices(financeInvoicesData || [])
+      setProducts(productsData || [])
+      setReminders(remindersData || [])
+      setNotifications(notificationsData || [])
+      setEnquiries(enquiriesData || [])
+      setLoginFiles(loginFilesData || [])
+      setBackups(backupsData || [])
+      setUsers(usersData || [])
+      setInvestments(investmentsData || [])
+      setTransactions(transactionsData || [])
+    } catch (error) {
+      console.error('Error fetching data from Supabase:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchInitialData()
+  }, [fetchInitialData])
+
+
 
   /* ─── Sync 1: Dynamic Associate Performance metrics ───────── */
   const computedAssociates = associates.map(a => {
@@ -88,22 +112,48 @@ export function AppStateProvider({ children }) {
     const commission = Math.round(disbursed * 0.005) // standard 0.5% dynamic calculation
     return {
       ...a,
-      clients: clientCount,
+      clients: clientCount, // Note: returning property 'clients' because components use a.clients
       disbursed,
       commission
     }
   })
 
-  /* ─── Sync 2: Onboard Client ➔ Stage Tracking Auto-Initialization ── */
-  const addClient = (c) => {
-    const newClientId = `C${String(clients.length + 1).padStart(3, '0')}`
-    const newClient = { ...c, id: newClientId }
-    setClients(p => [newClient, ...p])
+  /* ─── Clients ── */
+  const pickClient = (c, id) => ({
+    id: id || c.id,
+    name: c.name,
+    phone: c.phone || '',
+    email: c.email || '',
+    location: c.location || '',
+    pan_card: c.pan_card || '',
+    aadhaar_number: c.aadhaar_number || '',
+    residential_status: c.residential_status || 'Resident Indian',
+    drive_link: c.drive_link || '',
+    loan_type: c.loan_type || '',
+    amount: Number(c.amount || 0),
+    status: c.status || 'Enquiry',
+    file_no: c.file_no || id || c.id,
+    date: c.date || new Date().toISOString().slice(0, 10),
+    associate: c.associate || '',
+    employment_status: c.employment_status || '',
+    monthly_net_income: c.monthly_net_income ? Number(c.monthly_net_income) : null,
+    co_applicant_income: c.co_applicant_income ? Number(c.co_applicant_income) : null,
+    dwelling_status: c.dwelling_status || '',
+    tenure_at_address: c.tenure_at_address || null,
+    extended_data: c.extended_data || null,
+  })
+
+  const addClient = async (c) => {
+    const newClientId = uid('C')
+    const newClient = pickClient(c, newClientId)
+
+    const { data: clientData, error: clientError } = await supabase.from('clients').insert([newClient]).select().single()
+    if (clientError) { console.error('addClient error:', clientError.message); return }
+    setClients(p => [clientData, ...p])
 
     if (['Processing', 'Approved', 'Disbursed'].includes(c.status)) {
       const today = new Date().toISOString().slice(0, 10)
-      const filePayload = {
-        id: `LF${String(loginFiles.length + 1).padStart(3, '0')}`,
+      const filePayload = pickLoginFile({
         client: c.name,
         client_id: c.file_no || newClientId,
         loan_type: c.loan_type,
@@ -112,38 +162,32 @@ export function AppStateProvider({ children }) {
         stages: createStageDates(c.date || today),
         currentStageIndex: c.status === 'Disbursed' ? STAGES.length : 0,
         done: c.status === 'Disbursed',
-      }
-      setLoginFiles(lf => {
-        if (lf.some(x => x.client_id === filePayload.client_id || x.client === filePayload.client)) return lf
-        return [filePayload, ...lf]
-      })
+      }, uid('LF'))
+      const { data: lfData, error: lfError } = await supabase.from('login_files').insert([filePayload]).select().single()
+      if (!lfError && lfData) setLoginFiles(lf => [{ ...lfData, currentStageIndex: lfData.current_stage_index ?? 0 }, ...lf])
     }
   }
 
-  const updateClient = (c) => {
-    setClients(p => p.map(x => x.id === c.id ? c : x))
+  const updateClient = async (c) => {
+    const payload = pickClient(c)
+    const { data: clientData, error: clientError } = await supabase.from('clients').update(payload).eq('id', c.id).select().single()
+    if (clientError) { console.error('updateClient error:', clientError.message); return }
+    setClients(p => p.map(x => x.id === c.id ? clientData : x))
 
     if (['Processing', 'Approved', 'Disbursed'].includes(c.status)) {
       const today = new Date().toISOString().slice(0, 10)
-      setLoginFiles(lf => {
-        const exists = lf.some(x => x.client_id === c.file_no || x.client === c.name)
-        if (exists) {
-          if (c.status === 'Disbursed') {
-            return lf.map(f => {
-              if (f.client_id === c.file_no || f.client === c.name) {
-                const stages = { ...f.stages }
-                STAGES.forEach(name => {
-                  if (!stages[name].actual) stages[name].actual = stages[name].expected || today
-                })
-                return { ...f, stages, done: true, currentStageIndex: STAGES.length }
-              }
-              return f
-            })
-          }
-          return lf
+      const existingLF = loginFiles.find(x => x.client_id === c.file_no || x.client === c.name)
+
+      if (existingLF) {
+        if (c.status === 'Disbursed' && !existingLF.done) {
+          const stages = { ...existingLF.stages }
+          STAGES.forEach(name => { if (!stages[name].actual) stages[name].actual = stages[name].expected || today })
+          const updatePayload = { stages, done: true, current_stage_index: STAGES.length }
+          const { data: upData, error: upErr } = await supabase.from('login_files').update(updatePayload).eq('id', existingLF.id).select().single()
+          if (!upErr && upData) setLoginFiles(lf => lf.map(f => f.id === upData.id ? { ...upData, currentStageIndex: upData.current_stage_index ?? 0 } : f))
         }
-        const filePayload = {
-          id: `LF${String(lf.length + 1).padStart(3, '0')}`,
+      } else {
+        const filePayload = pickLoginFile({
           client: c.name,
           client_id: c.file_no || c.id,
           loan_type: c.loan_type,
@@ -152,41 +196,220 @@ export function AppStateProvider({ children }) {
           stages: createStageDates(c.date || today),
           currentStageIndex: c.status === 'Disbursed' ? STAGES.length : 0,
           done: c.status === 'Disbursed',
-        }
-        return [filePayload, ...lf]
-      })
+        }, uid('LF'))
+        const { data: lfData, error: lfError } = await supabase.from('login_files').insert([filePayload]).select().single()
+        if (!lfError && lfData) setLoginFiles(lf => [{ ...lfData, currentStageIndex: lfData.current_stage_index ?? 0 }, ...lf])
+      }
     }
   }
 
-  const addAssociate    = (a) => setAssociates(p => [{ ...a, id: `A${String(p.length+1).padStart(3,'0')}` }, ...p])
-  const updateAssociate = (a) => setAssociates(p => p.map(x => x.id === a.id ? a : x))
-  const addPayment    = (pay) => setPayments(p => [{ ...pay, id: `P${String(p.length+1).padStart(3,'0')}` }, ...p])
-  const updatePayment = (pay) => setPayments(p => p.map(x => x.id === pay.id ? pay : x))
-  const removePayment = (id)  => setPayments(p => p.filter(x => x.id !== id))
-  const addInvoice    = (inv) => setInvoices(p => [{ ...inv, id: `INV-${String(p.length+1).padStart(3,'0')}` }, ...p])
-  const addFinanceInvoice = (inv) => setFinanceInvoices(p => [{ ...inv, id: `FINV-${String(p.length+1).padStart(3,'0')}` }, ...p])
-  const addProduct    = (pr)  => setProducts(p => [{ ...pr, id: `PS${String(p.length+1).padStart(3,'0')}` }, ...p])
-  const updateProduct = (pr)  => setProducts(p => p.map(x => x.id === pr.id ? pr : x))
-  const addReminder    = (r)  => setReminders(p => [{ ...r, id: `R${String(p.length+1).padStart(3,'0')}`, done: false }, ...p])
-  const updateReminder = (r)  => setReminders(p => p.map(x => x.id === r.id ? r : x))
-  const deleteReminder = (id) => setReminders(p => p.filter(x => x.id !== id))
-  const addEnquiry    = (e)   => setEnquiries(p => [{ ...e, id: `E${String(p.length+1).padStart(3,'0')}` }, ...p])
-  const updateEnquiry = (e)   => setEnquiries(p => p.map(x => x.id === e.id ? e : x))
-  const removeEnquiry = (id)  => setEnquiries(p => p.filter(x => x.id !== id))
+  /* ─── Associates ── */
+  const pickAssociate = (a, id) => ({
+    id: id || a.id,
+    name: a.name,
+    phone: a.phone || '',
+    email: a.email || '',
+    region: a.region || '',
+    status: a.status || 'Active',
+    joined: a.joined || new Date().toISOString().slice(0, 10),
+    clients: Number(a.clients || 0),
+    disbursed: Number(a.disbursed || 0),
+    commission: Number(a.commission || 0),
+    associate_id: a.associate_id || '',
+    expertise: a.expertise || '',
+    vintage: a.vintage || '',
+    financial_institution: a.financial_institution || '',
+    institution_type: a.institution_type || 'Bank',
+    branch: a.branch || '',
+  })
 
-  const addLoginFile = (f) => {
-    setLoginFiles(p => [{ ...f, id: `LF${String(p.length + 1).padStart(3, '0')}` }, ...p])
+  const addAssociate = async (a) => {
+    const newId = uid('A')
+    const { data, error } = await supabase.from('associates').insert([pickAssociate(a, newId)]).select().single()
+    if (!error && data) setAssociates(p => [data, ...p])
+    else if (error) console.error('addAssociate error:', error.message)
+  }
+  const updateAssociate = async (a) => {
+    const { data, error } = await supabase.from('associates').update(pickAssociate(a)).eq('id', a.id).select().single()
+    if (!error && data) setAssociates(p => p.map(x => x.id === a.id ? data : x))
+    else if (error) console.error('updateAssociate error:', error.message)
+  }
 
-    setClients(p => {
-      const exists = p.some(c => 
-        (c.file_no && c.file_no === f.client_id) || 
-        (c.name && c.name.toLowerCase().trim() === f.client.toLowerCase().trim())
-      )
-      if (exists) return p
+  /* ─── Payments ── */
+  const pickPayment = (p, id) => ({
+    id: id || p.id,
+    client: p.client || '',
+    file_no: p.file_no || '',
+    type: p.type || '',
+    amount: Number(p.amount || 0),
+    bank: p.bank || '',
+    date: p.date || new Date().toISOString().slice(0, 10),
+    status: p.status || 'Pending',
+    particular: p.particular || '',
+    category: p.category || '',
+  })
 
+  const addPayment = async (pay) => {
+    const newId = uid('P')
+    const { data, error } = await supabase.from('payments').insert([pickPayment(pay, newId)]).select().single()
+    if (!error && data) setPayments(p => [data, ...p])
+    else if (error) console.error('addPayment error:', error.message)
+  }
+  const updatePayment = async (pay) => {
+    const { data, error } = await supabase.from('payments').update(pickPayment(pay)).eq('id', pay.id).select().single()
+    if (!error && data) setPayments(p => p.map(x => x.id === pay.id ? data : x))
+    else if (error) console.error('updatePayment error:', error.message)
+  }
+  const removePayment = async (id) => {
+    const { error } = await supabase.from('payments').delete().eq('id', id)
+    if (!error) setPayments(p => p.filter(x => x.id !== id))
+  }
+
+  /* ─── Invoices ── */
+  const pickInvoice = (inv, id) => ({
+    id: id || inv.id,
+    client: inv.client || '',
+    file_no: inv.file_no || '',
+    service: inv.service || '',
+    amount: Number(inv.amount || 0),
+    date: inv.date || new Date().toISOString().slice(0, 10),
+    due: inv.due || '',
+    status: inv.status || 'Unpaid',
+    particular: inv.particular || '',
+    name: inv.name || '',
+    gst: inv.gst || null,
+  })
+
+  const addInvoice = async (inv) => {
+    const newId = uid('INV')
+    const { data, error } = await supabase.from('invoices').insert([pickInvoice(inv, newId)]).select().single()
+    if (!error && data) setInvoices(p => [data, ...p])
+    else if (error) console.error('addInvoice error:', error.message)
+  }
+  const addFinanceInvoice = async (inv) => {
+    const newId = uid('FINV')
+    const { data, error } = await supabase.from('finance_invoices').insert([pickInvoice(inv, newId)]).select().single()
+    if (!error && data) setFinanceInvoices(p => [data, ...p])
+    else if (error) console.error('addFinanceInvoice error:', error.message)
+  }
+
+  /* ─── Products ── */
+  const pickProduct = (pr, id) => ({
+    id: id || pr.id,
+    name: pr.name || '',
+    category: pr.category || '',
+    fee: Number(pr.fee || 0),
+    gst: Number(pr.gst || 0),
+    description: pr.description || '',
+    active: pr.active ?? true,
+  })
+
+  const addProduct = async (pr) => {
+    const newId = uid('PS')
+    const { data, error } = await supabase.from('products').insert([pickProduct(pr, newId)]).select().single()
+    if (!error && data) setProducts(p => [data, ...p])
+    else if (error) console.error('addProduct error:', error.message)
+  }
+  const updateProduct = async (pr) => {
+    const { data, error } = await supabase.from('products').update(pickProduct(pr)).eq('id', pr.id).select().single()
+    if (!error && data) setProducts(p => p.map(x => x.id === pr.id ? data : x))
+    else if (error) console.error('updateProduct error:', error.message)
+  }
+
+  /* ─── Reminders ── */
+  const pickReminder = (r, id) => ({
+    id: id || r.id,
+    title: r.title || '',
+    description: r.description || '',
+    date: r.date || new Date().toISOString().slice(0, 10),
+    priority: r.priority || 'Normal',
+    done: r.done ?? false,
+  })
+
+  const addReminder = async (r) => {
+    const newId = uid('R')
+    const { data, error } = await supabase.from('reminders').insert([pickReminder({ ...r, done: false }, newId)]).select().single()
+    if (!error && data) setReminders(p => [data, ...p])
+    else if (error) console.error('addReminder error:', error.message)
+  }
+  const updateReminder = async (r) => {
+    const { data, error } = await supabase.from('reminders').update(pickReminder(r)).eq('id', r.id).select().single()
+    if (!error && data) setReminders(p => p.map(x => x.id === r.id ? data : x))
+    else if (error) console.error('updateReminder error:', error.message)
+  }
+  const deleteReminder = async (id) => {
+    const { error } = await supabase.from('reminders').delete().eq('id', id)
+    if (!error) setReminders(p => p.filter(x => x.id !== id))
+  }
+
+  /* ─── Enquiries ── */
+  const pickEnquiry = (e) => ({
+    id: e.id,
+    client_name: e.client_name,
+    co_applicate_name: e.co_applicate_name || '',
+    loan_type: e.loan_type,
+    loan_amount: e.loan_amount,
+    associate_name: e.associate_name,
+    client_mobile_number: String(e.client_mobile_number || ''),
+    status: e.status || 'New',
+    note: e.note || '',
+    profession: e.profession || '',
+    location: e.location || '',
+    bank_name: e.bank_name || '',
+    google_drive_link: e.google_drive_link || '',
+    created_at: e.created_at || new Date().toISOString(),
+  })
+
+  const addEnquiry = async (e) => {
+    const newId = uid('E')
+    const payload = pickEnquiry({ ...e, id: newId })
+    const { data, error } = await supabase.from('enquiries').insert([payload]).select().single()
+    if (!error && data) setEnquiries(p => [data, ...p])
+    else if (error) console.error('Error adding enquiry:', error.message)
+  }
+  const updateEnquiry = async (e) => {
+    const payload = pickEnquiry(e)
+    const { data, error } = await supabase.from('enquiries').update(payload).eq('id', e.id).select().single()
+    if (!error && data) setEnquiries(p => p.map(x => x.id === e.id ? data : x))
+    else if (error) console.error('Error updating enquiry:', error.message)
+  }
+  const removeEnquiry = async (id) => {
+    const { error } = await supabase.from('enquiries').delete().eq('id', id)
+    if (!error) setEnquiries(p => p.filter(x => x.id !== id))
+  }
+
+  /* ─── Login Files ── */
+  const pickLoginFile = (f, id) => ({
+    id: id || f.id,
+    client: f.client,
+    client_id: f.client_id,
+    loan_type: f.loan_type,
+    priority: f.priority || 'Normal',
+    submitted: f.submitted || new Date().toISOString().slice(0, 10),
+    stages: f.stages || null,
+    current_stage_index: f.currentStageIndex ?? f.current_stage_index ?? 0,
+    done: f.done ?? false,
+    bank: f.bank || null,
+    amount_paid: f.amount_paid ?? null,
+    actual_payout: f.actual_payout ?? null,
+  })
+
+  const addLoginFile = async (f) => {
+    const newId = uid('LF')
+    const payload = pickLoginFile(f, newId)
+    const { data: lfData, error: lfError } = await supabase.from('login_files').insert([payload]).select().single()
+    if (lfError) { console.error('addLoginFile error:', lfError.message); return }
+    const merged = { ...lfData, currentStageIndex: lfData.current_stage_index ?? 0 }
+    setLoginFiles(p => [merged, ...p])
+
+    const exists = clients.some(c => 
+      (c.file_no && c.file_no === f.client_id) || 
+      (c.name && c.name.toLowerCase().trim() === f.client.toLowerCase().trim())
+    )
+    if (!exists) {
       const today = new Date().toISOString().slice(0, 10)
       const cleanEmail = f.client.toLowerCase().replace(/\s+/g, '') + '@email.com'
-      const newClientId = `C${String(p.length + 1).padStart(3, '0')}`
+      const newClientId = uid('C')
       const newClient = {
         id: newClientId,
         name: f.client,
@@ -202,49 +425,57 @@ export function AppStateProvider({ children }) {
         aadhaar_number: '',
         residential_status: 'Resident Indian',
         employment_status: 'Salaried',
-        monthly_net_income: '',
-        co_applicant_income: '',
+        monthly_net_income: null,
+        co_applicant_income: null,
         dwelling_status: 'Owned',
-        tenure_at_address: '',
+        tenure_at_address: null,
         location: ''
       }
-      return [newClient, ...p]
-    })
+      const { data: cData, error: cErr } = await supabase.from('clients').insert([newClient]).select().single()
+      if (!cErr && cData) setClients(p => [cData, ...p])
+    }
   }
-  const removeLoginFile = (id)  => setLoginFiles(p => p.filter(x => x.id !== id))
 
-  /* ─── Sync 3: Stage Completion ➔ Client Disbursed & Payment LedgerSync ── */
-  const updateLoginFile = (f) => {
-    setLoginFiles(p => p.map(x => x.id === f.id ? f : x))
+  const removeLoginFile = async (id) => {
+    const { error } = await supabase.from('login_files').delete().eq('id', id)
+    if (!error) setLoginFiles(p => p.filter(x => x.id !== id))
+  }
+
+  const updateLoginFile = async (f) => {
+    const payload = pickLoginFile(f)
+
+    const { data: updatedFile, error: updateError } = await supabase.from('login_files').update(payload).eq('id', f.id).select().single()
+    if (updateError) { console.error('updateLoginFile error:', updateError.message); return }
+    
+    const merged = { ...updatedFile, currentStageIndex: updatedFile.current_stage_index ?? 0 }
+    setLoginFiles(p => p.map(x => x.id === f.id ? merged : x))
 
     if (f.done) {
       const today = new Date().toISOString().slice(0, 10)
       
       // Auto-transition Client Record to Disbursed
-      setClients(p => p.map(c => {
-        if (c.file_no === f.client_id || c.name === f.client) {
-          return { ...c, status: 'Disbursed' }
-        }
-        return c
-      }))
+      const clientToUpdate = clients.find(c => c.file_no === f.client_id || c.name === f.client)
+      if (clientToUpdate && clientToUpdate.status !== 'Disbursed') {
+        const { data: upClient, error: cErr } = await supabase.from('clients').update({ status: 'Disbursed' }).eq('id', clientToUpdate.id).select().single()
+        if (!cErr && upClient) setClients(p => p.map(c => c.id === upClient.id ? upClient : c))
+      }
 
       // Auto-append Disbursement/Collection transaction to Payment Ledger
-      setPayments(p => {
-        const isPayout = f.amount_paid !== undefined
-        const paymentType = isPayout ? 'Collection' : 'Disbursement'
-        const hasPayment = p.some(x => x.file_no === f.client_id && x.type === paymentType)
-        if (hasPayment) return p
-        
+      const isPayout = f.amount_paid !== undefined && f.amount_paid !== null
+      const paymentType = isPayout ? 'Collection' : 'Disbursement'
+      const hasPayment = payments.some(x => x.file_no === f.client_id && x.type === paymentType)
+      
+      if (!hasPayment) {
         if (isPayout) {
-          const actualPayout = f.actual_payout || f.amount_paid;
-          const amountPaid = f.amount_paid;
+          const actualPayout = Number(f.actual_payout || f.amount_paid || 0);
+          const amountPaid = Number(f.amount_paid || 0);
           const pendingAmount = actualPayout - amountPaid;
 
           const paymentsToAdd = [];
 
           if (amountPaid > 0) {
             paymentsToAdd.push({
-              id: `P${String(p.length + 1).padStart(3, '0')}`,
+              id: uid('P'),
               client: f.client,
               file_no: f.client_id,
               type: paymentType,
@@ -259,7 +490,7 @@ export function AppStateProvider({ children }) {
 
           if (pendingAmount > 0) {
             paymentsToAdd.push({
-              id: `P${String(p.length + 1 + (amountPaid > 0 ? 1 : 0)).padStart(3, '0')}`,
+              id: uid('P'),
               client: f.client,
               file_no: f.client_id,
               type: paymentType,
@@ -274,7 +505,7 @@ export function AppStateProvider({ children }) {
 
           if (paymentsToAdd.length === 0) {
             paymentsToAdd.push({
-              id: `P${String(p.length + 1).padStart(3, '0')}`,
+              id: uid('P'),
               client: f.client,
               file_no: f.client_id,
               type: paymentType,
@@ -287,43 +518,82 @@ export function AppStateProvider({ children }) {
             });
           }
 
-          return [...paymentsToAdd, ...p];
+          const { data: pData, error: pErr } = await supabase.from('payments').insert(paymentsToAdd).select()
+          if (!pErr && pData) setPayments(p => [...pData, ...p])
         } else {
           const payPayload = {
-            id: `P${String(p.length + 1).padStart(3, '0')}`,
+            id: uid('P'),
             client: f.client,
             file_no: f.client_id,
             type: paymentType,
-            amount: 2500000,
+            amount: clientToUpdate?.amount || 2500000,
             bank: 'ICICI Bank',
             date: today,
             status: 'Completed'
           }
-
-          const matchingClient = clients.find(c => c.file_no === f.client_id || c.name === f.client)
-          if (matchingClient) {
-            payPayload.amount = matchingClient.amount
-          }
-          return [payPayload, ...p]
+          const { data: pData, error: pErr } = await supabase.from('payments').insert([payPayload]).select().single()
+          if (!pErr && pData) setPayments(p => [pData, ...p])
         }
-      })
+      }
     }
   }
 
-  const markNotifRead   = (id) => setNotifications(p => p.map(x => x.id === id ? { ...x, read: true } : x))
-  const markAllNotifsRead = () => setNotifications(p => p.map(x => ({ ...x, read: true })))
-  const addUser    = (u) => setUsers(p => [{ ...u, id: p.length + 1 }, ...p])
-  const updateUser = (u) => setUsers(p => p.map(x => x.id === u.id ? u : x))
-  const removeUser = (id) => setUsers(p => p.filter(x => x.id !== id))
-  const addBackup  = (b) => setBackups(p => [b, ...p])
+  /* ─── Misc ── */
+  const markNotifRead = async (id) => {
+    const { data, error } = await supabase.from('notifications').update({ read: true }).eq('id', id).select().single()
+    if (!error && data) setNotifications(p => p.map(x => x.id === id ? data : x))
+  }
+  const markAllNotifsRead = async () => {
+    const { error } = await supabase.from('notifications').update({ read: true }).neq('read', true)
+    if (!error) setNotifications(p => p.map(x => ({ ...x, read: true })))
+  }
 
-  const addInvestment = (inv) => setInvestments(p => [{ ...inv, id: `I${String(p.length + 1).padStart(3, '0')}` }, ...p])
-  const updateInvestment = (inv) => setInvestments(p => p.map(x => x.id === inv.id ? inv : x))
-  const removeInvestment = (id) => setInvestments(p => p.filter(x => x.id !== id))
+  const addUser = async (u) => {
+    const { data, error } = await supabase.from('system_users').insert([u]).select().single()
+    if (!error && data) setUsers(p => [data, ...p])
+  }
+  const updateUser = async (u) => {
+    const { data, error } = await supabase.from('system_users').update(u).eq('id', u.id).select().single()
+    if (!error && data) setUsers(p => p.map(x => x.id === u.id ? data : x))
+  }
+  const removeUser = async (id) => {
+    const { error } = await supabase.from('system_users').delete().eq('id', id)
+    if (!error) setUsers(p => p.filter(x => x.id !== id))
+  }
 
-  const addTransaction = (tx) => setTransactions(p => [{ ...tx, id: `TX${String(p.length + 1).padStart(3, '0')}` }, ...p])
-  const updateTransaction = (tx) => setTransactions(p => p.map(x => x.id === tx.id ? tx : x))
-  const removeTransaction = (id) => setTransactions(p => p.filter(x => x.id !== id))
+  const addBackup = async (b) => {
+    const newId = uid('B')
+    const { data, error } = await supabase.from('backups').insert([{ ...b, id: newId }]).select().single()
+    if (!error && data) setBackups(p => [data, ...p])
+  }
+
+  const addInvestment = async (inv) => {
+    const newId = uid('I')
+    const { data, error } = await supabase.from('investments').insert([{ ...inv, id: newId }]).select().single()
+    if (!error && data) setInvestments(p => [data, ...p])
+  }
+  const updateInvestment = async (inv) => {
+    const { data, error } = await supabase.from('investments').update(inv).eq('id', inv.id).select().single()
+    if (!error && data) setInvestments(p => p.map(x => x.id === inv.id ? data : x))
+  }
+  const removeInvestment = async (id) => {
+    const { error } = await supabase.from('investments').delete().eq('id', id)
+    if (!error) setInvestments(p => p.filter(x => x.id !== id))
+  }
+
+  const addTransaction = async (tx) => {
+    const newId = uid('TX')
+    const { data, error } = await supabase.from('transactions').insert([{ ...tx, id: newId }]).select().single()
+    if (!error && data) setTransactions(p => [data, ...p])
+  }
+  const updateTransaction = async (tx) => {
+    const { data, error } = await supabase.from('transactions').update(tx).eq('id', tx.id).select().single()
+    if (!error && data) setTransactions(p => p.map(x => x.id === tx.id ? data : x))
+  }
+  const removeTransaction = async (id) => {
+    const { error } = await supabase.from('transactions').delete().eq('id', id)
+    if (!error) setTransactions(p => p.filter(x => x.id !== id))
+  }
 
   return (
     <AppStateContext.Provider value={{
@@ -341,12 +611,14 @@ export function AppStateProvider({ children }) {
       users, addUser, updateUser, removeUser,
       investments, addInvestment, updateInvestment, removeInvestment,
       transactions, addTransaction, updateTransaction, removeTransaction,
+      loading
     }}>
       {children}
     </AppStateContext.Provider>
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAppState() {
   return useContext(AppStateContext)
 }

@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import useConfirm from '../../shared/lib/useConfirm'
 import DonutChart from '../../shared/ui/DonutChart'
 import '../../shared/ui/DataPage.css'
-import { Coins, CheckCircle, AlertTriangle, Clock, TrendingUp, CircleDot, BarChart, Download, FileSpreadsheet, FileText, Eye, RefreshCw, Edit, Trash2, Plus } from 'lucide-react';
+import { Coins, CheckCircle, AlertTriangle, Clock, TrendingUp, CircleDot, BarChart, Download, FileSpreadsheet, FileText, Eye, RefreshCw, Edit, Trash2, Plus, Info } from 'lucide-react';
 
 /* ─── Currency Formatter ────────────────────────────────────── */
 function formatAmount(n) {
@@ -56,6 +56,7 @@ export default function PaymentStatus() {
   /* ─── Interactive Form Modals ─────────────────────────────── */
   const [selectedDetails, setSelectedDetails] = useState(null)
   const [updatePaymentRecord, setUpdatePayment] = useState(null)
+  const [updateSinglePayment, setUpdateSinglePayment] = useState(null)
   const [editCustomer, setEditCustomer] = useState(null)
   const [editPaymentsLocal, setEditPaymentsLocal] = useState([])
 
@@ -373,7 +374,7 @@ export default function PaymentStatus() {
       return
     }
 
-    // Call Context API
+    // Call Context API to add the new collection payment
     addPayment({
       client: updatePaymentRecord.client,
       file_no: updatePaymentRecord.file_no,
@@ -384,6 +385,23 @@ export default function PaymentStatus() {
       status: 'Completed'
     })
 
+    // Reduce existing Pending records so actual payout doesn't artificially increase
+    let remainingToDeduct = payVal;
+    const pendingRecords = updatePaymentRecord.payments
+      .filter(p => p.status === 'Pending' || p.status === 'Processing')
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    pendingRecords.forEach(p => {
+      if (remainingToDeduct <= 0) return;
+      if (p.amount <= remainingToDeduct) {
+        remainingToDeduct -= p.amount;
+        removePayment(p.id); // Completely cleared this pending chunk
+      } else {
+        updatePayment({ ...p, amount: p.amount - remainingToDeduct }); // Partially cleared
+        remainingToDeduct = 0;
+      }
+    });
+
     addToast(`Successfully received ${formatAmount(payVal)} collection for ${updatePaymentRecord.client}!`, 'success')
 
     // Reset Fields
@@ -391,6 +409,23 @@ export default function PaymentStatus() {
     setAddPaymentBank('ICICI Bank')
     setAddPaymentDate(new Date().toISOString().slice(0, 10))
     setUpdatePayment(null)
+  }
+
+  const handleUpdateSinglePayment = () => {
+    if (!updateSinglePayment.amount || isNaN(Number(updateSinglePayment.amount))) {
+      addToast('Please enter a valid amount.', 'error')
+      return
+    }
+    updatePayment({ ...updateSinglePayment, amount: Number(updateSinglePayment.amount) })
+    addToast('Payment updated successfully.', 'success')
+    // Update the selectedDetails view if it's open
+    if (selectedDetails) {
+      setSelectedDetails(prev => ({
+        ...prev,
+        payments: prev.payments.map(p => p.id === updateSinglePayment.id ? { ...updateSinglePayment, amount: Number(updateSinglePayment.amount) } : p)
+      }))
+    }
+    setUpdateSinglePayment(null)
   }
 
   useEffect(() => {
@@ -402,60 +437,58 @@ export default function PaymentStatus() {
     }
   }, [editCustomer])
 
-  useEffect(() => {
-    window.handleLocalPaymentEdit = (id, field, value) => {
-      setEditPaymentsLocal(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p))
-    }
+  const handleLocalPaymentEdit = (id, field, value) => {
+    setEditPaymentsLocal(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p))
+  }
 
-    window.handleLocalPaymentDelete = (id) => {
-      setEditPaymentsLocal(prev => prev.filter(p => p.id !== id))
-    }
+  const handleLocalPaymentDelete = (id) => {
+    setEditPaymentsLocal(prev => prev.filter(p => p.id !== id))
+  }
 
-    window.handleLocalPaymentAdd = () => {
-      const tempId = `TEMP_${Date.now()}`
-      setEditPaymentsLocal(prev => [
-        ...prev,
-        {
-          id: tempId,
-          client: editCustomer?.client,
-          file_no: editCustomer?.file_no,
-          type: 'Collection',
-          amount: 10000,
-          bank: 'ICICI Bank',
-          date: new Date().toISOString().slice(0, 10),
-          status: 'Completed'
-        }
-      ])
-    }
+  const handleLocalPaymentAdd = () => {
+    const tempId = `TEMP_${Date.now()}`
+    setEditPaymentsLocal(prev => [
+      ...prev,
+      {
+        id: tempId,
+        client: editCustomer?.client,
+        file_no: editCustomer?.file_no,
+        type: 'Collection',
+        amount: 10000,
+        bank: 'ICICI Bank',
+        date: new Date().toISOString().slice(0, 10),
+        status: 'Completed'
+      }
+    ])
+  }
 
-    window.handleSaveCustomerPayments = () => {
-      if (!editCustomer) return;
-      const initialIds = editCustomer.payments.map(p => p.id)
-      const currentIds = editPaymentsLocal.map(p => p.id)
-      const deletedIds = initialIds.filter(id => !currentIds.includes(id))
+  const handleSaveCustomerPayments = () => {
+    if (!editCustomer) return;
+    const initialIds = editCustomer.payments.map(p => p.id)
+    const currentIds = editPaymentsLocal.map(p => p.id)
+    const deletedIds = initialIds.filter(id => !currentIds.includes(id))
 
-      deletedIds.forEach(id => removePayment(id))
+    deletedIds.forEach(id => removePayment(id))
 
-      editPaymentsLocal.forEach(p => {
-        if (String(p.id).startsWith('TEMP_')) {
-          addPayment({
-            client: p.client,
-            file_no: p.file_no,
-            type: p.type,
-            amount: p.amount,
-            bank: p.bank,
-            date: p.date,
-            status: p.status
-          })
-        } else {
-          updatePayment(p)
-        }
-      })
+    editPaymentsLocal.forEach(p => {
+      if (String(p.id).startsWith('TEMP_')) {
+        addPayment({
+          client: p.client,
+          file_no: p.file_no,
+          type: p.type,
+          amount: p.amount,
+          bank: p.bank,
+          date: p.date,
+          status: p.status
+        })
+      } else {
+        updatePayment(p)
+      }
+    })
 
-      addToast(`Successfully updated payout record ledgers for ${editCustomer.client}!`, 'success')
-      setEditCustomer(null)
-    }
-  }, [editCustomer, editPaymentsLocal, addPayment, removePayment, updatePayment, addToast])
+    addToast(`Successfully updated payout record ledgers for ${editCustomer.client}!`, 'success')
+    setEditCustomer(null)
+  }
 
   return (
     <DashboardLayout>
@@ -719,7 +752,6 @@ export default function PaymentStatus() {
           border: 1px solid var(--border);
           border-radius: 16px;
           box-shadow: var(--shadow-sm);
-          overflow: hidden;
           margin-bottom: 30px;
         }
 
@@ -728,6 +760,11 @@ export default function PaymentStatus() {
           border-collapse: collapse;
           text-align: left;
         }
+
+        .ps-table th:first-child { border-top-left-radius: 15px; }
+        .ps-table th:last-child { border-top-right-radius: 15px; }
+        .ps-table tr:last-child td:first-child { border-bottom-left-radius: 15px; }
+        .ps-table tr:last-child td:last-child { border-bottom-right-radius: 15px; }
 
         .ps-table th {
           background: var(--bg-surface);
@@ -1108,8 +1145,8 @@ export default function PaymentStatus() {
 
               {/* Outstanding debt analytics summary note */}
               {topPendingOutstanding.length > 0 && (
-                <div className="ps-info-footer">
-                  <span style={{ fontSize: '14px' }}>ℹ️</span>
+                <div className="ps-info-footer" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Info size={16} style={{ color: 'var(--text-secondary)' }} />
                   <span>
                     TOP {topPendingOutstanding.length} ACCOUNTS REPRESENT {top4RatioPercentage}% OF TOTAL OUTSTANDING BALANCE DEBT
                   </span>
@@ -1204,10 +1241,11 @@ export default function PaymentStatus() {
             <tbody>
               {paginatedRecords.map((item, rowIndex) => {
                 const avatar = getLetterMeta(item.client)
-                const isMenuOpen = activeMenuId === item.file_no
+                const uniqueKey = `${item.client}_${item.file_no}`
+                const isMenuOpen = activeMenuId === uniqueKey
 
                 return (
-                  <tr key={item.file_no}>
+                  <tr key={uniqueKey}>
                     {/* Customer Profile Column */}
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1273,7 +1311,7 @@ export default function PaymentStatus() {
                         className="ps-ellipsis-btn three-dot-trigger"
                         onClick={(e) => {
                           e.stopPropagation()
-                          setActiveMenuId(isMenuOpen ? null : item.file_no)
+                          setActiveMenuId(isMenuOpen ? null : uniqueKey)
                         }}
                       >
                         ⋮
@@ -1417,19 +1455,45 @@ export default function PaymentStatus() {
                 <thead>
                   <tr>
                     <th>Date</th>
-                    <th>Type</th>
                     <th>Bank</th>
                     <th style={{ textAlign: 'right' }}>Amount</th>
+                    <th style={{ textAlign: 'center' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {selectedDetails.payments.map(p => (
                     <tr key={p.id}>
                       <td>{p.date}</td>
-                      <td>{p.type}</td>
                       <td>{p.bank}</td>
                       <td style={{ textAlign: 'right', fontWeight: '700', color: p.status === 'Completed' ? '#16a34a' : '#d97706' }}>
                         {formatAmount(p.amount)}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                          <button
+                            className="data-btn data-btn-outline"
+                            style={{ padding: '4px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                            onClick={() => setUpdateSinglePayment(p)}
+                          >
+                            <RefreshCw size={12} /> Update Payment
+                          </button>
+                          <button
+                            className="data-btn data-btn-outline"
+                            style={{ padding: '4px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', background: '#f8fafc' }}
+                            onClick={() => {
+                              navigate('/payments/invoice', {
+                                state: {
+                                  prefillClient: p.client,
+                                  prefillFileNo: p.file_no,
+                                  prefillAmount: p.amount
+                                }
+                              })
+                              setSelectedDetails(null)
+                            }}
+                          >
+                            <FileText size={12} /> Generate Invoice
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1528,6 +1592,76 @@ export default function PaymentStatus() {
         )}
 
 
+        {/* ─── Modal C: Edit Single Payment Form ───── */}
+        {updateSinglePayment && (
+          <Modal
+            title="Edit Payment"
+            onClose={() => setUpdateSinglePayment(null)}
+          >
+            <div className="ps-modal-body-payout">
+              <div className="form-grid" style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '4px' }}>
+                <div>
+                  <label className="ps-field-label">Amount (INR)</label>
+                  <input
+                    type="number"
+                    className="ps-input"
+                    value={updateSinglePayment.amount}
+                    onChange={e => setUpdateSinglePayment({ ...updateSinglePayment, amount: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="ps-field-label">Bank</label>
+                  <input
+                    type="text"
+                    className="ps-input"
+                    value={updateSinglePayment.bank}
+                    onChange={e => setUpdateSinglePayment({ ...updateSinglePayment, bank: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="ps-field-label">Date</label>
+                  <input
+                    type="date"
+                    className="ps-input"
+                    value={updateSinglePayment.date}
+                    onChange={e => setUpdateSinglePayment({ ...updateSinglePayment, date: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="ps-field-label">Status</label>
+                  <select
+                    className="ps-select"
+                    value={updateSinglePayment.status}
+                    onChange={e => setUpdateSinglePayment({ ...updateSinglePayment, status: e.target.value })}
+                  >
+                    <option value="Completed">Completed</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+                <button
+                  type="button"
+                  className="data-btn data-btn-outline"
+                  style={{ flex: 1 }}
+                  onClick={() => setUpdateSinglePayment(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="ps-btn-apply"
+                  style={{ flex: 1, padding: '10px 0' }}
+                  onClick={handleUpdateSinglePayment}
+                >
+                  Update Payment
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )}
+
         {/* ─── Modal D: Edit Customer Payout Ledger Grid ───────────── */}
         {editCustomer && (
           <Modal
@@ -1544,7 +1678,7 @@ export default function PaymentStatus() {
                   type="button"
                   className="ps-download-btn"
                   style={{ padding: '4px 10px', background: 'var(--bg-muted)', fontSize: '12px' }}
-                  onClick={window.handleLocalPaymentAdd}
+                  onClick={handleLocalPaymentAdd}
                 >
                   <Plus size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Add Transaction
                 </button>
@@ -1555,7 +1689,6 @@ export default function PaymentStatus() {
                   <thead>
                     <tr>
                       <th style={{ padding: '8px' }}>Date</th>
-                      <th style={{ padding: '8px' }}>Type</th>
                       <th style={{ padding: '8px' }}>Bank</th>
                       <th style={{ padding: '8px' }}>Amount (INR)</th>
                       <th style={{ padding: '8px' }}>Status</th>
@@ -1571,27 +1704,15 @@ export default function PaymentStatus() {
                             className="ps-input"
                             style={{ padding: '6px 8px', fontSize: '12px' }}
                             value={p.date}
-                            onChange={e => window.handleLocalPaymentEdit(p.id, 'date', e.target.value)}
+                            onChange={e => handleLocalPaymentEdit(p.id, 'date', e.target.value)}
                           />
                         </td>
                         <td style={{ padding: '6px 8px' }}>
                           <select
                             className="ps-select"
                             style={{ padding: '6px 8px', fontSize: '12px', minWidth: '100px' }}
-                            value={p.type}
-                            onChange={e => window.handleLocalPaymentEdit(p.id, 'type', e.target.value)}
-                          >
-                            <option value="Collection">Collection</option>
-                            <option value="Disbursement">Disbursement</option>
-                            <option value="EMI">EMI</option>
-                          </select>
-                        </td>
-                        <td style={{ padding: '6px 8px' }}>
-                          <select
-                            className="ps-select"
-                            style={{ padding: '6px 8px', fontSize: '12px', minWidth: '100px' }}
                             value={p.bank}
-                            onChange={e => window.handleLocalPaymentEdit(p.id, 'bank', e.target.value)}
+                            onChange={e => handleLocalPaymentEdit(p.id, 'bank', e.target.value)}
                           >
                             <option value="ICICI Bank">ICICI Bank</option>
                             <option value="HDFC Bank">HDFC Bank</option>
@@ -1606,7 +1727,7 @@ export default function PaymentStatus() {
                             className="ps-input"
                             style={{ padding: '6px 8px', fontSize: '12px', fontWeight: '700', width: '100px' }}
                             value={p.amount}
-                            onChange={e => window.handleLocalPaymentEdit(p.id, 'amount', Number(e.target.value))}
+                            onChange={e => handleLocalPaymentEdit(p.id, 'amount', Number(e.target.value))}
                           />
                         </td>
                         <td style={{ padding: '6px 8px' }}>
@@ -1614,7 +1735,7 @@ export default function PaymentStatus() {
                             className="ps-select"
                             style={{ padding: '6px 8px', fontSize: '12px', minWidth: '110px' }}
                             value={p.status}
-                            onChange={e => window.handleLocalPaymentEdit(p.id, 'status', e.target.value)}
+                            onChange={e => handleLocalPaymentEdit(p.id, 'status', e.target.value)}
                           >
                             <option value="Completed">Completed</option>
                             <option value="Pending">Pending</option>
@@ -1625,10 +1746,10 @@ export default function PaymentStatus() {
                           <button
                             type="button"
                             className="ps-ellipsis-btn"
-                            style={{ color: '#dc2626', fontSize: '15px', padding: '4px' }}
-                            onClick={() => window.handleLocalPaymentDelete(p.id)}
+                            style={{ color: '#dc2626', fontSize: '15px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            onClick={() => handleLocalPaymentDelete(p.id)}
                           >
-                            🗑️
+                            <Trash2 size={16} />
                           </button>
                         </td>
                       </tr>
@@ -1657,7 +1778,7 @@ export default function PaymentStatus() {
                   type="button"
                   className="ps-btn-apply"
                   style={{ flex: 1, padding: '10px 0' }}
-                  onClick={window.handleSaveCustomerPayments}
+                  onClick={handleSaveCustomerPayments}
                 >
                   Save Changes
                 </button>

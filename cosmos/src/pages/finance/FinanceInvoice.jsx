@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import DashboardLayout from '../../widgets/DashboardLayout'
 import Modal from '../../shared/ui/Modal'
 import { useAppState } from '../../context/AppStateContext'
@@ -19,6 +19,7 @@ export default function FinanceInvoice() {
   const { financeInvoices, addFinanceInvoice } = useAppState()
   const { addToast } = useToast()
   const location = useLocation()
+  const navigate = useNavigate()
   
   const [search, setSearch]       = useState('')
   const [typeFilter, setTypeFilter] = useState('All')
@@ -40,9 +41,9 @@ export default function FinanceInvoice() {
       setModalOpen(true)
       
       // Clean up local navigation history state to prevent recurring popup on refreshes
-      window.history.replaceState({}, document.title)
+      navigate(location.pathname, { replace: true, state: {} })
     }
-  }, [location])
+  }, [location, navigate])
 
   const filtered = financeInvoices.filter((inv) => {
     const q = search.toLowerCase()
