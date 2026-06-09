@@ -71,6 +71,7 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
   const [address, setAddress] = useState('');
   const [coApplicantAadhaar, setCoApplicantAadhaar] = useState('');
   const [ebNo, setEbNo] = useState('');
+  const [googleDriveLink, setGoogleDriveLink] = useState('');
   const [remarks, setRemarks] = useState('');
 
   // Edit Mode state
@@ -218,6 +219,7 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
     setAddress('');
     setCoApplicantAadhaar('');
     setEbNo('');
+    setGoogleDriveLink('');
     setRemarks('');
   };
 
@@ -272,6 +274,7 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
       address,
       co_applicant_aadhaar: coApplicantAadhaar,
       eb_no: ebNo,
+      google_drive_link: googleDriveLink,
       remarks
     };
 
@@ -333,6 +336,7 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
     setAddress(orig.address || '');
     setCoApplicantAadhaar(orig.co_applicant_aadhaar || '');
     setEbNo(orig.eb_no || '');
+    setGoogleDriveLink(orig.google_drive_link || '');
     setRemarks(orig.remarks || '');
     
     setIsFormOpen(true);
@@ -383,6 +387,8 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
     setCoApplicantAadhaar,
     ebNo,
     setEbNo,
+    googleDriveLink,
+    setGoogleDriveLink,
     remarks,
     setRemarks,
     editId,

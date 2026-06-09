@@ -54,6 +54,8 @@ export default function FinanceEntry() {
     setCoApplicantAadhaar,
     ebNo,
     setEbNo,
+    googleDriveLink,
+    setGoogleDriveLink,
     remarks,
     setRemarks,
     editId,
@@ -204,6 +206,8 @@ export default function FinanceEntry() {
             setCoApplicantAadhaar={setCoApplicantAadhaar}
             ebNo={ebNo}
             setEbNo={setEbNo}
+            googleDriveLink={googleDriveLink}
+            setGoogleDriveLink={setGoogleDriveLink}
             remarks={remarks}
             setRemarks={setRemarks}
             editId={editId}
@@ -282,6 +286,19 @@ export default function FinanceEntry() {
                       <span style={{ fontFamily: 'monospace' }}>{viewRecord.originalClient.co_applicant_aadhaar}</span>
                     </div>
                   )}
+                </div>
+              )}
+              {viewRecord.originalClient.google_drive_link && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Google Drive Link:</span>
+                  <a
+                    href={viewRecord.originalClient.google_drive_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'var(--accent)', fontWeight: 700, textDecoration: 'underline' }}
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>Open Google Drive <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></span>
+                  </a>
                 </div>
               )}
               {viewRecord.originalClient.eb_no && (
