@@ -43,10 +43,6 @@ const PAGE_HEADERS = {
     title: 'Invoice Builder',
     description: 'Generate custom invoices and manage financial billing.'
   },
-  '/payments/products': {
-    title: 'Product & Service Book',
-    description: 'Manage financial products, interest structures, and services.'
-  },
   '/backup': {
     title: 'Backup Data',
     description: 'Export data logs, configure manual checkpoints, and restore system state.'

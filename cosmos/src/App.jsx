@@ -9,7 +9,6 @@ const ClientRecordBook   = lazy(() => import('./pages/ClientRecordBook'))
 const AssociatesBook     = lazy(() => import('./pages/AssociatesBook'))
 const Payments           = lazy(() => import('./pages/Payments'))
 const Invoice            = lazy(() => import('./pages/Invoice'))
-const ProductServiceBook = lazy(() => import('./pages/ProductServiceBook'))
 const BackupData         = lazy(() => import('./pages/BackupData'))
 const ProfilePage        = lazy(() => import('./pages/ProfilePage'))
 const NotificationsPage  = lazy(() => import('./pages/NotificationsPage'))
@@ -55,7 +54,6 @@ function App() {
             <Route path="/associates"        element={<PR roles={['admin','advisor','staff']}><AssociatesBook /></PR>} />
             <Route path="/payments"          element={<PR roles={['admin','advisor']}><Payments /></PR>} />
             <Route path="/payments/invoice"  element={<PR roles={['admin','advisor']}><Invoice /></PR>} />
-            <Route path="/payments/products" element={<PR roles={['admin','advisor']}><ProductServiceBook /></PR>} />
             <Route path="/finance/overview"  element={<PR roles={['admin','advisor','staff']}><FinanceOverview /></PR>} />
             <Route path="/finance/entry"     element={<PR roles={['admin','advisor','staff']}><FinanceEntry /></PR>} />
             <Route path="/finance/investment" element={<PR roles={['admin','advisor','staff']}><FinanceInvestment /></PR>} />

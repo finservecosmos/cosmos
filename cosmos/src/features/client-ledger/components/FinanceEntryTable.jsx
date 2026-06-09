@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Download, FileText, Edit, Trash2 } from 'lucide-react';
 
 export default function FinanceEntryTable({
   paginatedRecords,
@@ -75,8 +76,9 @@ export default function FinanceEntryTable({
             type="button" 
             className="data-btn data-btn-outline" 
             onClick={handleExportCSV}
+            style={{ display: 'inline-flex', alignSelf: 'center', gap: 6 }}
           >
-            💾 Export Excel
+            <Download size={16} style={{ verticalAlign: "middle" }} /> Export Excel
           </button>
         </div>
       </div>
@@ -138,13 +140,13 @@ export default function FinanceEntryTable({
                       {activeMenuId === rec.id && (
                         <div className="action-popover" onClick={(e) => e.stopPropagation()}>
                           <button className="popover-item" onClick={() => { setViewRecord(rec); setActiveMenuId(null); }}>
-                            📄 View Details
+                            <FileText size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View Details
                           </button>
                           <button className="popover-item" onClick={() => { handleEditRecord(rec); setActiveMenuId(null); }}>
-                            ✏️ Edit Details
+                            <Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit Details
                           </button>
                           <button className="popover-item danger" onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}>
-                            🗑️ Delete Record
+                            <Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Delete Record
                           </button>
                         </div>
                       )}

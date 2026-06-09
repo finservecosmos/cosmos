@@ -1,60 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ── CSS Variables ─────────────────────────────────────────── */
 
-:root,
-[data-theme='light'] {
-  --bg-app:        #f5f6fa;
-  --bg-surface:    #ffffff;
-  --bg-hover:      #fdf0f0;
-  --bg-input:      #f8f8f8;
-  --bg-muted:      #f5f5f5;
+@layer base {
+  :root,
+  [data-theme='light'] {
+    --bg-app:        #f5f6fa;
+    --bg-surface:    #ffffff;
+    --bg-hover:      #fdf0f0;
+    --bg-input:      #f8f8f8;
+    --bg-muted:      #f5f5f5;
 
-  --border:        #ebebeb;
-  --border-input:  #e0e0e0;
+    --border:        #ebebeb;
+    --border-input:  #e0e0e0;
 
-  --text-primary:  #111111;
-  --text-secondary:#555555;
-  --text-muted:    #888888;
-  --text-faint:    #aaaaaa;
+    --text-primary:  #111111;
+    --text-secondary:#555555;
+    --text-muted:    #888888;
+    --text-faint:    #aaaaaa;
 
-  --accent:        #c0392b;
-  --accent-hover:  #a93226;
-  --accent-light:  #fde8e8;
-  --accent-text:   #c0392b;
+    --accent:        #c0392b;
+    --accent-hover:  #a93226;
+    --accent-light:  #fde8e8;
+    --accent-text:   #c0392b;
 
-  --sidebar-bg:    #ffffff;
-  --topbar-bg:     #ffffff;
+    --sidebar-bg:    #ffffff;
+    --topbar-bg:     #ffffff;
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
-  --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
-}
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+  }
 
-[data-theme='dark'] {
-  --bg-app:        #0f1117;
-  --bg-surface:    #1a1d27;
-  --bg-hover:      #2a1f1f;
-  --bg-input:      #22263a;
-  --bg-muted:      #1e2130;
+  [data-theme='dark'] {
+    --bg-app:        #0f1117;
+    --bg-surface:    #1a1d27;
+    --bg-hover:      #2a1f1f;
+    --bg-input:      #22263a;
+    --bg-muted:      #1e2130;
 
-  --border:        #2e3248;
-  --border-input:  #3a3f5c;
+    --border:        #2e3248;
+    --border-input:  #3a3f5c;
 
-  --text-primary:  #f0f0f0;
-  --text-secondary:#b0b4c8;
-  --text-muted:    #7a7f9a;
-  --text-faint:    #4a4f6a;
+    --text-primary:  #f0f0f0;
+    --text-secondary:#b0b4c8;
+    --text-muted:    #7a7f9a;
+    --text-faint:    #4a4f6a;
 
-  --accent:        #e05a4a;
-  --accent-hover:  #c0392b;
-  --accent-light:  #2a1515;
-  --accent-text:   #ff7b6b;
+    --accent:        #e05a4a;
+    --accent-hover:  #c0392b;
+    --accent-light:  #2a1515;
+    --accent-text:   #ff7b6b;
 
-  --sidebar-bg:    #1a1d27;
-  --topbar-bg:     #1a1d27;
+    --sidebar-bg:    #1a1d27;
+    --topbar-bg:     #1a1d27;
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
-  --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+  }
 }
 
 /* ── Global Reset ──────────────────────────────────────────── */
@@ -66,23 +72,17 @@
 }
 
 body {
-  margin: 0;
-  font-family: 'Plus Jakarta Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: var(--bg-app);
-  color: var(--text-primary);
-  transition: background 0.2s, color 0.2s;
+  @apply m-0 font-sans antialiased bg-bgApp text-textPrimary transition-colors duration-200;
 }
 
 #root {
-  min-height: 100vh;
+  @apply min-h-screen;
 }
 
-h1, h2, h3, h4, h5, h6 { margin: 0; color: var(--text-primary); }
-p { margin: 0; }
-button { font-family: inherit; cursor: pointer; }
-input { font-family: inherit; }
+h1, h2, h3, h4, h5, h6 { @apply m-0 text-textPrimary; }
+p { @apply m-0; }
+button { @apply font-inherit cursor-pointer; }
+input { @apply font-inherit; }
 
 /* ── SVG Normalization ─────────────────────────────────────── */
 svg {
@@ -104,70 +104,56 @@ svg {
   font-size: inherit;
 }
 
-/* ── Typography System ─────────────────────────────────────── */
-.numeric-data, 
-.data-summary-value, 
-.cell-amount, 
-.ps-kpi-value, 
-.ps-legend-val, 
-.invoice-amount, 
-.invoice-total,
-.metric-value,
-.donut-center-val,
-.donut-percent,
-.donut-tooltip-count,
-.donut-tooltip-pct {
-  font-family: 'Inter', sans-serif !important;
-  font-variant-numeric: tabular-nums !important;
-}
+@layer components {
+  /* ── Typography System ─────────────────────────────────────── */
+  .numeric-data, 
+  .data-summary-value, 
+  .cell-amount, 
+  .ps-kpi-value, 
+  .ps-legend-val, 
+  .invoice-amount, 
+  .invoice-total,
+  .metric-value,
+  .donut-center-val,
+  .donut-percent,
+  .donut-tooltip-count,
+  .donut-tooltip-pct,
+  .kpi-value,
+  .table-amount {
+    font-family: 'Inter', sans-serif !important;
+    font-variant-numeric: tabular-nums !important;
+  }
 
-.page-title {
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--text-primary);
-}
+  .page-title {
+    @apply text-[32px] font-[800] text-textPrimary;
+  }
 
-.section-heading {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
+  .section-heading {
+    @apply text-[22px] font-[700] text-textPrimary;
+  }
 
-.card-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
+  .card-title {
+    @apply text-[16px] font-[600] text-textPrimary;
+  }
 
-.body-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
+  .body-text {
+    @apply text-[14px] font-[500] text-textPrimary;
+  }
 
-.form-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #64748B;
-}
+  .form-label {
+    @apply text-[13px] font-[500] text-[#64748B];
+  }
 
-.kpi-value {
-  font-family: 'Inter', sans-serif;
-  font-variant-numeric: tabular-nums;
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--text-primary);
-}
+  .kpi-value {
+    @apply text-[32px] font-[800] text-textPrimary;
+  }
 
-.table-amount {
-  font-family: 'Inter', sans-serif;
-  font-variant-numeric: tabular-nums;
-  font-size: 15px;
-  font-weight: 700;
-}
+  .table-amount {
+    @apply text-[15px] font-[700];
+  }
 
-.status-badge {
-  font-size: 13px;
-  font-weight: 600;
+  .status-badge {
+    @apply text-[13px] font-[600];
+  }
 }
 

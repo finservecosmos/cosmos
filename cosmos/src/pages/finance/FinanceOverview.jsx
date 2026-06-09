@@ -504,7 +504,7 @@ export default function FinanceOverview() {
                 <h3 className="panel-title">Due List Urgency</h3>
                 <p className="panel-subtitle">Track upcoming dues and take action on time</p>
               </div>
-              <button className="panel-more-btn" onClick={() => navigate('/clients')}>
+              <button className="panel-more-btn" onClick={() => navigate('/finance/entry')}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)', marginRight: 4 }}>View All Records</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 14, height: 14 }}>
                   <path d="M5 12h14M12 5l7 7-7 7" />

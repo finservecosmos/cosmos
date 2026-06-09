@@ -127,7 +127,8 @@ export default function FinanceIncomeExpenses() {
     const grouped = {
       'Processing Fee': 0,
       'Commission': 0,
-      'Interest Collection': 0
+      'Interest Collection': 0,
+      'Others': 0
     }
     dateFilteredTransactions
       .filter(t => t.type === 'Income')
@@ -136,7 +137,7 @@ export default function FinanceIncomeExpenses() {
         if (grouped[cat] !== undefined) {
           grouped[cat] += Number(t.amount || 0)
         } else {
-          grouped['Processing Fee'] += Number(t.amount || 0) // default fallback
+          grouped['Others'] += Number(t.amount || 0) // default fallback
         }
       })
     return Object.entries(grouped).map(([type, count]) => ({
@@ -152,7 +153,8 @@ export default function FinanceIncomeExpenses() {
     const grouped = {
       'Office Rent': 0,
       'Salaries': 0,
-      'Operational': 0
+      'Operational': 0,
+      'Others': 0
     }
     dateFilteredTransactions
       .filter(t => t.type === 'Expense')
@@ -163,7 +165,7 @@ export default function FinanceIncomeExpenses() {
         } else if (cat === 'Petrol') {
           grouped['Operational'] += Number(t.amount || 0) // Petrol falls under Operational
         } else {
-          grouped['Operational'] += Number(t.amount || 0) // Default fallback
+          grouped['Others'] += Number(t.amount || 0) // Default fallback
         }
       })
     return Object.entries(grouped).map(([type, count]) => ({
@@ -190,7 +192,8 @@ export default function FinanceIncomeExpenses() {
       'Interest Collection': '#f39c12',
       'Office Rent': '#e74c3c',
       'Salaries': '#e67e22',
-      'Operational': '#9b59b6'
+      'Operational': '#9b59b6',
+      'Others': '#95a5a6'
     }
     return breakdownData.map((item) => {
       const fraction = item.count / total
