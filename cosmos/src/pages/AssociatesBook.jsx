@@ -12,7 +12,7 @@ function formatAmount(n) {
   return `₹${n.toLocaleString('en-IN')}`
 }
 
-const REGIONS = ['All', 'Mumbai', 'Pune', 'Bangalore', 'Delhi', 'Hyderabad']
+
 
 const MAJOR_LOCATIONS = [
   'Mumbai, MH', 'Delhi NCR', 'Bengaluru, KA', 'Kolkata, WB', 
@@ -42,7 +42,7 @@ function HybridLocationPicker({ value, onChange, disabled }) {
 }
 
 const emptyAssociate = {
-  name: '', email: '', phone: '', region: 'Mumbai', clients: 0,
+  name: '', email: '', phone: '', clients: 0,
   disbursed: 0, commission: 0, joined: new Date().toISOString().slice(0, 10), id: null,
   associate_id: '', expertise: '', vintage: '', financial_institution: '', institution_type: 'Bank', branch: ''
 }
@@ -51,7 +51,7 @@ export default function AssociatesBook() {
   const { associates, addAssociate, updateAssociate } = useAppState()
   const { addToast } = useToast()
   const [search, setSearch]       = useState('')
-  const [regionFilter, setRegion] = useState('All')
+
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState('add')
   const [formData, setFormData]   = useState(emptyAssociate)
@@ -70,9 +70,8 @@ export default function AssociatesBook() {
 
   const filtered = associates.filter((a) => {
     const q = search.toLowerCase()
-    const matchSearch = !q || a.name.toLowerCase().includes(q) || a.region.toLowerCase().includes(q) || a.email.toLowerCase().includes(q)
-    const matchRegion = regionFilter === 'All' || a.region === regionFilter
-    return matchSearch && matchRegion
+    const matchSearch = !q || a.name.toLowerCase().includes(q) || a.email.toLowerCase().includes(q)
+    return matchSearch
   })
 
   const totalCommission = associates.reduce((s, a) => s + a.commission, 0)
@@ -176,11 +175,8 @@ export default function AssociatesBook() {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input placeholder="Search by name or region..." value={search} onChange={e => setSearch(e.target.value)} />
+            <input placeholder="Search by name or email..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-          <select className="data-filter-select" value={regionFilter} onChange={e => setRegion(e.target.value)}>
-            {REGIONS.map(r => <option key={r}>{r}</option>)}
-          </select>
           <button className="data-btn data-btn-outline">Export</button>
         </div>
 
@@ -190,7 +186,7 @@ export default function AssociatesBook() {
             <thead>
               <tr>
                 <th>Associate</th>
-                <th>Region</th>
+
                 <th>Clients</th>
                 <th>Total Disbursed</th>
                 <th>Commission</th>
@@ -218,7 +214,7 @@ export default function AssociatesBook() {
                       </div>
                     </div>
                   </td>
-                  <td className="cell-muted">{a.region}</td>
+
                   <td style={{ fontWeight: 600 }}>{a.clients}</td>
                   <td className="cell-amount">{formatAmount(a.disbursed)}</td>
                   <td className="cell-amount">{formatAmount(a.commission)}</td>
@@ -332,10 +328,7 @@ export default function AssociatesBook() {
                   <TrendingUp size={14} style={{marginRight: 6, verticalAlign: "middle"}} /> Performance Metrics
                 </h4>
                 <div className="form-grid">
-                  <label>
-                    Operation Region
-                    <HybridLocationPicker value={formData.region || ''} disabled={modalMode === 'view'} onChange={(value) => setFormData({ ...formData, region: value })} />
-                  </label>
+
                   <label>
                     Active Clients
                     <input type="number" min="0" value={formData.clients} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, clients: e.target.value })} />
@@ -351,7 +344,7 @@ export default function AssociatesBook() {
                 </div>
               </div>
             </div>
-            <div className="modal-actions">
+            <div className="modal-actions" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px' }}>
               <button type="button" className="admin-action-btn" onClick={() => setModalOpen(false)}>Close</button>
               {modalMode !== 'view' && (
                 <button type="button" className="admin-primary-btn" onClick={saveAssociate}>Save</button>

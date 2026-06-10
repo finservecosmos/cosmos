@@ -16,8 +16,7 @@ const STAGES = [
 const STAGE_OFFSETS = [0, 2, 5, 8, 12, 15, 18, 22, 26]
 
 const LOAN_TYPES = [
-  'All Loan Types', 'Home Loan', 'Business Loan', 'Personal Loan',
-  'Gold Loan', 'Mortgage', 'Loan Against Property', 'LAP'
+  'All Loan Types', 'Housing', 'Business OD/CC', 'Loan Against Property', 'Others'
 ]
 
 const STATUS_FILTERS = ['All Status', 'Processing', 'Completed', 'Delayed']
@@ -136,7 +135,7 @@ function buildNewFile({ client, client_id, loan_type, priority = 'Normal' }) {
   }
 }
 
-const emptyAddForm = { client: '', client_id: '', loan_type: 'Home Loan' }
+const emptyAddForm = { client: '', client_id: '', loan_type: 'Housing' }
 
 /* ─── Stat Card ─────────────────────────────────────────────── */
 function StatCard({ label, value, sub, icon, iconBg, accent }) {
@@ -576,11 +575,6 @@ export default function LoginFile() {
               Real-time monitoring of loan application lifecycles and compliance stages.
             </p>
           </div>
-          <button onClick={openAddModal} style={{
-            background: '#e53e3e', color: '#fff', border: 'none', borderRadius: 8,
-            padding: '10px 20px', fontWeight: 600, fontSize: 14, cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(229,62,62,0.3)',
-          }}>+ Add New File</button>
         </div>
 
         {/* Stats */}
@@ -653,14 +647,6 @@ export default function LoginFile() {
           ))
         )}
 
-        {/* FAB */}
-        <button onClick={openAddModal} title="Add New File" style={{
-          position: 'fixed', bottom: 32, right: 32, width: 56, height: 56,
-          borderRadius: '50%', background: '#e53e3e', color: '#fff', border: 'none',
-          fontSize: 28, cursor: 'pointer', boxShadow: '0 4px 16px rgba(229,62,62,0.45)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
-        }}>+</button>
-
         {/* Add Modal */}
         {modalOpen && modalMode === 'add' && (
           <Modal title="Add New File" onClose={() => setModalOpen(false)}>
@@ -683,7 +669,7 @@ export default function LoginFile() {
             <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '12px 0 0' }}>
               The file will start at the <strong>LOGIN</strong> stage with expected dates auto-calculated for all stages.
             </p>
-            <div className="modal-actions">
+            <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '20px' }}>
               <button type="button" className="data-btn data-btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
               <button type="button" className="data-btn data-btn-primary" onClick={saveAddFile}>Add File</button>
             </div>
@@ -779,7 +765,7 @@ export default function LoginFile() {
               </div>
             </div>
 
-            <div className="modal-actions">
+            <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '20px' }}>
               <button type="button" className="data-btn data-btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
               <button type="button" className="data-btn data-btn-primary" onClick={saveEditFile}>Save Changes</button>
             </div>
@@ -819,7 +805,7 @@ export default function LoginFile() {
               <label>Actual Payout (INR) *
                 <input
                   type="number"
-                  placeholder="e.g. 100000"
+                  placeholder="100000"
                   value={payoutData.actual_payout}
                   onChange={e => setPayoutData({ ...payoutData, actual_payout: e.target.value })}
                   style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-input)', borderRadius: 8, marginTop: 6 }}
@@ -828,7 +814,7 @@ export default function LoginFile() {
               <label>Amount Client Paid (INR) *
                 <input
                   type="number"
-                  placeholder="e.g. 50000"
+                  placeholder="50000"
                   value={payoutData.amount_paid}
                   onChange={e => setPayoutData({ ...payoutData, amount_paid: e.target.value })}
                   style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-input)', borderRadius: 8, marginTop: 6 }}

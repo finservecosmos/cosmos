@@ -64,7 +64,7 @@
 /* Table card */
 .data-table-card {
   background: var(--bg-surface); border: 1px solid var(--border);
-  border-radius: 12px; overflow: hidden;
+  border-radius: 12px;
 }
 
 .data-table {
@@ -78,6 +78,8 @@
   background: var(--bg-muted); border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
+.data-table th:first-child { border-top-left-radius: 11px; }
+.data-table th:last-child { border-top-right-radius: 11px; }
 
 .data-table td {
   padding: 13px 16px; color: var(--text-primary);

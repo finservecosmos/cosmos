@@ -12,11 +12,11 @@ function formatAmount(n) { return `₹${n.toLocaleString('en-IN')}` }
 const STATUSES = ['All', 'Paid', 'Pending', 'Overdue']
 
 const emptyInvoice = {
-  client: '', file_no: '', service: '', amount: 0, date: new Date().toISOString().slice(0, 10), due: new Date(new Date().getTime() + 7*24*60*60*1000).toISOString().slice(0, 10), status: 'Pending', id: null,
+  client: '', file_no: '', service: '', amount: 0, date: new Date().toISOString().slice(0, 10), due: new Date(new Date().getTime() + 7*24*60*60*1000).toISOString().slice(0, 10), status: 'Pending', id: null, history: [],
 }
 
 export default function Invoice() {
-  const { invoices, addInvoice } = useAppState()
+  const { invoices, addInvoice, payments } = useAppState()
   const { addToast } = useToast()
   const location = useLocation()
   const navigate = useNavigate()
@@ -38,7 +38,8 @@ export default function Invoice() {
         service: 'Loan Processing Payout Collection',
         date: new Date().toISOString().slice(0, 10),
         due: new Date(new Date().getTime() + 7*24*60*60*1000).toISOString().slice(0, 10),
-        status: 'Pending'
+        status: 'Pending',
+        history: location.state.history || []
       })
       setModalOpen(true)
       
@@ -326,6 +327,44 @@ export default function Invoice() {
                   </tr>
                 </tbody>
               </table>
+
+              {(() => {
+                const history = selectedInvoice.history?.length > 0 
+                  ? selectedInvoice.history 
+                  : payments.filter(p => (p.file_no && p.file_no === selectedInvoice.file_no) || (p.client && p.client === selectedInvoice.client)).sort((a, b) => new Date(a.date) - new Date(b.date));
+                  
+                if (!history || history.length === 0) return null;
+                
+                return (
+                  <div style={{ marginBottom: 20 }}>
+                    <p style={{ color: 'var(--text-muted)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 8 }}>Transaction History</p>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+                      <thead>
+                        <tr style={{ background: 'var(--bg-muted)', borderBottom: '1px solid var(--border)' }}>
+                          <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-secondary)', fontWeight: 700 }}>Date</th>
+                          <th style={{ textAlign: 'center', padding: '6px 10px', color: 'var(--text-secondary)', fontWeight: 700 }}>Status</th>
+                          <th style={{ textAlign: 'right', padding: '6px 10px', color: 'var(--text-secondary)', fontWeight: 700 }}>Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {history.map((h, i) => (
+                          <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                            <td style={{ padding: '6px 10px', color: 'var(--text-primary)' }}>{h.date}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'center' }}>
+                            <span style={{
+                              fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
+                              background: h.status === 'Completed' ? '#dcfce7' : h.status === 'Pending' || h.status === 'Processing' ? '#fef3c7' : '#fde8e8',
+                              color: h.status === 'Completed' ? '#16a34a' : h.status === 'Pending' || h.status === 'Processing' ? '#d97706' : '#c0392b'
+                            }}>{h.status}</span>
+                          </td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600 }}>{formatAmount(h.amount)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                   </table>
+                  </div>
+                )
+              })()}
 
               {/* Summary Calculations */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: 12 }}>

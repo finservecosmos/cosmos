@@ -1338,11 +1338,14 @@ export default function PaymentStatus() {
                           <button
                             className="ps-action-item"
                             onClick={() => {
+                              const doneTxns = [...item.payments].filter(p => p.status === 'Completed').sort((a, b) => new Date(a.date) - new Date(b.date));
+                              const lastDone = doneTxns.length > 0 ? doneTxns[doneTxns.length - 1] : null;
                               navigate('/payments/invoice', {
                                 state: {
                                   prefillClient: item.client,
                                   prefillFileNo: item.file_no,
-                                  prefillAmount: item.pending
+                                  prefillAmount: lastDone ? lastDone.amount : item.pending,
+                                  history: [...item.payments].sort((a, b) => new Date(a.date) - new Date(b.date))
                                 }
                               })
                               addToast(`Redirecting to invoice creator for ${item.client}...`, 'info')
@@ -1455,45 +1458,15 @@ export default function PaymentStatus() {
                 <thead>
                   <tr>
                     <th>Date</th>
-                    <th>Bank</th>
                     <th style={{ textAlign: 'right' }}>Amount</th>
-                    <th style={{ textAlign: 'center' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {selectedDetails.payments.map(p => (
                     <tr key={p.id}>
                       <td>{p.date}</td>
-                      <td>{p.bank}</td>
                       <td style={{ textAlign: 'right', fontWeight: '700', color: p.status === 'Completed' ? '#16a34a' : '#d97706' }}>
                         {formatAmount(p.amount)}
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                          <button
-                            className="data-btn data-btn-outline"
-                            style={{ padding: '4px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
-                            onClick={() => setUpdateSinglePayment(p)}
-                          >
-                            <RefreshCw size={12} /> Update Payment
-                          </button>
-                          <button
-                            className="data-btn data-btn-outline"
-                            style={{ padding: '4px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', background: '#f8fafc' }}
-                            onClick={() => {
-                              navigate('/payments/invoice', {
-                                state: {
-                                  prefillClient: p.client,
-                                  prefillFileNo: p.file_no,
-                                  prefillAmount: p.amount
-                                }
-                              })
-                              setSelectedDetails(null)
-                            }}
-                          >
-                            <FileText size={12} /> Generate Invoice
-                          </button>
-                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1508,6 +1481,27 @@ export default function PaymentStatus() {
                   onClick={() => setSelectedDetails(null)}
                 >
                   Close
+                </button>
+                <button
+                  type="button"
+                  className="ps-btn-apply"
+                  style={{ flex: 1 }}
+                  onClick={() => {
+                    const doneTxns = [...selectedDetails.payments].filter(p => p.status === 'Completed').sort((a, b) => new Date(a.date) - new Date(b.date));
+                    const lastDone = doneTxns.length > 0 ? doneTxns[doneTxns.length - 1] : null;
+                    navigate('/payments/invoice', {
+                      state: {
+                        prefillClient: selectedDetails.client,
+                        prefillFileNo: selectedDetails.file_no,
+                        prefillAmount: lastDone ? lastDone.amount : selectedDetails.pending,
+                        history: [...selectedDetails.payments].sort((a, b) => new Date(a.date) - new Date(b.date))
+                      }
+                    });
+                    setSelectedDetails(null);
+                  }}
+                >
+                  <FileText size={16} style={{ marginRight: 8, verticalAlign: 'middle', display: 'inline-block' }} />
+                  Generate Invoice
                 </button>
               </div>
             </div>
@@ -1538,22 +1532,6 @@ export default function PaymentStatus() {
                     value={addPaymentAmount}
                     onChange={e => setAddPaymentAmount(e.target.value)}
                   />
-                </div>
-
-                {/* Bank picker */}
-                <div>
-                  <label className="ps-field-label">Collecting Bank</label>
-                  <select
-                    className="ps-select"
-                    value={addPaymentBank}
-                    onChange={e => setAddPaymentBank(e.target.value)}
-                  >
-                    <option value="ICICI Bank">ICICI Bank</option>
-                    <option value="HDFC Bank">HDFC Bank</option>
-                    <option value="SBI">State Bank of India (SBI)</option>
-                    <option value="Axis Bank">Axis Bank</option>
-                    <option value="Kotak Bank">Kotak Bank</option>
-                  </select>
                 </div>
 
                 {/* Date select */}
@@ -1610,15 +1588,6 @@ export default function PaymentStatus() {
                   />
                 </div>
                 <div>
-                  <label className="ps-field-label">Bank</label>
-                  <input
-                    type="text"
-                    className="ps-input"
-                    value={updateSinglePayment.bank}
-                    onChange={e => setUpdateSinglePayment({ ...updateSinglePayment, bank: e.target.value })}
-                  />
-                </div>
-                <div>
                   <label className="ps-field-label">Date</label>
                   <input
                     type="date"
@@ -1670,28 +1639,19 @@ export default function PaymentStatus() {
             onClose={() => setEditCustomer(null)}
           >
             <div className="ps-modal-body-payout" style={{ width: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <div style={{ marginBottom: '8px' }}>
                 <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '600' }}>
                   Manage payment log transactions for File: <span style={{ color: 'var(--text-primary)', fontFamily: 'monospace' }}>{editCustomer.file_no}</span>
                 </div>
-                <button
-                  type="button"
-                  className="ps-download-btn"
-                  style={{ padding: '4px 10px', background: 'var(--bg-muted)', fontSize: '12px' }}
-                  onClick={handleLocalPaymentAdd}
-                >
-                  <Plus size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Add Transaction
-                </button>
               </div>
 
               <div style={{ maxHeight: '350px', overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: '10px' }}>
                 <table className="ps-history-table" style={{ margin: 0 }}>
                   <thead>
                     <tr>
-                      <th style={{ padding: '8px' }}>Date</th>
-                      <th style={{ padding: '8px' }}>Bank</th>
-                      <th style={{ padding: '8px' }}>Amount (INR)</th>
-                      <th style={{ padding: '8px' }}>Status</th>
+                      <th style={{ padding: '8px', textAlign: 'left' }}>Date</th>
+                      <th style={{ padding: '8px', textAlign: 'left' }}>Amount (INR)</th>
+                      <th style={{ padding: '8px', textAlign: 'left' }}>Status</th>
                       <th style={{ padding: '8px', textAlign: 'center' }}>Remove</th>
                     </tr>
                   </thead>
@@ -1708,24 +1668,10 @@ export default function PaymentStatus() {
                           />
                         </td>
                         <td style={{ padding: '6px 8px' }}>
-                          <select
-                            className="ps-select"
-                            style={{ padding: '6px 8px', fontSize: '12px', minWidth: '100px' }}
-                            value={p.bank}
-                            onChange={e => handleLocalPaymentEdit(p.id, 'bank', e.target.value)}
-                          >
-                            <option value="ICICI Bank">ICICI Bank</option>
-                            <option value="HDFC Bank">HDFC Bank</option>
-                            <option value="SBI">SBI</option>
-                            <option value="Axis Bank">Axis Bank</option>
-                            <option value="Kotak Bank">Kotak Bank</option>
-                          </select>
-                        </td>
-                        <td style={{ padding: '6px 8px' }}>
                           <input
                             type="number"
                             className="ps-input"
-                            style={{ padding: '6px 8px', fontSize: '12px', fontWeight: '700', width: '100px' }}
+                            style={{ padding: '6px 8px', fontSize: '12px', fontWeight: '700', width: '100%' }}
                             value={p.amount}
                             onChange={e => handleLocalPaymentEdit(p.id, 'amount', Number(e.target.value))}
                           />
@@ -1746,7 +1692,7 @@ export default function PaymentStatus() {
                           <button
                             type="button"
                             className="ps-ellipsis-btn"
-                            style={{ color: '#dc2626', fontSize: '15px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            style={{ color: '#dc2626', fontSize: '15px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}
                             onClick={() => handleLocalPaymentDelete(p.id)}
                           >
                             <Trash2 size={16} />
@@ -1756,7 +1702,7 @@ export default function PaymentStatus() {
                     ))}
                     {editPaymentsLocal.length === 0 && (
                       <tr>
-                        <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-faint)', fontWeight: '600' }}>
+                        <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-faint)', fontWeight: '600' }}>
                           No transactions left. Saving will delete the payout ledger.
                         </td>
                       </tr>

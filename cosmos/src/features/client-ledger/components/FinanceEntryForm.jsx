@@ -80,7 +80,7 @@ export default function FinanceEntryForm({
           Loan Amount (₹) *
           <input 
             type="number" 
-            placeholder="e.g. 50000" 
+            placeholder="50000" 
             value={loanAmount} 
             onChange={e => setLoanAmount(e.target.value)} 
           />

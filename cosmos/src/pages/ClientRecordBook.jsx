@@ -4,6 +4,7 @@ import Modal from '../shared/ui/Modal';
 import { useAppState } from '../context/AppStateContext';
 import { useToast } from '../context/ToastContext';
 import { useUser } from '../context/UserContext';
+import useConfirm from '../shared/lib/useConfirm';
 import { useClientForm } from '../features/client-onboarding/hooks/useClientForm';
 import ClientOnboardingWizard from '../features/client-onboarding/components/ClientOnboardingWizard';
 import ClientRecordsTable from '../features/client-onboarding/components/ClientRecordsTable';
@@ -33,13 +34,14 @@ function formatAmount(n) {
   return `₹${n.toLocaleString('en-IN')}`;
 }
 
-const LOAN_TYPES = ['All', 'Home Loan', 'Business Loan', 'Personal Loan', 'Gold Loan', 'Mortgage'];
+const LOAN_TYPES = ['All', 'Housing', 'Business OD/CC', 'Loan Against Property', 'Others'];
 const STATUSES = ['All', 'Enquiry', 'Processing', 'Approved', 'Disbursed', 'Closed'];
 
 export default function ClientRecordBook() {
-  const { clients, addClient, updateClient } = useAppState();
+  const { clients, addClient, updateClient, removeClient } = useAppState();
   const { addToast } = useToast();
   const { user } = useUser();
+  const confirm = useConfirm();
 
   const [search, setSearch] = useState('');
   const [loanFilter, setLoan] = useState('All');
@@ -78,6 +80,20 @@ export default function ClientRecordBook() {
   useEffect(() => {
     document.title = 'Client Record Book | Cosmos';
   }, []);
+
+  const handleDeleteClient = async (client) => {
+    const ok = await confirm({
+      title: 'Remove Client?',
+      message: `Are you sure you want to remove the client record for ${client.name}? This action cannot be undone.`,
+      confirmLabel: 'Yes, Remove',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+    });
+    if (ok) {
+      removeClient(client.id);
+      addToast('Client removed successfully.', 'success');
+    }
+  };
 
   // Reset pagination when search or filters change
   useEffect(() => {
@@ -192,6 +208,7 @@ export default function ClientRecordBook() {
           statusClass={statusClass}
           openViewModal={openViewModal}
           openEditModal={openEditModal}
+          handleDeleteClient={handleDeleteClient}
         />
 
         {modalOpen && (

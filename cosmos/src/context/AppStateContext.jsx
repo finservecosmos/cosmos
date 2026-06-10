@@ -203,13 +203,18 @@ export function AppStateProvider({ children }) {
     }
   }
 
+  const removeClient = async (id) => {
+    const { error } = await supabase.from('clients').delete().eq('id', id)
+    if (error) { console.error('removeClient error:', error.message); return }
+    setClients(p => p.filter(x => x.id !== id))
+  }
+
   /* ─── Associates ── */
   const pickAssociate = (a, id) => ({
     id: id || a.id,
     name: a.name,
     phone: a.phone || '',
     email: a.email || '',
-    region: a.region || '',
     status: a.status || 'Active',
     joined: a.joined || new Date().toISOString().slice(0, 10),
     clients: Number(a.clients || 0),
@@ -597,7 +602,7 @@ export function AppStateProvider({ children }) {
 
   return (
     <AppStateContext.Provider value={{
-      clients, addClient, updateClient,
+      clients, addClient, updateClient, removeClient,
       associates: computedAssociates, addAssociate, updateAssociate,
       payments, addPayment, updatePayment, removePayment,
       invoices, addInvoice,

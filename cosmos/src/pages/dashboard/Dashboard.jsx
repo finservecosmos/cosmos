@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../context/ToastContext'
+import { useAppState } from '../../context/AppStateContext'
 import {
-  getDashboardStats,
-  getLoanEnquiryBreakdown,
   getRecentActivities,
   getPendingFollowUps,
   getTodaySchedule,
@@ -22,12 +21,12 @@ const DATE_RANGES = ['Today', 'This Week', 'This Month']
 function Dashboard() {
   const navigate = useNavigate()
   const { addToast } = useToast()
-  const [stats, setStats] = useState(null)
-  const [loanBreakdown, setLoanBreakdown] = useState([])
+  const { enquiries, loginFiles, payments, loading: appLoading } = useAppState()
+
   const [activities, setActivities] = useState([])
   const [followUps, setFollowUps] = useState([])
   const [schedule, setSchedule] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [widgetsLoading, setWidgetsLoading] = useState(true)
   const [dateRange, setDateRange] = useState('Today')
 
   useEffect(() => {
@@ -35,34 +34,45 @@ function Dashboard() {
   }, [])
 
   useEffect(() => {
-    const fetchAll = async () => {
-      setLoading(true)
+    const fetchWidgets = async () => {
+      setWidgetsLoading(true)
       try {
-        const [s, lb, a, f, sc] = await Promise.all([
-          getDashboardStats(),
-          getLoanEnquiryBreakdown(),
+        const [a, f, sc] = await Promise.all([
           getRecentActivities(),
           getPendingFollowUps(),
           getTodaySchedule(),
         ])
-        setStats(s)
-        setLoanBreakdown(lb)
         setActivities(a)
         setFollowUps(f)
         setSchedule(sc)
       } catch (err) {
-        console.error('Dashboard fetch error:', err)
+        console.error('Dashboard widget fetch error:', err)
       } finally {
-        setLoading(false)
+        setWidgetsLoading(false)
       }
     }
-    fetchAll()
+    fetchWidgets()
   }, [])
 
-  const getTrend = (current, previous) => {
-    if (!previous || previous === 0) return 0
-    return Math.round(((current - previous) / previous) * 100)
-  }
+  // Compute loan breakdown from context enquiries (same source as Enquiry Status page)
+  const loanBreakdown = (() => {
+    if (!enquiries.length) return []
+    const counts = {}
+    enquiries.forEach(({ loan_type }) => {
+      if (loan_type) counts[loan_type] = (counts[loan_type] || 0) + 1
+    })
+    const total = enquiries.length
+    return Object.entries(counts).map(([type, count]) => ({
+      type, count, percent: Math.round((count / total) * 100),
+    }))
+  })()
+
+  // Compute stats directly from AppStateContext (always in sync with DB)
+  const newEnquiriesCount = enquiries.length
+  const activeLoginFiles = loginFiles.filter(f => !f.done).length
+  const totalCollections = payments
+    .filter(p => p.status === 'Completed')
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0)
 
   const formatAmount = (amount) => {
     if (!amount) return '₹0'
@@ -82,7 +92,7 @@ function Dashboard() {
         <div className="dashboard-header-row">
           <div>
             <h1 className="dashboard-page-title">Overview</h1>
-            <p className="dashboard-page-subtitle">A quick look at today’s lending and collection activity.</p>
+            <p className="dashboard-page-subtitle">A quick look at today's lending and collection activity.</p>
           </div>
           <div className="dashboard-range-tabs">
             {DATE_RANGES.map((label) => (
@@ -101,9 +111,8 @@ function Dashboard() {
         <div className="kpi-row">
           <StatCard
             title="New Enquiries"
-            value={loading ? '—' : stats?.newEnquiries ?? 0}
-            trend={loading ? undefined : getTrend(stats?.newEnquiries, stats?.newEnquiriesLastPeriod)}
-            subLabel="vs last period"
+            value={appLoading ? '—' : newEnquiriesCount}
+            subLabel="Total enquiries"
             icon={
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -115,8 +124,7 @@ function Dashboard() {
           />
           <StatCard
             title="Login Files"
-            value={loading ? '—' : stats?.loginFiles ?? 0}
-            trend={loading ? undefined : getTrend(stats?.loginFiles, stats?.loginFilesLastPeriod)}
+            value={appLoading ? '—' : activeLoginFiles}
             subLabel="Active processing"
             icon={
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -127,8 +135,7 @@ function Dashboard() {
           />
           <StatCard
             title="Payment Status"
-            value={loading ? '—' : formatAmount(stats?.totalCollections)}
-            trend={loading ? undefined : getTrend(stats?.totalCollections, stats?.totalCollectionsLastPeriod)}
+            value={appLoading ? '—' : formatAmount(totalCollections)}
             subLabel="Total collections"
             highlight
             icon={
@@ -159,12 +166,12 @@ function Dashboard() {
             <DonutChart data={loanBreakdown} />
           </div>
 
-          <RecentActivities activities={activities} loading={loading} />
+          <RecentActivities activities={activities} loading={widgetsLoading} />
         </div>
 
         <div className="dashboard-bottom-row">
-          <PendingFollowUps followUps={followUps} loading={loading} onViewAll={viewFollowUps} />
-          <TodaySchedule schedule={schedule} loading={loading} onAdd={addSchedule} />
+          <PendingFollowUps followUps={followUps} loading={widgetsLoading} onViewAll={viewFollowUps} />
+          <TodaySchedule schedule={schedule} loading={widgetsLoading} onAdd={addSchedule} />
         </div>
       </div>
     </DashboardLayout>

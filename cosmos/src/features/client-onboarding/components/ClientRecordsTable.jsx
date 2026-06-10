@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Edit, Printer } from 'lucide-react';
+import { Eye, Edit, Printer, Trash2 } from 'lucide-react';
 import cosmosLogo from '../../../assets/cosmosLogo.jpeg';
 
 export default function ClientRecordsTable({
@@ -19,7 +19,8 @@ export default function ClientRecordsTable({
   formatAmount,
   statusClass,
   openViewModal,
-  openEditModal
+  openEditModal,
+  handleDeleteClient
 }) {
   const [activeMenuId, setActiveMenuId] = useState(null);
 
@@ -56,15 +57,14 @@ export default function ClientRecordsTable({
             .footer { margin-top: 60px; padding-top: 20px; border-top: 1px dashed #d1d5db; text-align: center; font-size: 12px; color: #9ca3af; }
             @media print {
               @page { margin: 0; }
-              body { padding: 40px !important; max-width: 100%; }
+              body { padding: 0 !important; max-width: 100%; }
             }
           </style>
         </head>
         <body>
-          <div class="top-bar">
-            <span>${new Date().toLocaleString()}</span>
-            <span>Client Details - ${client.name}</span>
-          </div>
+          <table style="width: 100%; border-collapse: collapse; border: none;">
+            <thead><tr><td style="height: 20mm; border: none; padding: 0;"></td></tr></thead>
+            <tbody><tr><td style="border: none; padding: 0 40px;">
           <div class="header">
             <img src="${cosmosLogo}" alt="Cosmos Logo" style="width: 50px; height: 50px; border-radius: 8px; object-fit: contain;" />
             <div class="header-text">
@@ -145,6 +145,9 @@ export default function ClientRecordsTable({
           <div class="footer">
             Printed on ${new Date().toLocaleString()} &bull; Cosmos Financial Services Internal Record
           </div>
+            </td></tr></tbody>
+            <tfoot><tr><td style="height: 20mm; border: none; padding: 0;"></td></tr></tfoot>
+          </table>
 
           <script>
             window.onload = () => {
@@ -246,6 +249,9 @@ export default function ClientRecordsTable({
                           </button>
                           <button className="popover-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => handlePrint(c)}>
                             <Printer size={16} /> Print details
+                          </button>
+                          <button className="popover-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ef4444' }} onClick={() => { handleDeleteClient(c); setActiveMenuId(null); }}>
+                            <Trash2 size={16} /> Delete record
                           </button>
                         </div>
                       )}
