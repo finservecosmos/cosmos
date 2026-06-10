@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { step1Schema, step2Schema, step3Schema, clientSchema } from '../../../shared/lib/schemas';
 
 export const emptyClient = {
-  name: '', phone: '', email: '', loan_type: 'Home Loan', amount: 0,
+  name: '', phone: '', email: '', loan_type: 'Housing', amount: 0,
   status: 'Enquiry', file_no: '', date: new Date().toISOString().slice(0, 10), associate: '', id: null,
   pan_card: '', aadhaar_number: '', residential_status: 'Resident Indian',
   employment_status: 'Salaried', monthly_net_income: '', co_applicant_income: '',
