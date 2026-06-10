@@ -5,9 +5,73 @@ import { supabase } from '../shared/api/supabaseClient'
 
 const AppStateContext = createContext()
 
-/* ─── Unique ID Generator ────────────────────────────────── */
+/* ─── Unique ID Generator (used for non-client/invoice entities) ────── */
 function uid(prefix = '') {
   return `${prefix}${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`
+}
+
+/* ─── Sequential ID Helpers ─────────────────────────────────────────── */
+
+// Client: CF-YY-XXD  (X = A-Z, D = 0-9)  →  6,760 IDs / year
+function decodeClientSeq(suffix) {
+  const l1 = suffix.charCodeAt(0) - 65
+  const l2 = suffix.charCodeAt(1) - 65
+  const d  = parseInt(suffix[2], 10)
+  return l1 * 260 + l2 * 10 + d
+}
+function encodeClientSeq(seq) {
+  const d  = seq % 10
+  const l2 = Math.floor(seq / 10) % 26
+  const l1 = Math.floor(seq / 260)
+  return String.fromCharCode(65 + l1) + String.fromCharCode(65 + l2) + d
+}
+
+// Invoice: CFI-YY-XXX  (all A-Z)  →  17,576 IDs / year
+function encodeInvoiceSeq(seq) {
+  const c3 = seq % 26
+  const c2 = Math.floor(seq / 26) % 26
+  const c1 = Math.floor(seq / 676)
+  return String.fromCharCode(65 + c1) + String.fromCharCode(65 + c2) + String.fromCharCode(65 + c3)
+}
+
+export async function nextClientId() {
+  const yy = String(new Date().getFullYear()).slice(-2)
+  const prefix = `CF-${yy}-`
+  const { data } = await supabase.from('clients')
+    .select('id').like('id', `${prefix}%`).order('id', { ascending: false }).limit(50)
+  if (!data || data.length === 0) return `${prefix}AA0`
+  const seqs = data
+    .map(r => r.id.slice(prefix.length))
+    .filter(s => /^[A-Z]{2}[0-9]$/.test(s))
+    .map(decodeClientSeq)
+  if (seqs.length === 0) return `${prefix}AA0`
+  return `${prefix}${encodeClientSeq(Math.max(...seqs) + 1)}`
+}
+
+async function nextInvoiceId() {
+  const yy = String(new Date().getFullYear()).slice(-2)
+  const prefix = `CFI-${yy}-`
+  const { data } = await supabase.from('invoices')
+    .select('id').like('id', `${prefix}%`).order('id', { ascending: false }).limit(50)
+  if (!data || data.length === 0) return `${prefix}AAA`
+  const seqs = data
+    .map(r => r.id.slice(prefix.length))
+    .filter(s => /^[A-Z]{3}$/.test(s))
+    .map(s => (s.charCodeAt(0) - 65) * 676 + (s.charCodeAt(1) - 65) * 26 + (s.charCodeAt(2) - 65))
+  if (seqs.length === 0) return `${prefix}AAA`
+  return `${prefix}${encodeInvoiceSeq(Math.max(...seqs) + 1)}`
+}
+
+export async function nextAssociateId() {
+  const { data } = await supabase.from('associates')
+    .select('id').like('id', 'CFA-%').order('id', { ascending: false }).limit(50)
+  if (!data || data.length === 0) return 'CFA-01'
+  const nums = data
+    .map(r => parseInt(r.id.slice(4), 10))
+    .filter(n => !isNaN(n))
+  if (nums.length === 0) return 'CFA-01'
+  const next = Math.max(...nums) + 1
+  return `CFA-${String(next).padStart(2, '0')}`
 }
 
 /* ─── Constants for Stages ──────────────────────────────────── */
@@ -124,10 +188,6 @@ export function AppStateProvider({ children }) {
     name: c.name,
     phone: c.phone || '',
     email: c.email || '',
-    location: c.location || '',
-    pan_card: c.pan_card || '',
-    aadhaar_number: c.aadhaar_number || '',
-    residential_status: c.residential_status || 'Resident Indian',
     drive_link: c.drive_link || '',
     loan_type: c.loan_type || '',
     amount: Number(c.amount || 0),
@@ -135,16 +195,11 @@ export function AppStateProvider({ children }) {
     file_no: c.file_no || id || c.id,
     date: c.date || new Date().toISOString().slice(0, 10),
     associate: c.associate || '',
-    employment_status: c.employment_status || '',
-    monthly_net_income: c.monthly_net_income ? Number(c.monthly_net_income) : null,
-    co_applicant_income: c.co_applicant_income ? Number(c.co_applicant_income) : null,
-    dwelling_status: c.dwelling_status || '',
-    tenure_at_address: c.tenure_at_address || null,
     extended_data: c.extended_data || null,
   })
 
   const addClient = async (c) => {
-    const newClientId = uid('C')
+    const newClientId = await nextClientId()
     const newClient = pickClient(c, newClientId)
 
     const { data: clientData, error: clientError } = await supabase.from('clients').insert([newClient]).select().single()
@@ -215,7 +270,6 @@ export function AppStateProvider({ children }) {
     name: a.name,
     phone: a.phone || '',
     email: a.email || '',
-    status: a.status || 'Active',
     joined: a.joined || new Date().toISOString().slice(0, 10),
     clients: Number(a.clients || 0),
     disbursed: Number(a.disbursed || 0),
@@ -229,7 +283,7 @@ export function AppStateProvider({ children }) {
   })
 
   const addAssociate = async (a) => {
-    const newId = uid('A')
+    const newId = await nextAssociateId()
     const { data, error } = await supabase.from('associates').insert([pickAssociate(a, newId)]).select().single()
     if (!error && data) setAssociates(p => [data, ...p])
     else if (error) console.error('addAssociate error:', error.message)
@@ -250,8 +304,6 @@ export function AppStateProvider({ children }) {
     bank: p.bank || '',
     date: p.date || new Date().toISOString().slice(0, 10),
     status: p.status || 'Pending',
-    particular: p.particular || '',
-    category: p.category || '',
   })
 
   const addPayment = async (pay) => {
@@ -274,28 +326,41 @@ export function AppStateProvider({ children }) {
   const pickInvoice = (inv, id) => ({
     id: id || inv.id,
     client: inv.client || '',
-    file_no: inv.file_no || '',
     service: inv.service || '',
     amount: Number(inv.amount || 0),
     date: inv.date || new Date().toISOString().slice(0, 10),
-    due: inv.due || '',
-    status: inv.status || 'Unpaid',
-    particular: inv.particular || '',
+  })
+
+  const pickFinanceInvoice = (inv, id) => ({
+    id: id || inv.id,
     name: inv.name || '',
-    gst: inv.gst || null,
+    particular: inv.particular || '',
+    type: inv.type || 'Income',
+    amount: Number(inv.amount || 0),
+    date: inv.date || new Date().toISOString().slice(0, 10),
   })
 
   const addInvoice = async (inv) => {
-    const newId = uid('INV')
+    const newId = await nextInvoiceId()
     const { data, error } = await supabase.from('invoices').insert([pickInvoice(inv, newId)]).select().single()
     if (!error && data) setInvoices(p => [data, ...p])
     else if (error) console.error('addInvoice error:', error.message)
   }
+  const removeInvoice = async (id) => {
+    const { error } = await supabase.from('invoices').delete().eq('id', id)
+    if (!error) setInvoices(p => p.filter(x => x.id !== id))
+    else console.error('removeInvoice error:', error.message)
+  }
   const addFinanceInvoice = async (inv) => {
     const newId = uid('FINV')
-    const { data, error } = await supabase.from('finance_invoices').insert([pickInvoice(inv, newId)]).select().single()
+    const { data, error } = await supabase.from('finance_invoices').insert([pickFinanceInvoice(inv, newId)]).select().single()
     if (!error && data) setFinanceInvoices(p => [data, ...p])
     else if (error) console.error('addFinanceInvoice error:', error.message)
+  }
+  const updateFinanceInvoice = async (inv) => {
+    const { data, error } = await supabase.from('finance_invoices').update(pickFinanceInvoice(inv)).eq('id', inv.id).select().single()
+    if (!error && data) setFinanceInvoices(p => p.map(x => x.id === inv.id ? data : x))
+    else if (error) console.error('updateFinanceInvoice error:', error.message)
   }
 
   /* ─── Products ── */
@@ -358,11 +423,7 @@ export function AppStateProvider({ children }) {
     client_mobile_number: String(e.client_mobile_number || ''),
     status: e.status || 'New',
     note: e.note || '',
-    profession: e.profession || '',
-    location: e.location || '',
-    bank_name: e.bank_name || '',
     google_drive_link: e.google_drive_link || '',
-    created_at: e.created_at || new Date().toISOString(),
   })
 
   const addEnquiry = async (e) => {
@@ -394,7 +455,6 @@ export function AppStateProvider({ children }) {
     stages: f.stages || null,
     current_stage_index: f.currentStageIndex ?? f.current_stage_index ?? 0,
     done: f.done ?? false,
-    bank: f.bank || null,
     amount_paid: f.amount_paid ?? null,
     actual_payout: f.actual_payout ?? null,
   })
@@ -414,7 +474,7 @@ export function AppStateProvider({ children }) {
     if (!exists) {
       const today = new Date().toISOString().slice(0, 10)
       const cleanEmail = f.client.toLowerCase().replace(/\s+/g, '') + '@email.com'
-      const newClientId = uid('C')
+      const newClientId = await nextClientId()
       const newClient = {
         id: newClientId,
         name: f.client,
@@ -605,7 +665,7 @@ export function AppStateProvider({ children }) {
       clients, addClient, updateClient, removeClient,
       associates: computedAssociates, addAssociate, updateAssociate,
       payments, addPayment, updatePayment, removePayment,
-      invoices, addInvoice,
+      invoices, addInvoice, removeInvoice,
       financeInvoices, addFinanceInvoice,
       products, addProduct, updateProduct,
       reminders, addReminder, updateReminder, deleteReminder,

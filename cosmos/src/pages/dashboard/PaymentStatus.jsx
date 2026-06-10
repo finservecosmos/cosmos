@@ -8,6 +8,7 @@ import useConfirm from '../../shared/lib/useConfirm'
 import DonutChart from '../../shared/ui/DonutChart'
 import '../../shared/ui/DataPage.css'
 import { Coins, CheckCircle, AlertTriangle, Clock, TrendingUp, CircleDot, BarChart, Download, FileSpreadsheet, FileText, Eye, RefreshCw, Edit, Trash2, Plus, Info } from 'lucide-react';
+import cosmosLogo from '../../assets/cosmosLogo.jpeg';
 
 /* ─── Currency Formatter ────────────────────────────────────── */
 function formatAmount(n) {
@@ -31,7 +32,7 @@ function getLetterMeta(name) {
 }
 
 export default function PaymentStatus() {
-  const { payments, addPayment, updatePayment, removePayment } = useAppState()
+  const { payments, clients, addPayment, updatePayment, removePayment, addInvoice } = useAppState()
   const { addToast } = useToast()
   const navigate = useNavigate()
   const confirm = useConfirm()
@@ -55,6 +56,23 @@ export default function PaymentStatus() {
 
   /* ─── Interactive Form Modals ─────────────────────────────── */
   const [selectedDetails, setSelectedDetails] = useState(null)
+  const [printInvoiceData, setPrintInvoiceData] = useState(null)
+
+  const saveAndGoToInvoice = async ({ client, file_no, payments: doneTxns, actual, pending }) => {
+    const paidTotal = doneTxns.reduce((s, p) => s + Number(p.amount), 0)
+    const today = new Date().toISOString().slice(0, 10)
+    await addInvoice({
+      client,
+      file_no,
+      service: 'Cosmos Payout Collection',
+      amount: paidTotal,
+      date: today,
+      due: today,
+      status: pending > 0 ? 'Pending' : 'Paid',
+    })
+    addToast('Invoice saved successfully!', 'success')
+    navigate('/payments/invoice')
+  }
   const [updatePaymentRecord, setUpdatePayment] = useState(null)
   const [updateSinglePayment, setUpdateSinglePayment] = useState(null)
   const [editCustomer, setEditCustomer] = useState(null)
@@ -1013,7 +1031,7 @@ export default function PaymentStatus() {
               <div className="kpi-icon-wrap" style={{ color: '#dc2626', background: '#fecaca' }}>
                 <Clock size={20} />
               </div>
-              <span className="kpi-tag" style={{ color: '#dc2626' }}><AlertTriangle size={12} style={{marginRight: 4}} /> {globalStats.overdueCount} overdue</span>
+              <span className="kpi-tag" style={{ color: '#dc2626' }}><AlertTriangle size={12} style={{ marginRight: 4 }} /> {globalStats.overdueCount} overdue</span>
             </div>
             <div className="kpi-body">
               <div className="kpi-title">Pending Payout</div>
@@ -1205,7 +1223,7 @@ export default function PaymentStatus() {
                 value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value)}
               >
-                <option value="All">All Statuses</option>
+                <option value="All">All Status</option>
                 <option value="PAID">Paid</option>
                 <option value="PARTIAL">Partial</option>
                 <option value="PENDING">Pending</option>
@@ -1337,18 +1355,14 @@ export default function PaymentStatus() {
 
                           <button
                             className="ps-action-item"
-                            onClick={() => {
+                            onClick={async () => {
                               const doneTxns = [...item.payments].filter(p => p.status === 'Completed').sort((a, b) => new Date(a.date) - new Date(b.date));
-                              const lastDone = doneTxns.length > 0 ? doneTxns[doneTxns.length - 1] : null;
-                              navigate('/payments/invoice', {
-                                state: {
-                                  prefillClient: item.client,
-                                  prefillFileNo: item.file_no,
-                                  prefillAmount: lastDone ? lastDone.amount : item.pending,
-                                  history: [...item.payments].sort((a, b) => new Date(a.date) - new Date(b.date))
-                                }
-                              })
-                              addToast(`Redirecting to invoice creator for ${item.client}...`, 'info')
+                              if (doneTxns.length === 0) {
+                                addToast('No completed payments available to generate invoice.', 'error');
+                                return;
+                              }
+                              setActiveMenuId(null);
+                              await saveAndGoToInvoice({ client: item.client, file_no: item.file_no, payments: doneTxns, actual: item.actual, pending: item.pending });
                             }}
                           >
                             <FileText size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> Generate Invoice
@@ -1486,18 +1500,14 @@ export default function PaymentStatus() {
                   type="button"
                   className="ps-btn-apply"
                   style={{ flex: 1 }}
-                  onClick={() => {
+                  onClick={async () => {
                     const doneTxns = [...selectedDetails.payments].filter(p => p.status === 'Completed').sort((a, b) => new Date(a.date) - new Date(b.date));
-                    const lastDone = doneTxns.length > 0 ? doneTxns[doneTxns.length - 1] : null;
-                    navigate('/payments/invoice', {
-                      state: {
-                        prefillClient: selectedDetails.client,
-                        prefillFileNo: selectedDetails.file_no,
-                        prefillAmount: lastDone ? lastDone.amount : selectedDetails.pending,
-                        history: [...selectedDetails.payments].sort((a, b) => new Date(a.date) - new Date(b.date))
-                      }
-                    });
+                    if (doneTxns.length === 0) {
+                      addToast('No completed payments available to generate invoice.', 'error');
+                      return;
+                    }
                     setSelectedDetails(null);
+                    await saveAndGoToInvoice({ client: selectedDetails.client, file_no: selectedDetails.file_no, payments: doneTxns, actual: selectedDetails.actual, pending: selectedDetails.pending });
                   }}
                 >
                   <FileText size={16} style={{ marginRight: 8, verticalAlign: 'middle', display: 'inline-block' }} />

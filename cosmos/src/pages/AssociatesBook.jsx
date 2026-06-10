@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import DashboardLayout from '../widgets/DashboardLayout'
 import Modal from '../shared/ui/Modal'
 import { useAppState } from '../context/AppStateContext'
+import { nextAssociateId } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
 import '../shared/ui/DataPage.css'
 import { Users, TrendingUp, Search, Eye, Edit, Banknote, Coins } from 'lucide-react'
@@ -77,9 +78,10 @@ export default function AssociatesBook() {
   const totalCommission = associates.reduce((s, a) => s + a.commission, 0)
   const totalDisbursed  = associates.reduce((s, a) => s + a.disbursed, 0)
 
-  const openAddModal = () => {
+  const openAddModal = async () => {
     setModalMode('add')
-    setFormData(emptyAssociate)
+    const generatedId = await nextAssociateId()
+    setFormData({ ...emptyAssociate, associate_id: generatedId })
     setModalOpen(true)
   }
 
@@ -286,7 +288,12 @@ export default function AssociatesBook() {
                   </label>
                   <label>
                     Associate ID
-                    <input type="text" value={formData.associate_id || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, associate_id: e.target.value })} />
+                    <input
+                      type="text"
+                      value={formData.associate_id || ''}
+                      disabled
+                      style={{ background: 'var(--bg-muted)', color: 'var(--text-muted)', cursor: 'not-allowed', fontFamily: 'monospace', fontWeight: 700 }}
+                    />
                   </label>
                   <label>
                     Field of Expertise

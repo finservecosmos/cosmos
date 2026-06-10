@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../shared/api/supabaseClient'
-import { dummyUser } from '../lib/dummyData'
+
+const dummyUser = {
+  name: 'Admin User',
+  email: 'admin@cosmos.com',
+  role: 'admin',
+  initials: 'AD'
+}
 
 const UserContext = createContext()
 

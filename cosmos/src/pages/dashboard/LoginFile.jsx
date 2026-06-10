@@ -328,7 +328,7 @@ const menuBtn = {
    Main Component
 ══════════════════════════════════════════════════════════════ */
 export default function LoginFile() {
-  const { loginFiles, addLoginFile, updateLoginFile, removeLoginFile } = useAppState()
+  const { loginFiles, addLoginFile, updateLoginFile, removeLoginFile, addPayment } = useAppState()
   const { addToast } = useToast()
 
   const files = useMemo(() => loginFiles.map(normalizeFile), [loginFiles])
@@ -477,6 +477,20 @@ export default function LoginFile() {
     updated.actual_payout = actualPayoutNum
 
     updateLoginFile(updated)
+    
+    // 1. Record what they have paid as a Completed Collection
+    if (amtPaidNum > 0) {
+      addPayment({
+        client: f.client,
+        file_no: f.client_id || f.file_no || '',
+        type: 'Collection',
+        amount: amtPaidNum,
+        bank: '',
+        date: todayStr(),
+        status: 'Completed'
+      })
+    }
+
     addToast(`${f.client} — Cosmos Payout marked done and payment recorded!`, 'success')
     setPayoutModalOpen(false)
   }

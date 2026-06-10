@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import DashboardLayout from '../../widgets/DashboardLayout'
 import Modal from '../../shared/ui/Modal'
 import { useAppState } from '../../context/AppStateContext'
+import { nextClientId } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import useConfirm from '../../shared/lib/useConfirm'
 import '../../shared/ui/DataPage.css'
@@ -116,8 +117,8 @@ function StatusActionBtn({ status, active, onClick }) {
 
 const emptyEnquiry = {
   client_name: '', co_applicate_name: '', loan_type: 'Housing', loan_amount: 0,
-  note: '', status: 'New', associate_name: 'Unassigned', profession: 'Salaried',
-  id: null, client_mobile_number: '', location: '', bank_name: '',
+  note: '', status: 'New', associate_name: 'Unassigned',
+  id: null, client_mobile_number: '',
   google_drive_link: ''
 }
 
@@ -130,9 +131,12 @@ export default function EnquiryStatus() {
   // Qualified lead to client record conversion overlay
   const [convertingLead, setConvertingLead] = useState(null)
   const [convertFormData, setConvertFormData] = useState(null)
+  const [generatedClientId, setGeneratedClientId] = useState(null)
 
   useEffect(() => {
     if (convertingLead) {
+      // Generate the next sequential client ID immediately when the modal opens
+      nextClientId().then(id => setGeneratedClientId(id))
       setConvertFormData({
         // Basic
         client_name: convertingLead.client_name || '',
@@ -178,6 +182,7 @@ export default function EnquiryStatus() {
       })
     } else {
       setConvertFormData(null)
+      setGeneratedClientId(null)
     }
   }, [convertingLead])
 
@@ -326,14 +331,13 @@ export default function EnquiryStatus() {
     if (!convertFormData) return
 
     const clientPayload = {
-      id: null,
+      id: generatedClientId,
       name: convertFormData.client_name,
       phone: convertFormData.client_mobile_number,
       email: '',
       loan_type: convertFormData.loan_type,
       amount: Number(convertFormData.loan_amount || 0),
       status: 'Processing',
-      file_no: `F-${Math.floor(1000 + Math.random() * 9000)}`,
       date: new Date().toISOString().slice(0, 10),
       associate: convertFormData.associate_name || '',
       location: '',
@@ -584,9 +588,8 @@ export default function EnquiryStatus() {
                           </span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px', fontSize: 12, color: 'var(--text-faint)', marginTop: 4 }}>
-                          <span>{e.profession} • +91 {e.client_mobile_number}</span>
+                          <span>+91 {e.client_mobile_number}</span>
                           {e.created_at ? <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>•<Calendar size={12} style={{ marginLeft: 2 }} /> {e.created_at.slice(0, 10)}</span> : ''}
-                          {e.location ? <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>•<MapPin size={12} style={{ marginLeft: 2 }} /> {e.location}</span> : ''}
                         </div>
                       </div>
 
@@ -603,8 +606,7 @@ export default function EnquiryStatus() {
                           {formatAmount(e.loan_amount)}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 2 }}>
-                          {e.bank_name || '—'}
-                          {e.associate_name && e.associate_name !== 'Unassigned' ? ` • ${e.associate_name}` : ''}
+                          {e.associate_name && e.associate_name !== 'Unassigned' ? `${e.associate_name}` : 'Unassigned'}
                         </div>
                       </div>
 
@@ -747,6 +749,23 @@ export default function EnquiryStatus() {
             headerTheme="success"
             onClose={() => setConvertingLead(null)}
           >
+            {/* Client ID reference badge */}
+            {generatedClientId && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                background: 'var(--bg-muted)', border: '1px solid var(--border)',
+                borderRadius: 8, padding: '8px 14px', marginBottom: 16,
+                fontSize: 12, color: 'var(--text-muted)'
+              }}>
+                <span style={{ fontWeight: 600 }}>Client ID</span>
+                <span style={{
+                  fontFamily: 'monospace', fontWeight: 800, fontSize: 14,
+                  color: 'var(--accent)', letterSpacing: '0.5px'
+                }}>{generatedClientId}</span>
+                <span style={{ marginLeft: 4, fontSize: 10, opacity: 0.6 }}>· Auto-generated · Read only</span>
+              </div>
+            )}
+
             {/* Form Details */}
             <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 16, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>Client Details</h3>
             <div className="form-grid">

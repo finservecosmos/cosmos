@@ -53,18 +53,36 @@ export default function ClientOnboardingWizard({
         </div>
 
         <div className="wizard-container">
+
+          {/* Client ID reference badge — always visible across all steps */}
+          {formData.id && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              background: 'var(--bg-muted)', border: '1px solid var(--border)',
+              borderRadius: 8, padding: '8px 14px', marginBottom: 16,
+              fontSize: 12, color: 'var(--text-muted)'
+            }}>
+              <span style={{ fontWeight: 600 }}>Client ID</span>
+              <span style={{
+                fontFamily: 'monospace', fontWeight: 800, fontSize: 14,
+                color: 'var(--accent)', letterSpacing: '0.5px'
+              }}>{formData.id}</span>
+              <span style={{ marginLeft: 4, fontSize: 10, opacity: 0.6 }}>· Auto-generated · Read only</span>
+            </div>
+          )}
+
           <div className="wizard-steps-header">
             <div className={`wizard-step-indicator ${wizardStep === 1 ? 'active' : wizardStep > 1 ? 'completed' : ''}`}>
               <span className="wizard-step-label-num">Step 1</span>
-              <span className="wizard-step-label-title">Identity & Contacts</span>
+              <span className="wizard-step-label-title">Identity &amp; Contacts</span>
             </div>
             <div className={`wizard-step-indicator ${wizardStep === 2 ? 'active' : wizardStep > 2 ? 'completed' : ''}`}>
               <span className="wizard-step-label-num">Step 2</span>
-              <span className="wizard-step-label-title">Financial & Income Profile</span>
+              <span className="wizard-step-label-title">Financial &amp; Income Profile</span>
             </div>
             <div className={`wizard-step-indicator ${wizardStep === 3 ? 'active' : ''}`}>
               <span className="wizard-step-label-num">Step 3</span>
-              <span className="wizard-step-label-title">Lending & Assignment</span>
+              <span className="wizard-step-label-title">Lending &amp; Assignment</span>
             </div>
           </div>
 

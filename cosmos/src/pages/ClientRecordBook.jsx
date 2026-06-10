@@ -68,13 +68,10 @@ export default function ClientRecordBook() {
     validationErrors,
     setValidationErrors,
     showAddWizard,
-    clientDocs,
-    uploadProgress,
     openAddModal,
     openEditModal,
     openViewModal,
-    saveClient,
-    handleDocumentUpload
+    saveClient
   } = clientFormState;
 
   useEffect(() => {

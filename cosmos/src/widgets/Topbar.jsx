@@ -2,9 +2,15 @@ import { useState, useRef, useEffect } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { useUser } from '../context/UserContext'
-import { dummySearchIndex } from '../lib/dummyData'
 import { useAppState } from '../context/AppStateContext'
 import './Topbar.css'
+
+const dummySearchIndex = [
+  { id: 1, label: 'John Doe', sub: 'Housing Loan - Pending', category: 'Clients', path: '/clients' },
+  { id: 2, label: 'Q1 Payment Transfer', sub: '₹45,000 to ICICI', category: 'Payments', path: '/dashboard/payment-status' },
+  { id: 3, label: 'New Lead: Rajesh', sub: 'Personal Loan', category: 'Enquiries', path: '/dashboard/enquiries' },
+  { id: 4, label: 'System Backup', sub: 'Manual checkpoint', category: 'System', path: '/backup' }
+];
 
 const tabs = [
   { label: 'Overview',           path: '/dashboard',                 end: true },

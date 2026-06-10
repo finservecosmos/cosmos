@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { step1Schema, step2Schema, step3Schema, clientSchema } from '../../../shared/lib/schemas';
+import { nextClientId } from '../../../context/AppStateContext';
 
 export const emptyClient = {
   name: '', phone: '', email: '', loan_type: 'Housing', amount: 0,
   status: 'Enquiry', file_no: '', date: new Date().toISOString().slice(0, 10), associate: '', id: null,
-  pan_card: '', aadhaar_number: '', residential_status: 'Resident Indian',
-  employment_status: 'Salaried', monthly_net_income: '', co_applicant_income: '',
-  dwelling_status: 'Owned', tenure_at_address: '', location: ''
 };
 
 export function useClientForm({ addClient, updateClient, addToast, currentUser }) {
@@ -24,14 +22,6 @@ export function useClientForm({ addClient, updateClient, addToast, currentUser }
   // Stepper Wizard states
   const [showAddWizard, setShowAddWizard] = useState(false);
   const [wizardStep, setWizardStep] = useState(1);
-
-  // KYC Mock document upload statuses per client ID
-  const [clientDocs, setClientDocs] = useState({
-    'C001': { 'PAN Card': 'success', 'Aadhaar Card': 'success', 'IT Return': 'success', 'Bank Statement': 'pending' },
-    'C002': { 'PAN Card': 'success', 'Aadhaar Card': 'success', 'IT Return': 'pending', 'Bank Statement': 'success' },
-    'C003': { 'PAN Card': 'success', 'Aadhaar Card': 'success', 'IT Return': 'pending', 'Bank Statement': 'pending' },
-  });
-  const [uploadProgress, setUploadProgress] = useState({}); // { docType: progress }
 
   // Camera scanner states
   const [scannerOpen, setScannerOpen] = useState(false);
@@ -103,11 +93,7 @@ export function useClientForm({ addClient, updateClient, addToast, currentUser }
     const step1Data = {
       name: formData.name,
       phone: formData.phone,
-      email: formData.email || '',
-      pan_card: formData.pan_card,
-      aadhaar_number: formData.aadhaar_number,
-      residential_status: formData.residential_status || 'Resident Indian',
-      location: formData.location
+      email: formData.email || ''
     };
     const result = step1Schema.safeParse(step1Data);
     if (!result.success) {
@@ -124,13 +110,7 @@ export function useClientForm({ addClient, updateClient, addToast, currentUser }
   };
 
   const validateStep2 = () => {
-    const step2Data = {
-      employment_status: formData.employment_status || 'Salaried',
-      monthly_net_income: formData.monthly_net_income,
-      co_applicant_income: formData.co_applicant_income,
-      dwelling_status: formData.dwelling_status || 'Owned',
-      tenure_at_address: formData.tenure_at_address
-    };
+    const step2Data = {};
     const result = step2Schema.safeParse(step2Data);
     if (!result.success) {
       const fieldErrors = {};
@@ -191,9 +171,10 @@ export function useClientForm({ addClient, updateClient, addToast, currentUser }
     return true;
   };
 
-  const openAddModal = () => {
+  const openAddModal = async () => {
     setModalMode('add');
-    setFormData(emptyClient);
+    const generatedId = await nextClientId();
+    setFormData({ ...emptyClient, id: generatedId });
     setValidationErrors({});
     setShowAddWizard(true);
     setWizardStep(1);
@@ -215,31 +196,6 @@ export function useClientForm({ addClient, updateClient, addToast, currentUser }
     setModalOpen(true);
   };
 
-  const handleDocumentUpload = (doc) => {
-    const clientKey = formData.id || 'new';
-    setUploadProgress(prev => ({ ...prev, [doc]: 0 }));
-    let currentProgress = 0;
-    const interval = setInterval(() => {
-      currentProgress += 20;
-      setUploadProgress(prev => ({ ...prev, [doc]: currentProgress }));
-      if (currentProgress >= 100) {
-        clearInterval(interval);
-        setClientDocs(prev => {
-          const old = prev[clientKey] || {};
-          return {
-            ...prev,
-            [clientKey]: { ...old, [doc]: 'success' }
-          };
-        });
-        setUploadProgress(prev => {
-          const copy = { ...prev };
-          delete copy[doc];
-          return copy;
-        });
-        addToast(`${doc} uploaded and verified successfully.`, 'success');
-      }
-    }, 150);
-  };
 
   return {
     formData,
@@ -257,8 +213,6 @@ export function useClientForm({ addClient, updateClient, addToast, currentUser }
     setShowAddWizard,
     wizardStep,
     setWizardStep,
-    clientDocs,
-    uploadProgress,
     scannerOpen,
     scanType,
     videoStream,
@@ -272,7 +226,6 @@ export function useClientForm({ addClient, updateClient, addToast, currentUser }
     saveClient,
     openAddModal,
     openEditModal,
-    openViewModal,
-    handleDocumentUpload
+    openViewModal
   };
 }

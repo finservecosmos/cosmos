@@ -4,78 +4,74 @@ import DashboardLayout from '../widgets/DashboardLayout'
 import Modal from '../shared/ui/Modal'
 import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
+import useConfirm from '../shared/lib/useConfirm'
 import '../shared/ui/DataPage.css'
-import { FileText, CheckCircle, Clock, AlertTriangle, Receipt } from 'lucide-react'
+import { FileText, CheckCircle, Receipt, Eye, Download, Trash2 } from 'lucide-react'
 
 function formatAmount(n) { return `₹${n.toLocaleString('en-IN')}` }
 
-const STATUSES = ['All', 'Paid', 'Pending', 'Overdue']
-
 const emptyInvoice = {
-  client: '', file_no: '', service: '', amount: 0, date: new Date().toISOString().slice(0, 10), due: new Date(new Date().getTime() + 7*24*60*60*1000).toISOString().slice(0, 10), status: 'Pending', id: null, history: [],
+  client: '', service: '', amount: 0, date: new Date().toISOString().slice(0, 10), id: null, history: [],
 }
 
 export default function Invoice() {
-  const { invoices, addInvoice, payments } = useAppState()
+  const { invoices, addInvoice, removeInvoice, payments, clients } = useAppState()
   const { addToast } = useToast()
+  const confirm = useConfirm()
   const location = useLocation()
   const navigate = useNavigate()
-  
-  const [search, setSearch]       = useState('')
-  const [statusFilter, setStatus] = useState('All')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [formData, setFormData]   = useState(emptyInvoice)
+
+  const [search, setSearch]               = useState('')
+  const [modalOpen, setModalOpen]         = useState(false)
+  const [formData, setFormData]           = useState(emptyInvoice)
   const [selectedInvoice, setSelectedInvoice] = useState(null)
 
-  // Prefill check on load
+  // Prefill from navigation state (e.g. from Login Files)
   useEffect(() => {
     if (location.state?.prefillClient) {
       setFormData({
         ...emptyInvoice,
-        client: location.state.prefillClient,
-        file_no: location.state.prefillFileNo || '',
-        amount: location.state.prefillAmount || 0,
+        client:  location.state.prefillClient,
+        amount:  location.state.prefillAmount || 0,
         service: 'Loan Processing Payout Collection',
-        date: new Date().toISOString().slice(0, 10),
-        due: new Date(new Date().getTime() + 7*24*60*60*1000).toISOString().slice(0, 10),
-        status: 'Pending',
-        history: location.state.history || []
+        date:    new Date().toISOString().slice(0, 10),
+        history: location.state.history || [],
       })
       setModalOpen(true)
-      
-      // Clean up local navigation history state to prevent recurring popup on refreshes
       navigate(location.pathname, { replace: true, state: {} })
     }
   }, [location, navigate])
 
   const filtered = invoices.filter((inv) => {
     const q = search.toLowerCase()
-    const matchSearch = !q || inv.client?.toLowerCase().includes(q) || inv.id?.toString().toLowerCase().includes(q)
-    const matchStatus = statusFilter === 'All' || inv.status === statusFilter
-    return matchSearch && matchStatus
+    return !q || inv.client?.toLowerCase().includes(q) || inv.id?.toString().toLowerCase().includes(q)
   })
 
-  const totalPaid    = invoices.filter(i => i.status === 'Paid').reduce((s,i) => s+i.amount, 0)
-  const totalPending = invoices.filter(i => i.status === 'Pending').reduce((s,i) => s+i.amount, 0)
-  const totalOverdue = invoices.filter(i => i.status === 'Overdue').reduce((s,i) => s+i.amount, 0)
+  const totalAmount = invoices.reduce((s, i) => s + (Number(i.amount) || 0), 0)
 
-  const openCreateModal = () => {
-    setFormData(emptyInvoice)
-    setModalOpen(true)
-  }
-
-  const openViewModal = (inv) => {
-    setSelectedInvoice(inv)
-  }
+  const openCreateModal = () => { setFormData(emptyInvoice); setModalOpen(true) }
+  const openViewModal   = (inv) => setSelectedInvoice(inv)
 
   const saveInvoice = () => {
-    if (!formData.client || !formData.service) {
-      addToast('Client and service are required.', 'error')
+    if (!formData.client || !formData.amount) {
+      addToast('Client and amount are required.', 'error')
       return
     }
     addInvoice({ ...formData, amount: Number(formData.amount) })
     addToast('Invoice created successfully.', 'success')
     setModalOpen(false)
+  }
+
+  const handleDelete = async (inv) => {
+    if (await confirm({
+      title: 'Delete Invoice',
+      message: `Are you sure you want to delete invoice ${inv.id}? This action cannot be undone.`,
+      confirmText: 'Delete',
+      confirmColor: '#dc2626',
+    })) {
+      removeInvoice(inv.id)
+      addToast('Invoice deleted successfully.', 'success')
+    }
   }
 
   return (
@@ -89,7 +85,7 @@ export default function Invoice() {
           </div>
         </div>
 
-        {/* Summary */}
+        {/* KPI Summary */}
         <div className="kpi-row">
           <div className="kpi-card">
             <div className="kpi-header">
@@ -102,7 +98,7 @@ export default function Invoice() {
               <div className="kpi-value">{invoices.length}</div>
             </div>
           </div>
-          
+
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap" style={{ color: '#16a34a', background: '#dcfce7' }}>
@@ -110,32 +106,8 @@ export default function Invoice() {
               </div>
             </div>
             <div className="kpi-body">
-              <div className="kpi-title">Collected</div>
-              <div className="kpi-value">{formatAmount(totalPaid)}</div>
-            </div>
-          </div>
-
-          <div className="kpi-card">
-            <div className="kpi-header">
-              <div className="kpi-icon-wrap" style={{ color: '#d97706', background: '#fef3c7' }}>
-                <Clock size={20} />
-              </div>
-            </div>
-            <div className="kpi-body">
-              <div className="kpi-title">Pending</div>
-              <div className="kpi-value">{formatAmount(totalPending)}</div>
-            </div>
-          </div>
-
-          <div className="kpi-card">
-            <div className="kpi-header">
-              <div className="kpi-icon-wrap" style={{ color: '#dc2626', background: '#fecaca' }}>
-                <AlertTriangle size={20} />
-              </div>
-            </div>
-            <div className="kpi-body">
-              <div className="kpi-title">Overdue</div>
-              <div className="kpi-value">{formatAmount(totalOverdue)}</div>
+              <div className="kpi-title">Total Amount</div>
+              <div className="kpi-value">{formatAmount(totalAmount)}</div>
             </div>
           </div>
         </div>
@@ -146,11 +118,12 @@ export default function Invoice() {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input placeholder="Search by client or invoice ID..." value={search} onChange={e => setSearch(e.target.value)} />
+            <input
+              placeholder="Search by client or invoice ID..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
           </div>
-          <select className="data-filter-select" value={statusFilter} onChange={e => setStatus(e.target.value)}>
-            {STATUSES.map(s => <option key={s}>{s}</option>)}
-          </select>
           <button className="data-btn data-btn-outline">Export</button>
         </div>
 
@@ -161,38 +134,33 @@ export default function Invoice() {
               <tr>
                 <th>Invoice ID</th>
                 <th>Client</th>
-                <th>File No.</th>
                 <th>Service</th>
                 <th>Amount</th>
                 <th>Invoice Date</th>
-                <th>Due Date</th>
-                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={9}>
+                <tr><td colSpan={6}>
                   <div className="data-empty">
                     <div className="data-empty-icon"><Receipt size={48} /></div>
                     <div className="data-empty-title">No invoices found</div>
-                    <div className="data-empty-sub">Try adjusting your filters</div>
+                    <div className="data-empty-sub">Try adjusting your search</div>
                   </div>
                 </td></tr>
               ) : filtered.map((inv) => (
                 <tr key={inv.id}>
                   <td style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 600 }}>{inv.id}</td>
                   <td style={{ fontWeight: 600 }}>{inv.client}</td>
-                  <td className="cell-muted">{inv.file_no}</td>
                   <td className="cell-muted">{inv.service}</td>
                   <td className="cell-amount">{formatAmount(inv.amount)}</td>
                   <td className="cell-muted">{inv.date}</td>
-                  <td className="cell-muted" style={{ color: inv.status === 'Overdue' ? '#c0392b' : undefined }}>{inv.due}</td>
-                  <td><span className={`status-badge status-${inv.status.toLowerCase()}`}>{inv.status}</span></td>
                   <td>
                     <div className="row-actions">
-                      <button className="row-btn" onClick={() => openViewModal(inv)}>View</button>
-                      <button className="row-btn" onClick={() => addToast('Invoice downloaded.', 'success')}>Download</button>
+                      <button className="row-btn" onClick={() => openViewModal(inv)} title="View"><Eye size={16} /></button>
+                      <button className="row-btn" onClick={() => addToast('Invoice downloaded.', 'success')} title="Download"><Download size={16} /></button>
+                      <button className="row-btn" style={{ color: '#dc2626' }} onClick={() => handleDelete(inv)} title="Delete"><Trash2 size={16} /></button>
                     </div>
                   </td>
                 </tr>
@@ -211,16 +179,13 @@ export default function Invoice() {
           )}
         </div>
 
+        {/* Create Invoice Modal */}
         {modalOpen && (
           <Modal title="Create invoice" onClose={() => setModalOpen(false)}>
             <div className="form-grid">
               <label>
                 Client
                 <input type="text" value={formData.client} onChange={(e) => setFormData({ ...formData, client: e.target.value })} />
-              </label>
-              <label>
-                File No.
-                <input type="text" value={formData.file_no} onChange={(e) => setFormData({ ...formData, file_no: e.target.value })} />
               </label>
               <label>
                 Service
@@ -234,16 +199,6 @@ export default function Invoice() {
                 Invoice date
                 <input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
               </label>
-              <label>
-                Due date
-                <input type="date" value={formData.due} onChange={(e) => setFormData({ ...formData, due: e.target.value })} />
-              </label>
-              <label>
-                Status
-                <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })}>
-                  {STATUSES.slice(1).map((status) => <option key={status} value={status}>{status}</option>)}
-                </select>
-              </label>
             </div>
             <div className="modal-actions">
               <button type="button" className="admin-action-btn" onClick={() => setModalOpen(false)}>Cancel</button>
@@ -252,92 +207,89 @@ export default function Invoice() {
           </Modal>
         )}
 
-        {selectedInvoice && (
-          <Modal title="Invoice details" onClose={() => setSelectedInvoice(null)}>
-            <div className="print-invoice-container" style={{ padding: '10px 20px', color: 'var(--text-primary)' }}>
-              <style>{`
-                @media print {
-                  body * {
-                    visibility: hidden !important;
-                  }
-                  .print-invoice-container, .print-invoice-container * {
-                    visibility: visible !important;
-                  }
-                  .print-invoice-container {
-                    position: absolute !important;
-                    left: 0 !important;
-                    top: 0 !important;
-                    width: 100% !important;
-                    background: #fff !important;
-                    color: #000 !important;
-                    padding: 40px !important;
-                  }
-                  .print-hide {
-                    display: none !important;
-                  }
-                }
-              `}</style>
-              
-              {/* Invoice Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--border)', paddingBottom: 16, marginBottom: 20 }}>
-                <div>
-                  <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent)' }}>COSMOS FINSERVE</h3>
-                  <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Institutional Wealth & Loan Advisory</p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <h4 style={{ fontSize: 14, fontWeight: 700 }}>INVOICE</h4>
-                  <p style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--text-muted)' }}>{selectedInvoice.id}</p>
-                </div>
-              </div>
+        {/* View Invoice Modal */}
+        {selectedInvoice && (() => {
+          const clientRecord = clients.find(c => c.name === selectedInvoice.client)
+          const clientPhone  = clientRecord?.phone || ''
 
-              {/* Invoice Meta Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24, fontSize: 12 }}>
-                <div>
-                  <p style={{ color: 'var(--text-muted)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Billed To</p>
-                  <p style={{ fontWeight: 700, fontSize: 14 }}>{selectedInvoice.client}</p>
-                  <p style={{ color: 'var(--text-muted)', marginTop: 2 }}>File Number: {selectedInvoice.file_no}</p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ color: 'var(--text-muted)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Invoice Details</p>
-                  <p><strong>Issued:</strong> {selectedInvoice.date}</p>
-                  <p style={{ marginTop: 2 }}><strong>Due:</strong> {selectedInvoice.due}</p>
-                  <p style={{ marginTop: 4 }}>
-                    <strong>Status: </strong>
-                    <span style={{
-                      fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
-                      background: selectedInvoice.status === 'Paid' ? '#dcfce7' : selectedInvoice.status === 'Pending' ? '#fef3c7' : '#fde8e8',
-                      color: selectedInvoice.status === 'Paid' ? '#16a34a' : selectedInvoice.status === 'Pending' ? '#d97706' : '#c0392b'
-                    }}>{selectedInvoice.status}</span>
-                  </p>
-                </div>
-              </div>
+          const getHistory = () => {
+            if (selectedInvoice.history?.length > 0)
+              return selectedInvoice.history.filter(h => h.status === 'Completed' || h.status === 'Paid')
+            return payments
+              .filter(p => p.client === selectedInvoice.client && (p.status === 'Completed' || p.status === 'Paid'))
+              .sort((a, b) => new Date(a.date) - new Date(b.date))
+          }
+          const history = getHistory()
 
-              {/* Items Table */}
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, marginBottom: 20 }}>
-                <thead>
-                  <tr style={{ background: 'var(--bg-muted)', borderBottom: '1px solid var(--border)' }}>
-                    <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 700 }}>Description</th>
-                    <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 700 }}>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '12px', fontWeight: 600 }}>{selectedInvoice.service}</td>
-                    <td style={{ padding: '12px', textAlign: 'right', fontWeight: 600 }}>{formatAmount(selectedInvoice.amount)}</td>
-                  </tr>
-                </tbody>
-              </table>
+          const totalPaid = history.length > 0
+            ? history.reduce((s, p) => s + (Number(p.amount) || 0), 0)
+            : selectedInvoice.amount
 
-              {(() => {
-                const history = selectedInvoice.history?.length > 0 
-                  ? selectedInvoice.history 
-                  : payments.filter(p => (p.file_no && p.file_no === selectedInvoice.file_no) || (p.client && p.client === selectedInvoice.client)).sort((a, b) => new Date(a.date) - new Date(b.date));
-                  
-                if (!history || history.length === 0) return null;
-                
-                return (
+          return (
+            <Modal title="Invoice details" onClose={() => setSelectedInvoice(null)}>
+              <div className="print-invoice-container" style={{ padding: '10px 20px', color: 'var(--text-primary)' }}>
+                <style>{`
+                  @media print {
+                    body * { visibility: hidden !important; }
+                    .print-invoice-container, .print-invoice-container * { visibility: visible !important; }
+                    .print-invoice-container {
+                      position: absolute !important; left: 0 !important; top: 0 !important;
+                      width: 100% !important; background: #fff !important;
+                      color: #000 !important; padding: 40px !important;
+                    }
+                    .print-hide { display: none !important; }
+                  }
+                `}</style>
+
+                {/* Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--border)', paddingBottom: 16, marginBottom: 20 }}>
+                  <div>
+                    <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent)' }}>COSMOS FINSERVE</h3>
+                    <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Institutional Wealth &amp; Loan Advisory</p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700 }}>INVOICE</h4>
+                    <p style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--text-muted)' }}>{selectedInvoice.id}</p>
+                  </div>
+                </div>
+
+                {/* Meta Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24, fontSize: 12 }}>
+                  {/* Billed To — client name + phone */}
+                  <div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Billed To</p>
+                    <p style={{ fontWeight: 700, fontSize: 14 }}>{selectedInvoice.client}</p>
+                    {clientPhone && (
+                      <p style={{ color: 'var(--text-muted)', marginTop: 4 }}>{clientPhone}</p>
+                    )}
+                  </div>
+                  {/* Invoice Details — issued date only */}
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ color: 'var(--text-muted)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Invoice Details</p>
+                    <p><strong>Issued:</strong> {selectedInvoice.date}</p>
+                  </div>
+                </div>
+
+                {/* Items Table */}
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, marginBottom: 20 }}>
+                  <thead>
+                    <tr style={{ background: 'var(--bg-muted)', borderBottom: '1px solid var(--border)' }}>
+                      <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 700 }}>Description</th>
+                      <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 700 }}>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '12px', fontWeight: 600 }}>{selectedInvoice.service}</td>
+                      <td style={{ padding: '12px', textAlign: 'right', fontWeight: 600 }}>{formatAmount(selectedInvoice.amount)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Payment History */}
+                {history.length > 0 && (
                   <div style={{ marginBottom: 20 }}>
-                    <p style={{ color: 'var(--text-muted)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 8 }}>Transaction History</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 8 }}>Paid Transaction History</p>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
                       <thead>
                         <tr style={{ background: 'var(--bg-muted)', borderBottom: '1px solid var(--border)' }}>
@@ -350,39 +302,39 @@ export default function Invoice() {
                         {history.map((h, i) => (
                           <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
                             <td style={{ padding: '6px 10px', color: 'var(--text-primary)' }}>{h.date}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'center' }}>
-                            <span style={{
-                              fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
-                              background: h.status === 'Completed' ? '#dcfce7' : h.status === 'Pending' || h.status === 'Processing' ? '#fef3c7' : '#fde8e8',
-                              color: h.status === 'Completed' ? '#16a34a' : h.status === 'Pending' || h.status === 'Processing' ? '#d97706' : '#c0392b'
-                            }}>{h.status}</span>
-                          </td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600 }}>{formatAmount(h.amount)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                   </table>
+                            <td style={{ padding: '6px 10px', textAlign: 'center' }}>
+                              <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: '#dcfce7', color: '#16a34a' }}>{h.status}</span>
+                            </td>
+                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600 }}>{formatAmount(h.amount)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                )
-              })()}
+                )}
 
-              {/* Summary Calculations */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: 12 }}>
-                <div style={{ width: '220px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderTop: '2px solid var(--border)', marginTop: 6, fontSize: 14 }}>
-                    <span style={{ fontWeight: 800 }}>Total Amount</span>
-                    <span className="invoice-total" style={{ fontWeight: 800, color: 'var(--accent)' }}>{formatAmount(selectedInvoice.amount)}</span>
+                {/* Total */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: 12 }}>
+                  <div style={{ width: '220px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderTop: '2px solid var(--border)', marginTop: 6, fontSize: 14 }}>
+                      <span style={{ fontWeight: 800 }}>Total Paid Amount</span>
+                      <span className="invoice-total" style={{ fontWeight: 800, color: 'var(--accent)' }}>
+                        {formatAmount(totalPaid)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="modal-actions print-hide">
-              <button type="button" className="admin-action-btn" onClick={() => setSelectedInvoice(null)}>Close</button>
-              <button type="button" className="admin-primary-btn" onClick={() => window.print()}>Print Invoice</button>
-            </div>
-          </Modal>
-        )}
+
+              {/* Action buttons with gap */}
+              <div className="modal-actions print-hide" style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '16px' }}>
+                <button type="button" className="admin-action-btn" onClick={() => setSelectedInvoice(null)}>Close</button>
+                <button type="button" className="admin-primary-btn" onClick={() => window.print()}>Print Invoice</button>
+              </div>
+            </Modal>
+          )
+        })()}
+
       </div>
     </DashboardLayout>
   )
