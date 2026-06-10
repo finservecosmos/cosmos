@@ -222,7 +222,7 @@ export default function Invoice() {
           const history = getHistory()
 
           const totalPaid = history.length > 0
-            ? history.reduce((s, p) => s + (Number(p.amount) || 0), 0)
+            ? history.filter(h => h.status === 'Completed' || h.status === 'Paid').reduce((s, p) => s + (Number(p.amount) || 0), 0)
             : selectedInvoice.amount
 
           return (
@@ -289,25 +289,25 @@ export default function Invoice() {
                 {/* Payment History */}
                 {history.length > 0 && (
                   <div style={{ marginBottom: 20 }}>
-                    <p style={{ color: 'var(--text-muted)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 8 }}>Paid Transaction History</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 8 }}>Transaction History</p>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
                       <thead>
                         <tr style={{ background: 'var(--bg-muted)', borderBottom: '1px solid var(--border)' }}>
                           <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-secondary)', fontWeight: 700 }}>Date</th>
-                          <th style={{ textAlign: 'center', padding: '6px 10px', color: 'var(--text-secondary)', fontWeight: 700 }}>Status</th>
+                          <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-secondary)', fontWeight: 700 }}>Type</th>
                           <th style={{ textAlign: 'right', padding: '6px 10px', color: 'var(--text-secondary)', fontWeight: 700 }}>Amount</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {history.map((h, i) => (
-                          <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                            <td style={{ padding: '6px 10px', color: 'var(--text-primary)' }}>{h.date}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'center' }}>
-                              <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: '#dcfce7', color: '#16a34a' }}>{h.status}</span>
-                            </td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600 }}>{formatAmount(h.amount)}</td>
-                          </tr>
-                        ))}
+                        {history.map((h, i) => {
+                          return (
+                            <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                              <td style={{ padding: '6px 10px', color: 'var(--text-primary)' }}>{h.date}</td>
+                              <td style={{ padding: '6px 10px', color: 'var(--text-primary)' }}>{h.type || 'Collection'}</td>
+                              <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600 }}>{formatAmount(h.amount)}</td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

@@ -3,7 +3,7 @@ import { step1Schema, step2Schema, step3Schema, clientSchema } from '../../../sh
 import { nextClientId } from '../../../context/AppStateContext';
 
 export const emptyClient = {
-  name: '', phone: '', email: '', loan_type: 'Housing', amount: 0,
+  name: '', phone: '', loan_type: 'Housing', amount: 0,
   status: 'Enquiry', file_no: '', date: new Date().toISOString().slice(0, 10), associate: '', id: null,
 };
 
@@ -93,7 +93,6 @@ export function useClientForm({ addClient, updateClient, addToast, currentUser }
     const step1Data = {
       name: formData.name,
       phone: formData.phone,
-      email: formData.email || ''
     };
     const result = step1Schema.safeParse(step1Data);
     if (!result.success) {

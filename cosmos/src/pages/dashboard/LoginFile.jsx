@@ -477,8 +477,8 @@ export default function LoginFile() {
     updated.actual_payout = actualPayoutNum
 
     updateLoginFile(updated)
-    
-    // 1. Record what they have paid as a Completed Collection
+
+    // 1. Record what the customer has already paid as a Completed collection
     if (amtPaidNum > 0) {
       addPayment({
         client: f.client,
@@ -488,6 +488,20 @@ export default function LoginFile() {
         bank: '',
         date: todayStr(),
         status: 'Completed'
+      })
+    }
+
+    // 2. Record the remaining balance (actual_payout - amount_paid) as a Pending collection
+    const pendingBalance = actualPayoutNum - amtPaidNum
+    if (pendingBalance > 0) {
+      addPayment({
+        client: f.client,
+        file_no: f.client_id || f.file_no || '',
+        type: 'Collection',
+        amount: pendingBalance,
+        bank: '',
+        date: todayStr(),
+        status: 'Pending'
       })
     }
 

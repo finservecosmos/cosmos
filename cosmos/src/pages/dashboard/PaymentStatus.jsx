@@ -76,7 +76,8 @@ export default function PaymentStatus() {
   const [updatePaymentRecord, setUpdatePayment] = useState(null)
   const [updateSinglePayment, setUpdateSinglePayment] = useState(null)
   const [editCustomer, setEditCustomer] = useState(null)
-  const [editPaymentsLocal, setEditPaymentsLocal] = useState([])
+  // Edit Payout Ledger: clean actual/paid form state
+  const [editLedger, setEditLedger] = useState({ actualPayout: '', amountPaid: '' })
 
   // New Payment Fields
   const [addPaymentAmount, setAddPaymentAmount] = useState('')
@@ -446,65 +447,77 @@ export default function PaymentStatus() {
     setUpdateSinglePayment(null)
   }
 
+  // When editCustomer opens, derive actual/paid from existing payment records
   useEffect(() => {
     if (editCustomer) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setEditPaymentsLocal(editCustomer.payments.map(p => ({ ...p })))
+      const received = editCustomer.payments
+        .filter(p => p.status === 'Completed')
+        .reduce((s, p) => s + Number(p.amount), 0)
+      const pending = editCustomer.payments
+        .filter(p => p.status === 'Pending' || p.status === 'Processing')
+        .reduce((s, p) => s + Number(p.amount), 0)
+      setEditLedger({
+        actualPayout: String(received + pending),
+        amountPaid: String(received)
+      })
     } else {
-      setEditPaymentsLocal([])
+      setEditLedger({ actualPayout: '', amountPaid: '' })
     }
   }, [editCustomer])
 
-  const handleLocalPaymentEdit = (id, field, value) => {
-    setEditPaymentsLocal(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p))
-  }
+  const handleSaveEditLedger = () => {
+    if (!editCustomer) return
+    const actualNum = Number(editLedger.actualPayout)
+    const paidNum   = Number(editLedger.amountPaid)
 
-  const handleLocalPaymentDelete = (id) => {
-    setEditPaymentsLocal(prev => prev.filter(p => p.id !== id))
-  }
+    if (!editLedger.actualPayout || isNaN(actualNum) || actualNum <= 0) {
+      addToast('Please enter a valid Actual Payout amount.', 'error')
+      return
+    }
+    if (editLedger.amountPaid === '' || isNaN(paidNum) || paidNum < 0) {
+      addToast('Please enter a valid Amount Paid.', 'error')
+      return
+    }
+    if (paidNum > actualNum) {
+      addToast('Amount Paid cannot exceed Actual Payout.', 'error')
+      return
+    }
 
-  const handleLocalPaymentAdd = () => {
-    const tempId = `TEMP_${Date.now()}`
-    setEditPaymentsLocal(prev => [
-      ...prev,
-      {
-        id: tempId,
-        client: editCustomer?.client,
-        file_no: editCustomer?.file_no,
+    const today = new Date().toISOString().slice(0, 10)
+
+    // Wipe all existing Completed / Pending records for this client+file
+    editCustomer.payments
+      .filter(p => p.status === 'Completed' || p.status === 'Pending' || p.status === 'Processing')
+      .forEach(p => removePayment(p.id))
+
+    // Re-create: one Completed for what has been paid
+    if (paidNum > 0) {
+      addPayment({
+        client: editCustomer.client,
+        file_no: editCustomer.file_no,
         type: 'Collection',
-        amount: 10000,
-        bank: 'ICICI Bank',
-        date: new Date().toISOString().slice(0, 10),
+        amount: paidNum,
+        bank: '',
+        date: today,
         status: 'Completed'
-      }
-    ])
-  }
+      })
+    }
 
-  const handleSaveCustomerPayments = () => {
-    if (!editCustomer) return;
-    const initialIds = editCustomer.payments.map(p => p.id)
-    const currentIds = editPaymentsLocal.map(p => p.id)
-    const deletedIds = initialIds.filter(id => !currentIds.includes(id))
+    // Re-create: one Pending for the remaining balance
+    const pendingBalance = actualNum - paidNum
+    if (pendingBalance > 0) {
+      addPayment({
+        client: editCustomer.client,
+        file_no: editCustomer.file_no,
+        type: 'Collection',
+        amount: pendingBalance,
+        bank: '',
+        date: today,
+        status: 'Pending'
+      })
+    }
 
-    deletedIds.forEach(id => removePayment(id))
-
-    editPaymentsLocal.forEach(p => {
-      if (String(p.id).startsWith('TEMP_')) {
-        addPayment({
-          client: p.client,
-          file_no: p.file_no,
-          type: p.type,
-          amount: p.amount,
-          bank: p.bank,
-          date: p.date,
-          status: p.status
-        })
-      } else {
-        updatePayment(p)
-      }
-    })
-
-    addToast(`Successfully updated payout record ledgers for ${editCustomer.client}!`, 'success')
+    addToast(`Payout ledger updated for ${editCustomer.client}!`, 'success')
     setEditCustomer(null)
   }
 
@@ -1641,107 +1654,109 @@ export default function PaymentStatus() {
           </Modal>
         )}
 
-        {/* ─── Modal D: Edit Customer Payout Ledger Grid ───────────── */}
-        {editCustomer && (
-          <Modal
-            title={`Edit Payout Ledgers — ${editCustomer.client}`}
-            size="xl"
-            onClose={() => setEditCustomer(null)}
-          >
-            <div className="ps-modal-body-payout" style={{ width: '100%' }}>
-              <div style={{ marginBottom: '8px' }}>
-                <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '600' }}>
-                  Manage payment log transactions for File: <span style={{ color: 'var(--text-primary)', fontFamily: 'monospace' }}>{editCustomer.file_no}</span>
+        {/* ─── Modal D: Edit Customer Payout Ledger ───────────── */}
+        {editCustomer && (() => {
+          const actualNum = Number(editLedger.actualPayout) || 0
+          const paidNum   = Number(editLedger.amountPaid)   || 0
+          const balance   = actualNum - paidNum
+          const pct       = actualNum > 0 ? Math.round((paidNum / actualNum) * 100) : 0
+          return (
+            <Modal
+              title={`Edit Payout Ledger — ${editCustomer.client}`}
+              size="lg"
+              onClose={() => setEditCustomer(null)}
+            >
+              <div className="ps-modal-body-payout" style={{ width: '100%' }}>
+                {/* File badge */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, padding: '10px 14px', background: 'var(--bg-muted)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600 }}>File:</span>
+                  <span style={{ fontSize: 13, fontFamily: 'monospace', fontWeight: 700, color: 'var(--text-primary)' }}>{editCustomer.file_no}</span>
+                </div>
+
+                {/* Two input fields */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Actual Payout (Total Owed) ₹</div>
+                    <input
+                      type="number"
+                      className="ps-input"
+                      placeholder="e.g. 100000"
+                      value={editLedger.actualPayout}
+                      min={0}
+                      onChange={e => setEditLedger(prev => ({ ...prev, actualPayout: e.target.value }))}
+                    />
+                    <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 4 }}>Total amount the customer owes</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Amount Paid (Received) ₹</div>
+                    <input
+                      type="number"
+                      className="ps-input"
+                      placeholder="e.g. 50000"
+                      value={editLedger.amountPaid}
+                      min={0}
+                      max={actualNum || undefined}
+                      onChange={e => setEditLedger(prev => ({ ...prev, amountPaid: e.target.value }))}
+                    />
+                    <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 4 }}>Amount already collected from customer</div>
+                  </div>
+                </div>
+
+                {/* Live summary card */}
+                {actualNum > 0 && (
+                  <div style={{ background: 'var(--bg-muted)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 18px', marginBottom: 20 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Live Summary</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-faint)', fontWeight: 600, marginBottom: 4 }}>TOTAL OWED</div>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)' }}>₹{actualNum.toLocaleString('en-IN')}</div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-faint)', fontWeight: 600, marginBottom: 4 }}>RECEIVED</div>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: '#16a34a' }}>₹{paidNum.toLocaleString('en-IN')}</div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-faint)', fontWeight: 600, marginBottom: 4 }}>PENDING</div>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: balance > 0 ? '#dc2626' : '#16a34a' }}>
+                          ₹{Math.max(0, balance).toLocaleString('en-IN')}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Progress bar */}
+                    <div style={{ height: 8, background: '#e5e7eb', borderRadius: 6, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${Math.min(100, pct)}%`, background: pct === 100 ? '#16a34a' : 'linear-gradient(90deg,#f59e0b,#16a34a)', borderRadius: 6, transition: 'width 0.3s' }} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 11, color: 'var(--text-faint)', fontWeight: 600 }}>
+                      <span>{pct}% collected</span>
+                      <span>{pct === 100 ? '✅ Fully Paid' : `${100 - pct}% remaining`}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Validation warning */}
+                {paidNum > actualNum && actualNum > 0 && (
+                  <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#dc2626', fontWeight: 600 }}>
+                    ⚠️ Amount Paid cannot exceed Actual Payout.
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                  <button type="button" className="data-btn data-btn-outline" style={{ flex: 1 }} onClick={() => setEditCustomer(null)}>Cancel</button>
+                  <button
+                    type="button"
+                    className="ps-btn-apply"
+                    style={{ flex: 1, padding: '10px 0', opacity: paidNum > actualNum ? 0.5 : 1 }}
+                    disabled={paidNum > actualNum}
+                    onClick={handleSaveEditLedger}
+                  >
+                    Save Changes
+                  </button>
                 </div>
               </div>
-
-              <div style={{ maxHeight: '350px', overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: '10px' }}>
-                <table className="ps-history-table" style={{ margin: 0 }}>
-                  <thead>
-                    <tr>
-                      <th style={{ padding: '8px', textAlign: 'left' }}>Date</th>
-                      <th style={{ padding: '8px', textAlign: 'left' }}>Amount (INR)</th>
-                      <th style={{ padding: '8px', textAlign: 'left' }}>Status</th>
-                      <th style={{ padding: '8px', textAlign: 'center' }}>Remove</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {editPaymentsLocal.map(p => (
-                      <tr key={p.id}>
-                        <td style={{ padding: '6px 8px' }}>
-                          <input
-                            type="date"
-                            className="ps-input"
-                            style={{ padding: '6px 8px', fontSize: '12px' }}
-                            value={p.date}
-                            onChange={e => handleLocalPaymentEdit(p.id, 'date', e.target.value)}
-                          />
-                        </td>
-                        <td style={{ padding: '6px 8px' }}>
-                          <input
-                            type="number"
-                            className="ps-input"
-                            style={{ padding: '6px 8px', fontSize: '12px', fontWeight: '700', width: '100%' }}
-                            value={p.amount}
-                            onChange={e => handleLocalPaymentEdit(p.id, 'amount', Number(e.target.value))}
-                          />
-                        </td>
-                        <td style={{ padding: '6px 8px' }}>
-                          <select
-                            className="ps-select"
-                            style={{ padding: '6px 8px', fontSize: '12px', minWidth: '110px' }}
-                            value={p.status}
-                            onChange={e => handleLocalPaymentEdit(p.id, 'status', e.target.value)}
-                          >
-                            <option value="Completed">Completed</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Processing">Processing</option>
-                          </select>
-                        </td>
-                        <td style={{ padding: '6px 8px', textAlign: 'center' }}>
-                          <button
-                            type="button"
-                            className="ps-ellipsis-btn"
-                            style={{ color: '#dc2626', fontSize: '15px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}
-                            onClick={() => handleLocalPaymentDelete(p.id)}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                    {editPaymentsLocal.length === 0 && (
-                      <tr>
-                        <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-faint)', fontWeight: '600' }}>
-                          No transactions left. Saving will delete the payout ledger.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
-                <button
-                  type="button"
-                  className="data-btn data-btn-outline"
-                  style={{ flex: 1 }}
-                  onClick={() => setEditCustomer(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="ps-btn-apply"
-                  style={{ flex: 1, padding: '10px 0' }}
-                  onClick={handleSaveCustomerPayments}
-                >
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          </Modal>
-        )}
+            </Modal>
+          )
+        })()}
 
       </div>
     </DashboardLayout>

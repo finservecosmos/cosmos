@@ -79,7 +79,6 @@ export default function ClientRecordsTable({
               <div class="field"><div class="label">Client Name</div><div class="value">${client.name || '—'}</div></div>
               <div class="field"><div class="label">Co-Applicant Name</div><div class="value">${client.extended_data?.co_applicate_name || '—'}</div></div>
               <div class="field"><div class="label">Phone Number</div><div class="value">${client.phone || '—'}</div></div>
-              <div class="field"><div class="label">Email Address</div><div class="value">${client.email || '—'}</div></div>
               <div class="field"><div class="label">Residential Status</div><div class="value">${client.residential_status || '—'}</div></div>
               <div class="field"><div class="label">Location</div><div class="value">${client.location || '—'}</div></div>
               <div class="field"><div class="label">PAN Number</div><div class="value">${client.pan_card || '—'}</div></div>

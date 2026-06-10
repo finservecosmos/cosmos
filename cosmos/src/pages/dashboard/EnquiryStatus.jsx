@@ -145,6 +145,7 @@ export default function EnquiryStatus() {
         loan_amount: convertingLead.loan_amount || '',
         associate_name: convertingLead.associate_name !== 'Unassigned' ? (convertingLead.associate_name || '') : '',
         client_mobile_number: String(convertingLead.client_mobile_number || ''),
+        google_drive_link: convertingLead.google_drive_link || '',
         professional_type: 'Job',
         // Job fields
         company_name: '',
@@ -334,7 +335,6 @@ export default function EnquiryStatus() {
       id: generatedClientId,
       name: convertFormData.client_name,
       phone: convertFormData.client_mobile_number,
-      email: '',
       loan_type: convertFormData.loan_type,
       amount: Number(convertFormData.loan_amount || 0),
       status: 'Processing',
@@ -349,7 +349,7 @@ export default function EnquiryStatus() {
       co_applicant_income: '',
       dwelling_status: 'Owned',
       tenure_at_address: '',
-      drive_link: '',
+      drive_link: convertFormData.google_drive_link || '',
       extended_data: {
         co_applicate_name: convertFormData.co_applicate_name || '',
         professional_type: convertFormData.professional_type || 'Job',
@@ -791,6 +791,17 @@ export default function EnquiryStatus() {
               </label>
               <label>Client Mobile Number
                 <input type="text" value={convertFormData.client_mobile_number} onChange={(e) => setConvertFormData({ ...convertFormData, client_mobile_number: e.target.value })} />
+              </label>
+              <label className="form-grid-full">Google Drive Link
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input type="text" value={convertFormData.google_drive_link || ''} onChange={(e) => setConvertFormData({ ...convertFormData, google_drive_link: e.target.value })} placeholder="https://drive.google.com/..." style={{ flex: 1 }} />
+                  {convertFormData.google_drive_link && (
+                    <button type="button" className="admin-action-btn" onClick={() => window.open(convertFormData.google_drive_link, '_blank', 'noopener,noreferrer')} style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                      Open Drive
+                    </button>
+                  )}
+                </div>
               </label>
               <label className="form-grid-full">Professional Type
                 <select value={convertFormData.professional_type} onChange={(e) => setConvertFormData({ ...convertFormData, professional_type: e.target.value })}>
