@@ -426,7 +426,7 @@ export default function FinanceIncomeExpenses() {
               <span className="kpi-tag muted">As on {headerToDate ? formatDateDisplay(headerToDate) : '20 Jun 2026'}</span>
             </div>
             <div className="kpi-body">
-              <div className="kpi-title">CURRENT BALANCE</div>
+              <div className="kpi-title">BANK ACCOUNT BALANCE</div>
               <div className="kpi-value">₹{currentBalance.toLocaleString('en-IN')}</div>
             </div>
           </div>
@@ -462,7 +462,7 @@ export default function FinanceIncomeExpenses() {
               </div>
             }
           >
-            <div className="investment-form-grid text-fields-grid" style={{ paddingTop: '10px' }}>
+            <div className="form-grid" style={{ paddingTop: '10px' }}>
                 <label>
                   Date *
                   <input
@@ -517,7 +517,7 @@ export default function FinanceIncomeExpenses() {
                   />
                 </label>
 
-                <label className="span-4">
+                <label className="form-grid-full">
                   Remarks (Optional)
                   <textarea
                     rows={2}
@@ -527,12 +527,11 @@ export default function FinanceIncomeExpenses() {
                     style={{ resize: 'none' }}
                   />
                 </label>
-
-                <div className="span-4 form-action-btns" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '16px' }}>
-                  <button type="button" className="admin-action-btn" onClick={handleCancelForm} style={{ color: '#ef4444', textDecoration: 'none', background: 'transparent', border: 'none' }}>Cancel</button>
-                  <button type="button" className="data-btn data-btn-outline" onClick={handleResetForm}>Reset</button>
-                  <button type="button" className="admin-primary-btn" onClick={handleSaveEntry}>Save Entry</button>
-                </div>
+              </div>
+              <div className="form-actions">
+                <button type="button" className="admin-action-btn" onClick={handleCancelForm} style={{ color: '#ef4444', textDecoration: 'none', background: 'transparent', border: 'none', marginRight: 'auto' }}>Cancel</button>
+                <button type="button" className="data-btn data-btn-outline" onClick={handleResetForm}>Reset</button>
+                <button type="button" className="admin-primary-btn" onClick={handleSaveEntry}>Save Entry</button>
               </div>
           </Modal>
         )}

@@ -11,22 +11,27 @@ import { FileText, Receipt, Mail, Edit, Trash2, TrendingUp } from 'lucide-react'
 
 // Helper to calculate due date and urgency dynamically
 function getDueInfo(clientDateStr) {
-  const today = new Date('2026-06-06') // Reference system date
-  const cDate = new Date(clientDateStr || '2026-06-01')
-  const day = cDate.getDate() || 15
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   
-  // Create due date in June 2026
-  let dueYear = 2026
-  let dueMonth = 5 // June is 5 (0-indexed)
+  const cDate = new Date(clientDateStr || new Date());
+  const day = cDate.getDate() || 1;
   
-  // If today (June 6) is past the due day (e.g., day is 5), then due date is in July
-  if (day < 6) {
-    dueMonth = 6 // July
+  let dueYear = today.getFullYear();
+  let dueMonth = today.getMonth();
+  
+  // If today is past the due day, the next due date is next month
+  if (today.getDate() > day) {
+    dueMonth += 1;
+    if (dueMonth > 11) {
+      dueMonth = 0;
+      dueYear += 1;
+    }
   }
   
-  const dueDate = new Date(dueYear, dueMonth, day)
-  const diffTime = dueDate.getTime() - today.getTime()
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  const dueDate = new Date(dueYear, dueMonth, day);
+  const diffTime = dueDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
   let dueIn = ''
   let dueClass = 'gray'

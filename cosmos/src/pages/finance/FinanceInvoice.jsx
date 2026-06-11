@@ -4,6 +4,7 @@ import DashboardLayout from '../../widgets/DashboardLayout'
 import Modal from '../../shared/ui/Modal'
 import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
+import useConfirm from '../../shared/lib/useConfirm'
 import '../../shared/ui/DataPage.css'
 import { FileText, CheckCircle, Clock, AlertTriangle, Receipt } from 'lucide-react'
 
@@ -16,8 +17,9 @@ const emptyInvoice = {
 }
 
 export default function FinanceInvoice() {
-  const { financeInvoices, addFinanceInvoice } = useAppState()
+  const { financeInvoices, addFinanceInvoice, removeFinanceInvoice } = useAppState()
   const { addToast } = useToast()
+  const confirm = useConfirm()
   const location = useLocation()
   const navigate = useNavigate()
   
@@ -72,6 +74,13 @@ export default function FinanceInvoice() {
     addFinanceInvoice({ ...formData, amount: Number(formData.amount) })
     addToast('Finance invoice generated successfully.', 'success')
     setModalOpen(false)
+  }
+
+  const handleDelete = async (id) => {
+    if (await confirm('Are you sure you want to delete this finance record?')) {
+      await removeFinanceInvoice(id)
+      addToast('Finance record deleted.', 'success')
+    }
   }
 
   return (
@@ -177,6 +186,7 @@ export default function FinanceInvoice() {
                   <td>
                     <div className="row-actions">
                       <button className="row-btn" onClick={() => openViewModal(inv)}>View</button>
+                      <button className="row-btn delete-btn" onClick={() => handleDelete(inv.id)}>Delete</button>
                     </div>
                   </td>
                 </tr>
@@ -221,8 +231,8 @@ export default function FinanceInvoice() {
                 <input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
               </label>
             </div>
-            <div className="modal-actions">
-              <button type="button" className="admin-action-btn" onClick={() => setModalOpen(false)}>Cancel</button>
+            <div className="form-actions">
+              <button type="button" className="admin-action-btn" onClick={() => setModalOpen(false)} style={{ marginRight: 'auto' }}>Cancel</button>
               <button type="button" className="admin-primary-btn" onClick={saveInvoice}>Generate</button>
             </div>
           </Modal>
@@ -317,8 +327,8 @@ export default function FinanceInvoice() {
               </div>
             </div>
             
-            <div className="modal-actions print-hide">
-              <button type="button" className="admin-action-btn" onClick={() => setSelectedInvoice(null)}>Close</button>
+            <div className="form-actions print-hide" style={{ marginTop: 24 }}>
+              <button type="button" className="admin-action-btn" onClick={() => setSelectedInvoice(null)} style={{ marginRight: 'auto' }}>Close</button>
               <button type="button" className="admin-primary-btn" onClick={() => window.print()}>Print</button>
             </div>
           </Modal>

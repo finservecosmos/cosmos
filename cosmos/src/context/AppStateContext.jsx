@@ -26,12 +26,22 @@ function encodeClientSeq(seq) {
   return String.fromCharCode(65 + l1) + String.fromCharCode(65 + l2) + d
 }
 
-// Invoice: CFI-YY-XXX  (all A-Z)  →  17,576 IDs / year
+// Invoice: 1st/2nd digit A-Z (26), 3rd digit A-Z then 0-9 (36) → 24,336 IDs / year
+function decodeInvoiceSeq(suffix) {
+  const c1 = suffix.charCodeAt(0) - 65
+  const c2 = suffix.charCodeAt(1) - 65
+  const c3Char = suffix[2]
+  let c3
+  if (c3Char >= 'A' && c3Char <= 'Z') c3 = c3Char.charCodeAt(0) - 65
+  else c3 = 26 + parseInt(c3Char, 10)
+  return c1 * 936 + c2 * 36 + c3
+}
 function encodeInvoiceSeq(seq) {
-  const c3 = seq % 26
-  const c2 = Math.floor(seq / 26) % 26
-  const c1 = Math.floor(seq / 676)
-  return String.fromCharCode(65 + c1) + String.fromCharCode(65 + c2) + String.fromCharCode(65 + c3)
+  const chars3 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  const c3 = chars3[seq % 36]
+  const c2 = String.fromCharCode(65 + Math.floor(seq / 36) % 26)
+  const c1 = String.fromCharCode(65 + Math.floor(seq / 936))
+  return c1 + c2 + c3
 }
 
 export async function nextClientId() {
@@ -56,8 +66,22 @@ async function nextInvoiceId() {
   if (!data || data.length === 0) return `${prefix}AAA`
   const seqs = data
     .map(r => r.id.slice(prefix.length))
-    .filter(s => /^[A-Z]{3}$/.test(s))
-    .map(s => (s.charCodeAt(0) - 65) * 676 + (s.charCodeAt(1) - 65) * 26 + (s.charCodeAt(2) - 65))
+    .filter(s => /^[A-Z]{2}[A-Z0-9]$/.test(s))
+    .map(decodeInvoiceSeq)
+  if (seqs.length === 0) return `${prefix}AAA`
+  return `${prefix}${encodeInvoiceSeq(Math.max(...seqs) + 1)}`
+}
+
+async function nextFinanceInvoiceId() {
+  const yy = String(new Date().getFullYear()).slice(-2)
+  const prefix = `FI-${yy}-`
+  const { data } = await supabase.from('finance_invoices')
+    .select('id').like('id', `${prefix}%`).order('id', { ascending: false }).limit(50)
+  if (!data || data.length === 0) return `${prefix}AAA`
+  const seqs = data
+    .map(r => r.id.slice(prefix.length))
+    .filter(s => /^[A-Z]{2}[A-Z0-9]$/.test(s))
+    .map(decodeInvoiceSeq)
   if (seqs.length === 0) return `${prefix}AAA`
   return `${prefix}${encodeInvoiceSeq(Math.max(...seqs) + 1)}`
 }
@@ -152,7 +176,21 @@ export function AppStateProvider({ children }) {
       setBackups(backupsData || [])
       setUsers(usersData || [])
       setInvestments(investmentsData || [])
-      setTransactions(transactionsData || [])
+      setTransactions((transactionsData || []).map(tx => {
+        let remarks = ''
+        let particular = tx.particular || ''
+        if (particular.includes(' | Remarks: ')) {
+          const parts = particular.split(' | Remarks: ')
+          particular = parts[0]
+          remarks = parts[1]
+        }
+        return {
+          ...tx,
+          particular,
+          remarks,
+          status: tx.status || (tx.type === 'Income' ? 'Received' : 'Paid')
+        }
+      }))
     } catch (error) {
       console.error('Error fetching data from Supabase:', error)
     } finally {
@@ -374,7 +412,7 @@ export function AppStateProvider({ children }) {
     else console.error('removeInvoice error:', error.message)
   }
   const addFinanceInvoice = async (inv) => {
-    const newId = uid('FINV')
+    const newId = await nextFinanceInvoiceId()
     const { data, error } = await supabase.from('finance_invoices').insert([pickFinanceInvoice(inv, newId)]).select().single()
     if (!error && data) setFinanceInvoices(p => [data, ...p])
     else if (error) console.error('addFinanceInvoice error:', error.message)
@@ -383,6 +421,11 @@ export function AppStateProvider({ children }) {
     const { data, error } = await supabase.from('finance_invoices').update(pickFinanceInvoice(inv)).eq('id', inv.id).select().single()
     if (!error && data) setFinanceInvoices(p => p.map(x => x.id === inv.id ? data : x))
     else if (error) console.error('updateFinanceInvoice error:', error.message)
+  }
+  const removeFinanceInvoice = async (id) => {
+    const { error } = await supabase.from('finance_invoices').delete().eq('id', id)
+    if (!error) setFinanceInvoices(p => p.filter(x => x.id !== id))
+    else console.error('removeFinanceInvoice error:', error.message)
   }
 
   /* ─── Products ── */
@@ -660,12 +703,26 @@ export function AppStateProvider({ children }) {
 
   const addTransaction = async (tx) => {
     const newId = uid('TX')
-    const { data, error } = await supabase.from('transactions').insert([{ ...tx, id: newId }]).select().single()
-    if (!error && data) setTransactions(p => [data, ...p])
+    const { status, remarks, ...restTx } = tx
+    const finalParticular = remarks ? `${restTx.particular} | Remarks: ${remarks}` : restTx.particular
+    const payload = { ...restTx, particular: finalParticular, id: newId }
+
+    const { data, error } = await supabase.from('transactions').insert([payload]).select().single()
+    if (error) console.error('addTransaction error:', error.message)
+    if (!error && data) {
+      setTransactions(p => [{ ...data, particular: restTx.particular, status: status || (data.type === 'Income' ? 'Received' : 'Paid'), remarks }, ...p])
+    }
   }
   const updateTransaction = async (tx) => {
-    const { data, error } = await supabase.from('transactions').update(tx).eq('id', tx.id).select().single()
-    if (!error && data) setTransactions(p => p.map(x => x.id === tx.id ? data : x))
+    const { status, remarks, ...restTx } = tx
+    const finalParticular = remarks ? `${restTx.particular} | Remarks: ${remarks}` : restTx.particular
+    const payload = { ...restTx, particular: finalParticular }
+
+    const { data, error } = await supabase.from('transactions').update(payload).eq('id', tx.id).select().single()
+    if (error) console.error('updateTransaction error:', error.message)
+    if (!error && data) {
+      setTransactions(p => p.map(x => x.id === tx.id ? { ...data, particular: restTx.particular, status: status || (data.type === 'Income' ? 'Received' : 'Paid'), remarks } : x))
+    }
   }
   const removeTransaction = async (id) => {
     const { error } = await supabase.from('transactions').delete().eq('id', id)
@@ -678,7 +735,7 @@ export function AppStateProvider({ children }) {
       associates: computedAssociates, addAssociate, updateAssociate, deleteAssociate,
       payments, addPayment, updatePayment, removePayment,
       invoices, addInvoice, removeInvoice,
-      financeInvoices, addFinanceInvoice,
+      financeInvoices, addFinanceInvoice, updateFinanceInvoice, removeFinanceInvoice,
       products, addProduct, updateProduct,
       reminders, addReminder, updateReminder, deleteReminder,
       notifications, markNotifRead, markAllNotifsRead,
