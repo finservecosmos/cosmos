@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, FileText, Edit, Trash2 } from 'lucide-react';
+import { Download, FileText, Edit, Trash2, DollarSign } from 'lucide-react';
 
 export default function FinanceEntryTable({
   paginatedRecords,
@@ -17,7 +17,8 @@ export default function FinanceEntryTable({
   handleExportCSV,
   handleEditRecord,
   handleDeleteRecord,
-  setViewRecord
+  setViewRecord,
+  setRepaymentRecord
 }) {
   const [activeMenuId, setActiveMenuId] = useState(null);
 
@@ -83,7 +84,7 @@ export default function FinanceEntryTable({
         </div>
       </div>
 
-      <div style={{ overflowX: 'auto', marginTop: 16, paddingBottom: 80 }}>
+      <div style={{ overflowX: 'auto', marginTop: 16, paddingBottom: 140 }}>
         <table className="data-table">
           <thead>
             <tr>
@@ -106,8 +107,10 @@ export default function FinanceEntryTable({
                 </td>
               </tr>
             ) : (
-              paginatedRecords.map((rec) => (
-                <tr key={rec.id}>
+              paginatedRecords.map((rec, index) => {
+                const isLastRow = index === paginatedRecords.length - 1;
+                return (
+                  <tr key={rec.id}>
                   <td style={{ fontWeight: 700 }}>{rec.name}</td>
                   <td className="cell-muted" style={{ fontFamily: 'monospace' }}>{rec.phone}</td>
                   <td className="cell-amount">₹{rec.principal.toLocaleString('en-IN')}</td>
@@ -125,7 +128,7 @@ export default function FinanceEntryTable({
                     </span>
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    <div className="action-menu-container">
+                    <div className="action-menu-container" style={{ zIndex: activeMenuId === rec.id ? 999 : 1, position: 'relative' }}>
                       <button 
                         type="button" 
                         className="panel-more-btn" 
@@ -138,9 +141,16 @@ export default function FinanceEntryTable({
                       </button>
 
                       {activeMenuId === rec.id && (
-                        <div className="action-popover" onClick={(e) => e.stopPropagation()}>
+                        <div 
+                          className="action-popover" 
+                          style={isLastRow ? { top: 'auto', bottom: '100%', marginBottom: '8px' } : {}} 
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <button className="popover-item" onClick={() => { setViewRecord(rec); setActiveMenuId(null); }}>
                             <FileText size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View Details
+                          </button>
+                          <button className="popover-item" onClick={() => { setRepaymentRecord(rec); setActiveMenuId(null); }}>
+                            <DollarSign size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Record Repayment
                           </button>
                           <button className="popover-item" onClick={() => { handleEditRecord(rec); setActiveMenuId(null); }}>
                             <Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit Details
@@ -153,7 +163,7 @@ export default function FinanceEntryTable({
                     </div>
                   </td>
                 </tr>
-              ))
+              );})
             )}
           </tbody>
         </table>

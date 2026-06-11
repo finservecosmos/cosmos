@@ -5,7 +5,7 @@ import { useAppState } from '../context/AppStateContext'
 import { nextAssociateId } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
 import '../shared/ui/DataPage.css'
-import { Users, TrendingUp, Search, Eye, Edit, Banknote, Coins } from 'lucide-react'
+import { Users, TrendingUp, Search, Eye, Edit, Banknote, Coins, Trash2 } from 'lucide-react'
 
 function formatAmount(n) {
   if (n >= 10000000) return `₹${(n/10000000).toFixed(2)}Cr`
@@ -49,7 +49,7 @@ const emptyAssociate = {
 }
 
 export default function AssociatesBook() {
-  const { associates, addAssociate, updateAssociate } = useAppState()
+  const { associates, addAssociate, updateAssociate, deleteAssociate } = useAppState()
   const { addToast } = useToast()
   const [search, setSearch]       = useState('')
 
@@ -118,7 +118,13 @@ export default function AssociatesBook() {
     setModalOpen(false)
   }
 
-
+  const handleDeleteAssociate = (associate) => {
+    if (window.confirm(`Are you sure you want to delete associate ${associate.name}?`)) {
+      deleteAssociate(associate.id)
+      addToast('Associate deleted successfully.', 'success')
+      setActiveMenuId(null)
+    }
+  }
 
   return (
     <DashboardLayout>
@@ -222,7 +228,7 @@ export default function AssociatesBook() {
                   <td className="cell-amount">{formatAmount(a.commission)}</td>
                   <td className="cell-muted">{a.joined}</td>
                   <td>
-                    <div className="action-menu-container">
+                    <div className="action-menu-container" style={{ zIndex: activeMenuId === a.id ? 999 : 1, position: 'relative' }}>
                       <button
                         type="button"
                         className="three-dot-btn"
@@ -241,6 +247,9 @@ export default function AssociatesBook() {
                           </button>
                           <button className="popover-item" onClick={() => { openEditModal(a); setActiveMenuId(null); }}>
                             <Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit record
+                          </button>
+                          <button className="popover-item danger" onClick={() => handleDeleteAssociate(a)}>
+                            <Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Delete record
                           </button>
                         </div>
                       )}

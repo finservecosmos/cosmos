@@ -226,7 +226,7 @@ export default function ClientRecordsTable({
                   <td className="cell-muted">{c.date}</td>
                   <td><span className={statusClass(c.status)}>{c.status}</span></td>
                   <td>
-                    <div className="action-menu-container">
+                    <div className="action-menu-container" style={{ zIndex: activeMenuId === c.id ? 999 : 1, position: 'relative' }}>
                       <button
                         type="button"
                         className="three-dot-btn"

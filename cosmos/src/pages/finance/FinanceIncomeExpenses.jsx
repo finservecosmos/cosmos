@@ -748,7 +748,7 @@ export default function FinanceIncomeExpenses() {
                           >
                             <Edit size={16} />
                           </button>
-                          <div className="action-menu-container">
+                          <div className="action-menu-container" style={{ zIndex: activeMenuId === rec.id ? 999 : 1, position: 'relative' }}>
                             <button
                               type="button"
                               className="panel-more-btn"

@@ -102,23 +102,25 @@ export default function FinanceOverview() {
     return () => document.removeEventListener('click', handleOutsideClick)
   }, [])
 
-  // Dynamic metrics calculation
   const totalInvestment = useMemo(() => {
-    return clients.reduce((sum, c) => sum + Number(c.amount || 0), 0)
-  }, [clients])
+    const active = investments || []
+    return active.reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
+  }, [investments])
 
-  const outstandingAmount = useMemo(() => {
-    return clients
-      .filter(c => ['Approved', 'Processing'].includes(c.status))
-      .reduce((sum, c) => sum + Number(c.amount || 0), 0)
-  }, [clients])
+  const totalPartnerAmount = useMemo(() => {
+    const activeInvestments = investments || []
+    return activeInvestments
+      .filter(inv => inv.status === 'Active')
+      .reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
+  }, [investments])
+
 
   const currentBankBalance = useMemo(() => {
-    const list = transactions || []
-    const totalIncome = list.filter(t => t.type === 'Income').reduce((sum, t) => sum + Number(t.amount || 0), 0)
-    const totalExpenses = list.filter(t => t.type === 'Expense').reduce((sum, t) => sum + Number(t.amount || 0), 0)
-    return 10000 + totalIncome - totalExpenses
-  }, [transactions])
+    const totalLent = clients
+      .filter(c => ['Approved', 'Processing'].includes(c.status))
+      .reduce((sum, c) => sum + Number(c.amount || 0), 0)
+    return Math.max(0, totalInvestment - totalLent)
+  }, [totalInvestment, clients])
 
   // Derive all due records reactively from global clients state
   const derivedDueRecords = useMemo(() => {
@@ -192,20 +194,15 @@ export default function FinanceOverview() {
   }
 
   const donutData = useMemo(() => {
-    const total = totalInvestment || 1
+    const total = totalPartnerAmount || 1
     const partnerGroups = {}
-    let totalPartnerAmount = 0
     
     const activeInvestments = investments || []
     activeInvestments.forEach(inv => {
       if (inv.status === 'Active') {
         partnerGroups[inv.partner] = (partnerGroups[inv.partner] || 0) + Number(inv.amount || 0)
-        totalPartnerAmount += Number(inv.amount || 0)
       }
     })
-    
-    const remainder = Math.max(0, totalInvestment - totalPartnerAmount)
-    partnerGroups['Institutional Funds'] = (partnerGroups['Institutional Funds'] || 0) + remainder
     
     const colors = ['#c0392b', '#1e293b', '#e74c3c', '#cbd5e1', '#3498db', '#a0c4ff', '#8e44ad', '#2c3e50', '#27ae60']
     
@@ -218,10 +215,10 @@ export default function FinanceOverview() {
         color: colors[index % colors.length]
       }
     }).sort((a, b) => b.count - a.count)
-  }, [clients, investments, totalInvestment])
+  }, [investments, totalPartnerAmount])
 
   const donutSegments = useMemo(() => {
-    const total = totalInvestment || 1
+    const total = totalPartnerAmount || 1
     let cumulative = 0
     return donutData.map((item, i) => {
       const fraction = item.count / total
@@ -230,7 +227,7 @@ export default function FinanceOverview() {
       cumulative += fraction
       return { ...item, index: i, dashArray, rotation }
     })
-  }, [donutData, totalInvestment, circumference])
+  }, [donutData, totalPartnerAmount, circumference])
 
   const handleDonutInteraction = (seg, e) => {
     setHoveredSegment(seg)
@@ -340,20 +337,6 @@ export default function FinanceOverview() {
             </div>
           </div>
 
-          <div className="kpi-card">
-            <div className="kpi-header">
-              <div className="kpi-icon-wrap" style={{ color: '#dc2626' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01" />
-                </svg>
-              </div>
-              <span className="kpi-tag critical">! Critical</span>
-            </div>
-            <div className="kpi-body">
-              <div className="kpi-title">Outstanding Amount</div>
-              <div className="kpi-value">₹{outstandingAmount.toLocaleString('en-IN')}</div>
-            </div>
-          </div>
 
           <div className="kpi-card">
             <div className="kpi-header">
@@ -456,10 +439,10 @@ export default function FinanceOverview() {
                   })}
                   <g className="donut-center-text">
                     <text x={cx} y={cy - 4} textAnchor="middle" className="donut-center-val" style={{ fontSize: 20 }}>
-                      {hoveredSegment ? formatCenterAmount(hoveredSegment.count) : formatCenterAmount(totalInvestment)}
+                      {hoveredSegment ? formatCenterAmount(hoveredSegment.count) : formatCenterAmount(totalPartnerAmount)}
                     </text>
                     <text x={cx} y={cy + 16} textAnchor="middle" className="donut-center-lbl">
-                      {hoveredSegment ? hoveredSegment.type : 'Total Investment'}
+                      {hoveredSegment ? hoveredSegment.type : 'Partner Investments'}
                     </text>
                   </g>
                 </svg>
@@ -548,7 +531,7 @@ export default function FinanceOverview() {
                         <td className="cell-amount">₹{rec.interest.toLocaleString('en-IN')}</td>
                         <td className="cell-amount" style={{ fontWeight: 700 }}>₹{rec.total.toLocaleString('en-IN')}</td>
                         <td style={{ textAlign: 'right' }}>
-                          <div className="action-menu-container">
+                          <div className="action-menu-container" style={{ zIndex: activeMenuId === rec.id ? 999 : 1, position: 'relative' }}>
                             <button 
                               type="button" 
                               className="panel-more-btn" 

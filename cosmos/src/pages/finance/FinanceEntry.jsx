@@ -15,14 +15,17 @@ export default function FinanceEntry() {
   const navigate = useNavigate();
   const { addToast } = useToast();
   const confirm = useConfirm();
-  const { clients, addClient, updateClient } = useAppState();
+  const { clients, addClient, updateClient, investments, addTransaction, addPayment } = useAppState();
 
   const financeEntryState = useFinanceEntry({
     clients,
     addClient,
     updateClient,
+    investments,
     addToast,
-    confirm
+    confirm,
+    addTransaction,
+    addPayment
   });
 
   const {
@@ -82,7 +85,18 @@ export default function FinanceEntry() {
     handleSaveEntry,
     handleEditRecord,
     handleDeleteRecord,
-    handleExportCSV
+    handleExportCSV,
+    repaymentRecord,
+    setRepaymentRecord,
+    repayPrincipalPaid,
+    setRepayPrincipalPaid,
+    repayInterestPaid,
+    setRepayInterestPaid,
+    repayDate,
+    setRepayDate,
+    repayRemarks,
+    setRepayRemarks,
+    handleSaveRepayment
   } = financeEntryState;
 
   useEffect(() => {
@@ -116,13 +130,14 @@ export default function FinanceEntry() {
             <div className="kpi-header">
               <div className="kpi-icon-wrap">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
               </div>
-              <span className="kpi-tag trend-up">↗ +12.5% vs last month</span>
+              <span className="kpi-tag muted">Updated 2m ago</span>
             </div>
             <div className="kpi-body">
-              <div className="kpi-title">TOTAL INVESTMENTS</div>
+              <div className="kpi-title">BANK ACCOUNT BALANCE</div>
               <div className="kpi-value">₹{totalInvestments.toLocaleString('en-IN')}</div>
             </div>
           </div>
@@ -236,6 +251,7 @@ export default function FinanceEntry() {
           handleEditRecord={handleEditRecord}
           handleDeleteRecord={handleDeleteRecord}
           setViewRecord={setViewRecord}
+          setRepaymentRecord={setRepaymentRecord}
         />
 
         {/* View Details Modal */}
@@ -327,6 +343,119 @@ export default function FinanceEntry() {
             <div className="modal-actions" style={{ marginTop: 20 }}>
               <button type="button" className="admin-action-btn" onClick={() => setViewRecord(null)}>Close</button>
             </div>
+          </Modal>
+        )}
+
+        {/* Record Repayment Modal */}
+        {repaymentRecord && (
+          <Modal 
+            title="Record Client Repayment" 
+            subtitle={`Record principal and interest payment for ${repaymentRecord.name}`}
+            onClose={() => setRepaymentRecord(null)} 
+            size="sm"
+          >
+            <form onSubmit={(e) => { e.preventDefault(); handleSaveRepayment(); }} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div className="form-group-wrap" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                
+                {/* Client info */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Client Name:</span>
+                  <span style={{ fontWeight: 700 }}>{repaymentRecord.name}</span>
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Outstanding Principal:</span>
+                  <span style={{ fontWeight: 700 }}>₹{repaymentRecord.principal.toLocaleString('en-IN')}</span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Outstanding Interest:</span>
+                  <span style={{ fontWeight: 700 }}>₹{repaymentRecord.interest.toLocaleString('en-IN')}</span>
+                </div>
+
+                {/* Principal paid field */}
+                <div className="form-item">
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span>Principal Paid Amount (INR)</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 'normal' }}>
+                      Max: ₹{repaymentRecord.principal.toLocaleString('en-IN')}
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    placeholder="Enter principal amount"
+                    value={repayPrincipalPaid}
+                    onChange={(e) => setRepayPrincipalPaid(e.target.value)}
+                    min="0"
+                    max={repaymentRecord.principal}
+                    step="any"
+                  />
+                </div>
+
+                {/* Interest paid field */}
+                <div className="form-item">
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span>Interest Paid Amount (INR)</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 'normal' }}>
+                      Max: ₹{repaymentRecord.interest.toLocaleString('en-IN')}
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    placeholder="Enter interest amount"
+                    value={repayInterestPaid}
+                    onChange={(e) => setRepayInterestPaid(e.target.value)}
+                    min="0"
+                    max={repaymentRecord.interest}
+                    step="any"
+                  />
+                </div>
+
+                {/* Date field */}
+                <div className="form-item">
+                  <label className="form-label" style={{ marginBottom: 6 }}>Payment Date</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={repayDate}
+                    onChange={(e) => setRepayDate(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Remarks field */}
+                <div className="form-item">
+                  <label className="form-label" style={{ marginBottom: 6 }}>Remarks</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="e.g. Received partial/full repayment"
+                    value={repayRemarks}
+                    onChange={(e) => setRepayRemarks(e.target.value)}
+                  />
+                </div>
+
+              </div>
+
+              {/* Action buttons */}
+              <div className="modal-actions" style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 12 }}>
+                <button 
+                  type="button" 
+                  className="data-btn data-btn-outline" 
+                  onClick={() => setRepaymentRecord(null)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="data-btn data-btn-primary"
+                >
+                  Record Repayment
+                </button>
+              </div>
+            </form>
           </Modal>
         )}
       </div>

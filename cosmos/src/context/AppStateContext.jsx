@@ -292,6 +292,11 @@ export function AppStateProvider({ children }) {
     if (!error && data) setAssociates(p => p.map(x => x.id === a.id ? data : x))
     else if (error) console.error('updateAssociate error:', error.message)
   }
+  const deleteAssociate = async (id) => {
+    const { error } = await supabase.from('associates').delete().eq('id', id)
+    if (!error) setAssociates(p => p.filter(x => x.id !== id))
+    else console.error('deleteAssociate error:', error.message)
+  }
 
   /* ─── Payments ── */
   const pickPayment = (p, id) => ({
@@ -652,7 +657,7 @@ export function AppStateProvider({ children }) {
   return (
     <AppStateContext.Provider value={{
       clients, addClient, updateClient, removeClient,
-      associates: computedAssociates, addAssociate, updateAssociate,
+      associates: computedAssociates, addAssociate, updateAssociate, deleteAssociate,
       payments, addPayment, updatePayment, removePayment,
       invoices, addInvoice, removeInvoice,
       financeInvoices, addFinanceInvoice,

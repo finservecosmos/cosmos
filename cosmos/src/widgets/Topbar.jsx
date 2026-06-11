@@ -23,7 +23,7 @@ const tabs = [
 const PAGE_HEADERS = {
   '/finance/overview': {
     title: 'Finance Overview Dashboard',
-    description: 'Monitor investments, outstanding amounts, bank balances, and financial performance.'
+    description: 'Monitor investments, bank balances, and financial performance.'
   },
   '/finance/entry': {
     title: 'Finance Entry',
