@@ -389,6 +389,7 @@ export default function FinanceInvestment() {
           handleExportCSV={handleExportCSV}
           handleEditRecord={handleEditRecord}
           handleDeleteRecord={handleDeleteRecord}
+          handleActivateRecord={investmentState.handleActivateRecord}
           handleHardDeleteRecord={handleHardDeleteRecord}
           setViewRecord={handleViewRecord}
         />
