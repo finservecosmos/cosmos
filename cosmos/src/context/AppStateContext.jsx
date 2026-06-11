@@ -187,7 +187,6 @@ export function AppStateProvider({ children }) {
     id: id || c.id,
     name: c.name,
     phone: c.phone || '',
-    email: c.email || '',
     drive_link: c.drive_link || '',
     loan_type: c.loan_type || '',
     amount: Number(c.amount || 0),
@@ -473,28 +472,18 @@ export function AppStateProvider({ children }) {
     )
     if (!exists) {
       const today = new Date().toISOString().slice(0, 10)
-      const cleanEmail = f.client.toLowerCase().replace(/\s+/g, '') + '@email.com'
       const newClientId = await nextClientId()
       const newClient = {
         id: newClientId,
         name: f.client,
         phone: '—',
-        email: cleanEmail,
         loan_type: f.loan_type,
         amount: 2500000,
         status: f.done ? 'Disbursed' : 'Processing',
         file_no: f.client_id,
         date: f.submitted || today,
         associate: 'Unassigned',
-        pan_card: '',
-        aadhaar_number: '',
-        residential_status: 'Resident Indian',
-        employment_status: 'Salaried',
-        monthly_net_income: null,
-        co_applicant_income: null,
-        dwelling_status: 'Owned',
-        tenure_at_address: null,
-        location: ''
+        extended_data: null
       }
       const { data: cData, error: cErr } = await supabase.from('clients').insert([newClient]).select().single()
       if (!cErr && cData) setClients(p => [cData, ...p])

@@ -6,7 +6,7 @@ import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
 import useConfirm from '../shared/lib/useConfirm'
 import '../shared/ui/DataPage.css'
-import { FileText, CheckCircle, Receipt, Eye, Download, Trash2 } from 'lucide-react'
+import { FileText, Receipt, Eye, Download, Trash2 } from 'lucide-react'
 
 function formatAmount(n) { return `₹${n.toLocaleString('en-IN')}` }
 
@@ -46,8 +46,6 @@ export default function Invoice() {
     const q = search.toLowerCase()
     return !q || inv.client?.toLowerCase().includes(q) || inv.id?.toString().toLowerCase().includes(q)
   })
-
-  const totalAmount = invoices.reduce((s, i) => s + (Number(i.amount) || 0), 0)
 
   const openCreateModal = () => { setFormData(emptyInvoice); setModalOpen(true) }
   const openViewModal   = (inv) => setSelectedInvoice(inv)
@@ -95,19 +93,7 @@ export default function Invoice() {
             </div>
             <div className="kpi-body">
               <div className="kpi-title">Total Invoices</div>
-              <div className="kpi-value">{invoices.length}</div>
-            </div>
-          </div>
-
-          <div className="kpi-card">
-            <div className="kpi-header">
-              <div className="kpi-icon-wrap" style={{ color: '#16a34a', background: '#dcfce7' }}>
-                <CheckCircle size={20} />
-              </div>
-            </div>
-            <div className="kpi-body">
-              <div className="kpi-title">Total Amount</div>
-              <div className="kpi-value">{formatAmount(totalAmount)}</div>
+              <div className="kpi-value">{filtered.length}</div>
             </div>
           </div>
         </div>
@@ -294,7 +280,6 @@ export default function Invoice() {
                       <thead>
                         <tr style={{ background: 'var(--bg-muted)', borderBottom: '1px solid var(--border)' }}>
                           <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-secondary)', fontWeight: 700 }}>Date</th>
-                          <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-secondary)', fontWeight: 700 }}>Type</th>
                           <th style={{ textAlign: 'right', padding: '6px 10px', color: 'var(--text-secondary)', fontWeight: 700 }}>Amount</th>
                         </tr>
                       </thead>
@@ -303,7 +288,6 @@ export default function Invoice() {
                           return (
                             <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
                               <td style={{ padding: '6px 10px', color: 'var(--text-primary)' }}>{h.date}</td>
-                              <td style={{ padding: '6px 10px', color: 'var(--text-primary)' }}>{h.type || 'Collection'}</td>
                               <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600 }}>{formatAmount(h.amount)}</td>
                             </tr>
                           );

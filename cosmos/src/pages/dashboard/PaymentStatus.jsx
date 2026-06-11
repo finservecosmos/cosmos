@@ -1462,20 +1462,35 @@ export default function PaymentStatus() {
             onClose={() => setSelectedDetails(null)}
           >
             <div className="ps-modal-body-payout">
-              <div style={{ background: 'var(--bg-surface)', borderRadius: '10px', padding: '14px 18px', border: '1px solid #f3f4f6' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
-                  <span style={{ color: 'var(--text-muted)', fontWeight: '500' }}>Actual Fee Payout:</span>
-                  <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{formatAmount(selectedDetails.actual)}</span>
+              {selectedDetails.actual > 0 && (
+                <div style={{ background: 'var(--bg-muted)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 18px', marginBottom: 20 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Live Summary</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: 11, color: 'var(--text-faint)', fontWeight: 600, marginBottom: 4 }}>TOTAL OWED</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)' }}>₹{selectedDetails.actual.toLocaleString('en-IN')}</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: 11, color: 'var(--text-faint)', fontWeight: 600, marginBottom: 4 }}>RECEIVED</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#16a34a' }}>₹{selectedDetails.received.toLocaleString('en-IN')}</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: 11, color: 'var(--text-faint)', fontWeight: 600, marginBottom: 4 }}>PENDING</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: selectedDetails.pending > 0 ? '#dc2626' : '#16a34a' }}>
+                        ₹{Math.max(0, selectedDetails.pending).toLocaleString('en-IN')}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Progress bar */}
+                  <div style={{ height: 8, background: '#e5e7eb', borderRadius: 6, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${Math.min(100, selectedDetails.collection_rate)}%`, background: selectedDetails.collection_rate === 100 ? '#16a34a' : 'linear-gradient(90deg,#f59e0b,#16a34a)', borderRadius: 6, transition: 'width 0.3s' }} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 11, color: 'var(--text-faint)', fontWeight: 600 }}>
+                    <span>{selectedDetails.collection_rate}% collected</span>
+                    <span>{selectedDetails.collection_rate === 100 ? '✅ Fully Paid' : `${100 - selectedDetails.collection_rate}% remaining`}</span>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
-                  <span style={{ color: '#16a34a', fontWeight: '500' }}>Total Collected Amount:</span>
-                  <span style={{ fontWeight: '800', color: '#16a34a' }}>{formatAmount(selectedDetails.received)}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                  <span style={{ color: '#dc2626', fontWeight: '500' }}>Remaining Pending Balance:</span>
-                  <span style={{ fontWeight: '800', color: '#dc2626' }}>{formatAmount(selectedDetails.pending)}</span>
-                </div>
-              </div>
+              )}
 
               <div style={{ fontWeight: 705, color: 'var(--text-primary)', fontSize: '14px', marginTop: '6px' }}>
                 Transaction Ledgers
