@@ -71,7 +71,7 @@ export default function FinanceOverview() {
   const navigate = useNavigate()
   const { addToast } = useToast()
   const confirm = useConfirm()
-  const { clients, updateClient, investments, transactions } = useAppState()
+  const { clients, associates, transactions, investments, financeEntries } = useAppState()
 
   // Filters state
   const [fromDate, setFromDate] = useState('')
@@ -120,18 +120,25 @@ export default function FinanceOverview() {
   }, [investments])
 
 
-  const currentBankBalance = useMemo(() => {
-    const totalLent = clients
-      .filter(c => ['Approved', 'Processing'].includes(c.status))
-      .reduce((sum, c) => sum + Number(c.amount || 0), 0)
-    return Math.max(0, totalInvestment - totalLent)
-  }, [totalInvestment, clients])
-
   const totalIncome = useMemo(() => {
     return (transactions || [])
       .filter(t => t.type === 'Income' && t.status === 'Received')
       .reduce((sum, t) => sum + Number(t.amount || 0), 0)
   }, [transactions])
+
+  const totalExpense = useMemo(() => {
+    return (transactions || [])
+      .filter(t => t.type === 'Expense')
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+  }, [transactions])
+
+  const currentBankBalance = useMemo(() => {
+    const totalLent = [...(clients || []), ...(financeEntries || [])]
+      .filter(c => ['Approved', 'Processing', 'Active', 'Disbursed', 'Paid'].includes(c.status))
+      .reduce((sum, c) => sum + Number(c.loan_amount || c.amount || 0), 0)
+    const netProfit = totalIncome - totalExpense
+    return Math.max(0, totalInvestment - totalLent + netProfit)
+  }, [totalInvestment, clients, financeEntries, totalIncome, totalExpense])
 
   // Derive all due records reactively from global clients state
   const derivedDueRecords = useMemo(() => {
