@@ -71,8 +71,8 @@ export default function FinanceEntry() {
     setToDate,
     currentPage,
     setCurrentPage,
-    viewRecord,
-    setViewRecord,
+    isViewMode,
+    handleViewRecord,
     totalInvestments,
     activeClients,
     dueThisWeekCount,
@@ -230,6 +230,7 @@ export default function FinanceEntry() {
             handleCancel={handleCancel}
             handleResetForm={handleResetForm}
             handleSaveEntry={handleSaveEntry}
+            isViewMode={isViewMode}
           />
         )}
 
@@ -250,101 +251,9 @@ export default function FinanceEntry() {
           handleExportCSV={handleExportCSV}
           handleEditRecord={handleEditRecord}
           handleDeleteRecord={handleDeleteRecord}
-          setViewRecord={setViewRecord}
+          handleViewRecord={handleViewRecord}
           setRepaymentRecord={setRepaymentRecord}
         />
-
-        {/* View Details Modal */}
-        {viewRecord && (
-          <Modal title="Finance Record Details" onClose={() => setViewRecord(null)} size="sm">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Client Name:</span>
-                <span style={{ fontWeight: 700 }}>{viewRecord.name}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Mobile Number:</span>
-                <span style={{ fontFamily: 'monospace' }}>{viewRecord.phone}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Email ID:</span>
-                <span>{viewRecord.email || '—'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Principal Amount:</span>
-                <span className="cell-amount">₹{viewRecord.principal.toLocaleString('en-IN')}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Interest Payable:</span>
-                <span className="cell-amount">₹{viewRecord.interest.toLocaleString('en-IN')}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Total Payable:</span>
-                <span className="cell-amount" style={{ fontWeight: 800, color: 'var(--accent)' }}>₹{viewRecord.total.toLocaleString('en-IN')}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>PAN Card:</span>
-                <span style={{ fontFamily: 'monospace' }}>{viewRecord.originalClient.pan_card || '—'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Aadhaar Number:</span>
-                <span style={{ fontFamily: 'monospace' }}>{viewRecord.originalClient.aadhaar_number || '—'}</span>
-              </div>
-              {viewRecord.originalClient.co_applicant_name && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Co-Applicant:</span>
-                    <span style={{ fontWeight: 600 }}>{viewRecord.originalClient.co_applicant_name}</span>
-                  </div>
-                  {viewRecord.originalClient.co_applicant_aadhaar && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Co-Applicant Aadhaar:</span>
-                      <span style={{ fontFamily: 'monospace' }}>{viewRecord.originalClient.co_applicant_aadhaar}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-              {viewRecord.originalClient.google_drive_link && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8, alignItems: 'center' }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Google Drive Link:</span>
-                  <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                    <a
-                      href={viewRecord.originalClient.google_drive_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="data-btn data-btn-outline"
-                      style={{ color: 'var(--text-primary)', padding: '6px 12px', fontSize: 12, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                      Open Drive
-                    </a>
-                  </div>
-                </div>
-              )}
-              {viewRecord.originalClient.eb_no && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>EB - Consumer No:</span>
-                  <span style={{ fontFamily: 'monospace' }}>{viewRecord.originalClient.eb_no}</span>
-                </div>
-              )}
-              {viewRecord.originalClient.address && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Billing Address:</span>
-                  <span style={{ fontSize: 12.5, lineHeight: 1.4 }}>{viewRecord.originalClient.address}</span>
-                </div>
-              )}
-              {viewRecord.originalClient.remarks && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Remarks:</span>
-                  <span style={{ fontSize: 12.5, fontStyle: 'italic' }}>{viewRecord.originalClient.remarks}</span>
-                </div>
-              )}
-            </div>
-            <div className="modal-actions" style={{ marginTop: 20 }}>
-              <button type="button" className="admin-action-btn" onClick={() => setViewRecord(null)}>Close</button>
-            </div>
-          </Modal>
-        )}
 
         {/* Record Repayment Modal */}
         {repaymentRecord && (
@@ -352,38 +261,34 @@ export default function FinanceEntry() {
             title="Record Client Repayment" 
             subtitle={`Record principal and interest payment for ${repaymentRecord.name}`}
             onClose={() => setRepaymentRecord(null)} 
-            size="sm"
+            size="md"
           >
-            <form onSubmit={(e) => { e.preventDefault(); handleSaveRepayment(); }} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div className="form-group-wrap" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                
-                {/* Client info */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Client Name:</span>
-                  <span style={{ fontWeight: 700 }}>{repaymentRecord.name}</span>
+            <form onSubmit={(e) => { e.preventDefault(); handleSaveRepayment(); }} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, background: 'var(--bg-surface-hover)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Client Name</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{repaymentRecord.name}</span>
                 </div>
-                
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Outstanding Principal:</span>
-                  <span style={{ fontWeight: 700 }}>₹{repaymentRecord.principal.toLocaleString('en-IN')}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>File Status</span>
+                  <span className={`status-badge status-${repaymentRecord.status.toLowerCase()}`}>{repaymentRecord.status}</span>
                 </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Outstanding Principal</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>₹{repaymentRecord.principal.toLocaleString('en-IN')}</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Outstanding Interest</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: '#f59e0b' }}>₹{repaymentRecord.interest.toLocaleString('en-IN')}</span>
+                </div>
+              </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Outstanding Interest:</span>
-                  <span style={{ fontWeight: 700 }}>₹{repaymentRecord.interest.toLocaleString('en-IN')}</span>
-                </div>
-
-                {/* Principal paid field */}
-                <div className="form-item">
-                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span>Principal Paid Amount (INR)</span>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 'normal' }}>
-                      Max: ₹{repaymentRecord.principal.toLocaleString('en-IN')}
-                    </span>
-                  </label>
+              <div className="entry-form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                <label>
+                  Principal Paid (₹)
                   <input
                     type="number"
-                    className="form-input"
                     placeholder="Enter principal amount"
                     value={repayPrincipalPaid}
                     onChange={(e) => setRepayPrincipalPaid(e.target.value)}
@@ -391,19 +296,13 @@ export default function FinanceEntry() {
                     max={repaymentRecord.principal}
                     step="any"
                   />
-                </div>
+                  <span style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>Max: ₹{repaymentRecord.principal.toLocaleString('en-IN')}</span>
+                </label>
 
-                {/* Interest paid field */}
-                <div className="form-item">
-                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span>Interest Paid Amount (INR)</span>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 'normal' }}>
-                      Max: ₹{repaymentRecord.interest.toLocaleString('en-IN')}
-                    </span>
-                  </label>
+                <label>
+                  Interest Paid (₹)
                   <input
                     type="number"
-                    className="form-input"
                     placeholder="Enter interest amount"
                     value={repayInterestPaid}
                     onChange={(e) => setRepayInterestPaid(e.target.value)}
@@ -411,46 +310,41 @@ export default function FinanceEntry() {
                     max={repaymentRecord.interest}
                     step="any"
                   />
-                </div>
+                  <span style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>Max: ₹{repaymentRecord.interest.toLocaleString('en-IN')}</span>
+                </label>
 
-                {/* Date field */}
-                <div className="form-item">
-                  <label className="form-label" style={{ marginBottom: 6 }}>Payment Date</label>
+                <label className="span-2" style={{ gridColumn: 'span 2' }}>
+                  Payment Date
                   <input
                     type="date"
-                    className="form-input"
                     value={repayDate}
                     onChange={(e) => setRepayDate(e.target.value)}
                     required
                   />
-                </div>
+                </label>
 
-                {/* Remarks field */}
-                <div className="form-item">
-                  <label className="form-label" style={{ marginBottom: 6 }}>Remarks</label>
+                <label className="span-2" style={{ gridColumn: 'span 2' }}>
+                  Remarks
                   <input
                     type="text"
-                    className="form-input"
                     placeholder="e.g. Received partial/full repayment"
                     value={repayRemarks}
                     onChange={(e) => setRepayRemarks(e.target.value)}
                   />
-                </div>
-
+                </label>
               </div>
 
-              {/* Action buttons */}
-              <div className="modal-actions" style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 12 }}>
+              <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: 16, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
                 <button 
                   type="button" 
-                  className="data-btn data-btn-outline" 
+                  className="admin-action-btn" 
                   onClick={() => setRepaymentRecord(null)}
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
-                  className="data-btn data-btn-primary"
+                  className="admin-primary-btn"
                 >
                   Record Repayment
                 </button>

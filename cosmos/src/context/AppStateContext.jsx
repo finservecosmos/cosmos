@@ -139,7 +139,7 @@ export function AppStateProvider({ children }) {
         supabase.from('transactions').select('*').order('created_at', { ascending: false })
       ])
 
-      setClients(clientsData || [])
+      setClients((clientsData || []).map(unpackClient))
       setAssociates(associatesData || [])
       setPayments(paymentsData || [])
       setInvoices(invoicesData || [])
@@ -168,7 +168,7 @@ export function AppStateProvider({ children }) {
 
   /* ─── Sync 1: Dynamic Associate Performance metrics ───────── */
   const computedAssociates = associates.map(a => {
-    const assocClients = clients.filter(c => c.associate === a.name)
+    const assocClients = clients.filter(c => c.associate === a.name && c.loan_type !== 'Finance Entry')
     const clientCount = assocClients.length
     const disbursed = assocClients
       .filter(c => ['Disbursed', 'Approved'].includes(c.status))
@@ -183,19 +183,37 @@ export function AppStateProvider({ children }) {
   })
 
   /* ─── Clients ── */
-  const pickClient = (c, id) => ({
-    id: id || c.id,
-    name: c.name,
-    phone: c.phone || '',
-    drive_link: c.drive_link || '',
-    loan_type: c.loan_type || '',
-    amount: Number(c.amount || 0),
-    status: c.status || 'Enquiry',
-    file_no: c.file_no || id || c.id,
-    date: c.date || new Date().toISOString().slice(0, 10),
-    associate: c.associate || '',
-    extended_data: c.extended_data || null,
-  })
+  const unpackClient = (c) => {
+    if (c.extended_data) {
+      return { ...c, ...c.extended_data };
+    }
+    return c;
+  };
+
+  const pickClient = (c, id) => {
+    const standardKeys = ['id', 'name', 'phone', 'drive_link', 'loan_type', 'amount', 'status', 'file_no', 'date', 'associate', 'extended_data', 'created_at', 'updated_at'];
+    const extended = { ...(c.extended_data || {}) };
+    
+    Object.keys(c).forEach(key => {
+      if (!standardKeys.includes(key)) {
+        extended[key] = c[key];
+      }
+    });
+
+    return {
+      id: id || c.id,
+      name: c.name,
+      phone: c.phone || '',
+      drive_link: c.drive_link || '',
+      loan_type: c.loan_type || '',
+      amount: Number(c.amount || 0),
+      status: c.status || 'Enquiry',
+      file_no: c.file_no || id || c.id,
+      date: c.date || new Date().toISOString().slice(0, 10),
+      associate: c.associate || '',
+      extended_data: Object.keys(extended).length > 0 ? extended : null,
+    };
+  }
 
   const addClient = async (c) => {
     const newClientId = await nextClientId()
@@ -203,7 +221,7 @@ export function AppStateProvider({ children }) {
 
     const { data: clientData, error: clientError } = await supabase.from('clients').insert([newClient]).select().single()
     if (clientError) { console.error('addClient error:', clientError.message); return }
-    setClients(p => [clientData, ...p])
+    setClients(p => [unpackClient(clientData), ...p])
 
     if (['Processing', 'Approved', 'Disbursed'].includes(c.status)) {
       const today = new Date().toISOString().slice(0, 10)
@@ -226,7 +244,7 @@ export function AppStateProvider({ children }) {
     const payload = pickClient(c)
     const { data: clientData, error: clientError } = await supabase.from('clients').update(payload).eq('id', c.id).select().single()
     if (clientError) { console.error('updateClient error:', clientError.message); return }
-    setClients(p => p.map(x => x.id === c.id ? clientData : x))
+    setClients(p => p.map(x => x.id === c.id ? unpackClient(clientData) : x))
 
     if (['Processing', 'Approved', 'Disbursed'].includes(c.status)) {
       const today = new Date().toISOString().slice(0, 10)

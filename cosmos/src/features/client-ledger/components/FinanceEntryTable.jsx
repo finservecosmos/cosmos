@@ -17,22 +17,9 @@ export default function FinanceEntryTable({
   handleExportCSV,
   handleEditRecord,
   handleDeleteRecord,
-  setViewRecord,
+  handleViewRecord,
   setRepaymentRecord
 }) {
-  const [activeMenuId, setActiveMenuId] = useState(null);
-
-  // Auto-close actions menu on outside click
-  useEffect(() => {
-    const handleOutsideClick = () => setActiveMenuId(null);
-    document.addEventListener('click', handleOutsideClick);
-    return () => document.removeEventListener('click', handleOutsideClick);
-  }, []);
-
-  const triggerActionMenu = (e, id) => {
-    e.stopPropagation();
-    setActiveMenuId(activeMenuId === id ? null : id);
-  };
 
   return (
     <div className="new-client-form-card" style={{ padding: '20px 24px' }}>
@@ -123,43 +110,24 @@ export default function FinanceEntryTable({
                     </span>
                   </td>
                   <td>
-                    <span className="status-badge status-active">
-                      ACTIVE
+                    <span className={`status-badge status-${rec.status.toLowerCase()}`}>
+                      {rec.status.toUpperCase()}
                     </span>
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    <div className="action-menu-container" style={{ zIndex: activeMenuId === rec.id ? 999 : 1, position: 'relative' }}>
-                      <button 
-                        type="button" 
-                        className="panel-more-btn" 
-                        style={{ display: 'inline-flex', alignSelf: 'center' }}
-                        onClick={(e) => triggerActionMenu(e, rec.id)}
-                      >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 15, height: 15 }}>
-                          <circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>
-                        </svg>
+                    <div className="row-actions" style={{ justifyContent: 'flex-end' }}>
+                      <button className="row-btn" onClick={() => handleViewRecord(rec)} title="View Details">
+                        <FileText size={15} />
                       </button>
-
-                      {activeMenuId === rec.id && (
-                        <div 
-                          className="action-popover" 
-                          style={isLastRow ? { top: 'auto', bottom: '100%', marginBottom: '8px' } : {}} 
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <button className="popover-item" onClick={() => { setViewRecord(rec); setActiveMenuId(null); }}>
-                            <FileText size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View Details
-                          </button>
-                          <button className="popover-item" onClick={() => { setRepaymentRecord(rec); setActiveMenuId(null); }}>
-                            <DollarSign size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Record Repayment
-                          </button>
-                          <button className="popover-item" onClick={() => { handleEditRecord(rec); setActiveMenuId(null); }}>
-                            <Edit size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Edit Details
-                          </button>
-                          <button className="popover-item danger" onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}>
-                            <Trash2 size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> Delete Record
-                          </button>
-                        </div>
-                      )}
+                      <button className="row-btn" onClick={() => setRepaymentRecord(rec)} title="Record Repayment">
+                        <DollarSign size={15} />
+                      </button>
+                      <button className="row-btn" onClick={() => handleEditRecord(rec)} title="Edit Details">
+                        <Edit size={15} />
+                      </button>
+                      <button className="row-btn danger" onClick={() => handleDeleteRecord(rec)} title="Delete Record">
+                        <Trash2 size={15} />
+                      </button>
                     </div>
                   </td>
                 </tr>

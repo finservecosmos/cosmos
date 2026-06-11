@@ -36,13 +36,14 @@ export default function FinanceEntryForm({
   displayEntryId,
   handleCancel,
   handleResetForm,
-  handleSaveEntry
+  handleSaveEntry,
+  isViewMode = false
 }) {
   return (
     <Modal
       size="lg"
-      title={editId ? 'Edit Finance Record' : 'New Client Form'}
-      subtitle="Please fill out the details below."
+      title={isViewMode ? 'View Finance Record' : (editId ? 'Edit Finance Record' : 'New Client Form')}
+      subtitle={isViewMode ? 'Viewing client details.' : 'Please fill out the details below.'}
       onClose={handleCancel}
     >
       <div className="entry-form-grid" style={{ paddingTop: '10px' }}>
@@ -53,6 +54,7 @@ export default function FinanceEntryForm({
             placeholder="Full legal name" 
             value={clientName} 
             onChange={e => setClientName(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
 
@@ -63,6 +65,7 @@ export default function FinanceEntryForm({
             placeholder="+91 XXXXX XXXXX" 
             value={mobileNumber} 
             onChange={e => setMobileNumber(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
 
@@ -73,6 +76,7 @@ export default function FinanceEntryForm({
             placeholder="client@example.com" 
             value={emailId} 
             onChange={e => setEmailId(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
 
@@ -83,12 +87,13 @@ export default function FinanceEntryForm({
             placeholder="50000" 
             value={loanAmount} 
             onChange={e => setLoanAmount(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
 
         <label>
           Duration
-          <select value={duration} onChange={e => setDuration(e.target.value)}>
+          <select value={duration} onChange={e => setDuration(e.target.value)} disabled={isViewMode}>
             <option value="< 3 Days">&lt; 3 Days</option>
             <option value="< 7 Days">&lt; 7 Days</option>
             <option value="< 15 Days">&lt; 15 Days</option>
@@ -104,6 +109,7 @@ export default function FinanceEntryForm({
             placeholder="XXXX XXXX XXXX" 
             value={aadhaarNumber} 
             onChange={e => setAadhaarNumber(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
 
@@ -114,6 +120,7 @@ export default function FinanceEntryForm({
             placeholder="ABCDE1234F" 
             value={panNumber} 
             onChange={e => setPanNumber(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
 
@@ -123,6 +130,7 @@ export default function FinanceEntryForm({
             type="date" 
             value={dueDate} 
             onChange={e => setDueDate(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
 
@@ -130,9 +138,10 @@ export default function FinanceEntryForm({
           Interest Amount (₹)
           <input 
             type="number" 
-            placeholder="Calculated interest" 
+            placeholder="Enter interest amount" 
             value={interestAmount} 
             onChange={e => setInterestAmount(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
 
@@ -143,6 +152,7 @@ export default function FinanceEntryForm({
             placeholder="Secondary holder name" 
             value={coApplicantName} 
             onChange={e => setCoApplicantName(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
 
@@ -154,6 +164,7 @@ export default function FinanceEntryForm({
             value={address} 
             onChange={e => setAddress(e.target.value)} 
             style={{ resize: 'none' }}
+            disabled={isViewMode}
           />
         </label>
 
@@ -164,6 +175,7 @@ export default function FinanceEntryForm({
             placeholder="XXXX XXXX XXXX" 
             value={coApplicantAadhaar} 
             onChange={e => setCoApplicantAadhaar(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
 
@@ -176,6 +188,7 @@ export default function FinanceEntryForm({
               value={googleDriveLink} 
               onChange={e => setGoogleDriveLink(e.target.value)} 
               style={{ flex: 1, margin: 0 }}
+              disabled={isViewMode}
             />
             <button 
               type="button" 
@@ -198,6 +211,7 @@ export default function FinanceEntryForm({
             placeholder="XXXX XXXX XXXX" 
             value={ebNo} 
             onChange={e => setEbNo(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
 
@@ -208,14 +222,19 @@ export default function FinanceEntryForm({
             placeholder="Any additional notes..." 
             value={remarks} 
             onChange={e => setRemarks(e.target.value)} 
+            disabled={isViewMode}
           />
         </label>
       </div>
 
       <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '24px', marginTop: 16, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
-        <button type="button" className="admin-action-btn" onClick={handleCancel}>Cancel</button>
-        <button type="button" className="data-btn data-btn-outline" onClick={handleResetForm}>Reset</button>
-        <button type="button" className="admin-primary-btn" onClick={handleSaveEntry}>Save Entry</button>
+        <button type="button" className="admin-action-btn" onClick={handleCancel}>Close</button>
+        {!isViewMode && (
+          <>
+            <button type="button" className="data-btn data-btn-outline" onClick={handleResetForm}>Reset</button>
+            <button type="button" className="admin-primary-btn" onClick={handleSaveEntry}>Save Entry</button>
+          </>
+        )}
       </div>
     </Modal>
   );

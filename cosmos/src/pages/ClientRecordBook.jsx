@@ -98,6 +98,7 @@ export default function ClientRecordBook() {
   }, [search, loanFilter, statusFilter]);
 
   const filtered = clients.filter((c) => {
+    if (c.loan_type === 'Finance Entry') return false;
     const q = search.toLowerCase();
     const matchSearch = !q || String(c.name || '').toLowerCase().includes(q) || String(c.phone || '').includes(q);
     const matchLoan = loanFilter === 'All' || c.loan_type === loanFilter;
