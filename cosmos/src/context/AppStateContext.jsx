@@ -134,6 +134,7 @@ export function AppStateProvider({ children }) {
   const [users, setUsers]                 = useState([])
   const [investments, setInvestments]     = useState([])
   const [transactions, setTransactions]   = useState([])
+  const [financeEntries, setFinanceEntries] = useState([])
   
   const [loading, setLoading] = useState(true)
 
@@ -145,7 +146,7 @@ export function AppStateProvider({ children }) {
         { data: invoicesData }, { data: financeInvoicesData }, { data: productsData },
         { data: remindersData }, { data: notificationsData }, { data: enquiriesData },
         { data: loginFilesData }, { data: backupsData }, { data: usersData },
-        { data: investmentsData }, { data: transactionsData }
+        { data: investmentsData }, { data: transactionsData }, { data: financeEntriesData }
       ] = await Promise.all([
         supabase.from('clients').select('*').order('created_at', { ascending: false }),
         supabase.from('associates').select('*').order('created_at', { ascending: false }),
@@ -160,7 +161,8 @@ export function AppStateProvider({ children }) {
         supabase.from('backups').select('*').order('created_at', { ascending: false }),
         supabase.from('system_users').select('*').order('created_at', { ascending: false }),
         supabase.from('investments').select('*').order('created_at', { ascending: false }),
-        supabase.from('transactions').select('*').order('created_at', { ascending: false })
+        supabase.from('transactions').select('*').order('created_at', { ascending: false }),
+        supabase.from('finance_entries').select('*').order('created_at', { ascending: false })
       ])
 
       setClients((clientsData || []).map(unpackClient))
@@ -191,6 +193,7 @@ export function AppStateProvider({ children }) {
           status: tx.status || (tx.type === 'Income' ? 'Received' : 'Paid')
         }
       }))
+      setFinanceEntries(financeEntriesData || [])
     } catch (error) {
       console.error('Error fetching data from Supabase:', error)
     } finally {
@@ -343,6 +346,8 @@ export function AppStateProvider({ children }) {
     if (!error && data) setAssociates(p => [data, ...p])
     else if (error) console.error('addAssociate error:', error.message)
   }
+
+
   const updateAssociate = async (a) => {
     const { data, error } = await supabase.from('associates').update(pickAssociate(a)).eq('id', a.id).select().single()
     if (!error && data) setAssociates(p => p.map(x => x.id === a.id ? data : x))
@@ -729,6 +734,33 @@ export function AppStateProvider({ children }) {
     if (!error) setTransactions(p => p.filter(x => x.id !== id))
   }
 
+  const addFinanceEntry = async (entry) => {
+    const newId = uid('FE')
+    const { data, error } = await supabase.from('finance_entries').insert([{ ...entry, id: newId }]).select().single()
+    if (!error && data) {
+      setFinanceEntries(p => [data, ...p])
+      return { success: true, data }
+    } else {
+      console.error('addFinanceEntry error:', error?.message || error)
+      return { success: false, error: error?.message || 'Failed to save entry' }
+    }
+  }
+  const updateFinanceEntry = async (entry) => {
+    const { data, error } = await supabase.from('finance_entries').update(entry).eq('id', entry.id).select().single()
+    if (!error && data) {
+      setFinanceEntries(p => p.map(x => x.id === entry.id ? data : x))
+      return { success: true, data }
+    } else {
+      console.error('updateFinanceEntry error:', error?.message || error)
+      return { success: false, error: error?.message || 'Failed to update entry' }
+    }
+  }
+  const removeFinanceEntry = async (id) => {
+    const { error } = await supabase.from('finance_entries').delete().eq('id', id)
+    if (!error) setFinanceEntries(p => p.filter(x => x.id !== id))
+    else console.error('removeFinanceEntry error:', error.message)
+  }
+
   return (
     <AppStateContext.Provider value={{
       clients, addClient, updateClient, removeClient,
@@ -745,6 +777,7 @@ export function AppStateProvider({ children }) {
       users, addUser, updateUser, removeUser,
       investments, addInvestment, updateInvestment, removeInvestment,
       transactions, addTransaction, updateTransaction, removeTransaction,
+      financeEntries, addFinanceEntry, updateFinanceEntry, removeFinanceEntry,
       loading
     }}>
       {children}

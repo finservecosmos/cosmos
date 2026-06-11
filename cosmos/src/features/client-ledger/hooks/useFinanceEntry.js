@@ -2,17 +2,22 @@ import { useState, useEffect, useMemo } from 'react';
 
 // Helper to calculate due date and urgency dynamically
 export function getDueInfo(clientDateStr) {
-  const today = new Date('2026-06-06'); // Reference system date
-  const cDate = new Date(clientDateStr || '2026-06-01');
-  const day = cDate.getDate() || 15;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   
-  // Create due date in June 2026
-  let dueYear = 2026;
-  let dueMonth = 5; // June is 5 (0-indexed)
+  const cDate = new Date(clientDateStr || new Date());
+  const day = cDate.getDate() || 1;
   
-  // If today (June 6) is past the due day (e.g., day is 5), then due date is in July
-  if (day < 6) {
-    dueMonth = 6; // July
+  let dueYear = today.getFullYear();
+  let dueMonth = today.getMonth();
+  
+  // If today is past the due day, the next due date is next month
+  if (today.getDate() > day) {
+    dueMonth += 1;
+    if (dueMonth > 11) {
+      dueMonth = 0;
+      dueYear += 1;
+    }
   }
   
   const dueDate = new Date(dueYear, dueMonth, day);
@@ -53,9 +58,10 @@ export function getDueInfo(clientDateStr) {
   return { dueIn, dueClass, date: dateStr, diffDays };
 }
 
-export function useFinanceEntry({ clients, addClient, updateClient, addToast, confirm }) {
+export function useFinanceEntry({ financeEntries, addFinanceEntry, updateFinanceEntry, investments, transactions, clients, addToast, confirm, addTransaction, addPayment }) {
   // Collapsible Form State
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false);
 
   // Form Fields State
   const [clientName, setClientName] = useState('');
@@ -89,35 +95,43 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
   // Detail Modal views
   const [viewRecord, setViewRecord] = useState(null);
 
-  // Automatically calculate interest and due date on duration/loan amount updates
+  // Repayment States
+  const [repaymentRecord, setRepaymentRecord] = useState(null);
+  const [repayPrincipalPaid, setRepayPrincipalPaid] = useState('');
+  const [repayInterestPaid, setRepayInterestPaid] = useState('');
+  const [repayDate, setRepayDate] = useState(new Date().toISOString().slice(0, 10));
+  const [repayRemarks, setRepayRemarks] = useState('');
+
+  // Populate repayment inputs when a record is selected
+  useEffect(() => {
+    if (repaymentRecord) {
+      setRepayPrincipalPaid(String(repaymentRecord.principal || ''));
+      setRepayInterestPaid(String(repaymentRecord.interest || ''));
+      setRepayDate(new Date().toISOString().slice(0, 10));
+      setRepayRemarks('');
+    }
+  }, [repaymentRecord]);
+
+  // Automatically calculate due date on duration updates
   useEffect(() => {
     if (!loanAmount || isNaN(Number(loanAmount))) {
-      setInterestAmount('');
       setDueDate('');
       return;
     }
     
-    let interestPct = 0.01;
     let daysToAdd = 15;
 
     if (duration === '< 3 Days') {
-      interestPct = 0.005;
       daysToAdd = 2;
     } else if (duration === '< 7 Days') {
-      interestPct = 0.01;
       daysToAdd = 5;
     } else if (duration === '< 15 Days') {
-      interestPct = 0.015;
       daysToAdd = 12;
     } else if (duration === '< 30 Days') {
-      interestPct = 0.02;
       daysToAdd = 25;
     } else {
-      interestPct = 0.03;
       daysToAdd = 45;
     }
-
-    setInterestAmount(String(Math.round(Number(loanAmount) * interestPct)));
     
     const calculatedDate = new Date();
     calculatedDate.setDate(calculatedDate.getDate() + daysToAdd);
@@ -131,13 +145,26 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
 
   // Derive dynamic client lists
   const activeClients = useMemo(() => {
-    return (clients || []).filter(c => ['Approved', 'Processing'].includes(c.status));
-  }, [clients]);
+    return (financeEntries || []).filter(c => !c.status || ['Approved', 'Processing', 'Paid', 'Active'].includes(c.status));
+  }, [financeEntries]);
 
   // KPI calculations
   const totalInvestments = useMemo(() => {
-    return (clients || []).reduce((sum, c) => sum + Number(c.amount || 0), 0);
-  }, [clients]);
+    const totalPartnerAmount = (investments || []).reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+    const totalLent = [...(clients || []), ...(financeEntries || [])]
+      .filter(c => ['Approved', 'Processing', 'Active', 'Disbursed', 'Paid'].includes(c.status))
+      .reduce((sum, c) => sum + Number(c.loan_amount || c.amount || 0), 0);
+
+    const allTimeIncome = (transactions || [])
+      .filter(t => t.type === 'Income' && t.status === 'Received')
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const allTimeExpense = (transactions || [])
+      .filter(t => t.type === 'Expense')
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const netProfit = allTimeIncome - allTimeExpense;
+
+    return Math.max(0, totalPartnerAmount - totalLent + netProfit);
+  }, [investments, clients, financeEntries, transactions]);
 
   const dueThisWeekCount = useMemo(() => {
     return activeClients.filter(c => {
@@ -148,7 +175,8 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
 
   const totalInterestPayable = useMemo(() => {
     return activeClients.reduce((sum, c) => {
-      const interest = c.interest_amount || Math.round(c.amount * 0.01);
+      const principal = Number(c.loan_amount || c.amount || 0);
+      const interest = c.interest_amount !== undefined && c.interest_amount !== null ? Number(c.interest_amount) : Math.round(principal * 0.01);
       return sum + interest;
     }, 0);
   }, [activeClients]);
@@ -156,16 +184,16 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
   // Reactive derived list representing the design's Table Row items
   const derivedRecordsList = useMemo(() => {
     return activeClients.map(c => {
-      const { dueIn, dueClass, date, diffDays } = getDueInfo(c.date);
-      const principal = c.amount;
-      const interest = c.interest_amount || Math.round(c.amount * 0.01);
+      const { dueIn, dueClass, date, diffDays } = getDueInfo(c.due_date || c.date);
+      const principal = Number(c.loan_amount || c.amount || 0);
+      const interest = c.interest_amount !== undefined && c.interest_amount !== null ? Number(c.interest_amount) : Math.round(principal * 0.01);
       const total = principal + interest;
       
       return {
         id: c.id,
-        name: c.name,
-        phone: c.phone,
-        email: c.email || '',
+        name: c.client_name || c.name || '',
+        phone: c.mobile_number || c.phone || '',
+        email: c.email_id || c.email || '',
         principal,
         interest,
         total,
@@ -173,7 +201,7 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
         daysRemaining: dueIn,
         dueClass,
         diffDays,
-        status: c.status,
+        status: c.status || 'Active',
         originalClient: c
       };
     }).sort((a, b) => a.diffDays - b.diffDays);
@@ -201,8 +229,8 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
 
   const displayEntryId = useMemo(() => {
     if (editId) return `ENTRY ID: ${editId}`;
-    return `ENTRY ID: CF-2026-${String((clients || []).length + 1).padStart(3, '0')}`;
-  }, [editId, clients]);
+    return `ENTRY ID: FE-2026-${String((financeEntries || []).length + 1).padStart(3, '0')}`;
+  }, [editId, financeEntries]);
 
   // Resets all form fields
   const handleResetForm = () => {
@@ -231,7 +259,7 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
   };
 
   // Save the form entry
-  const handleSaveEntry = () => {
+  const handleSaveEntry = async () => {
     if (!clientName.trim() || !mobileNumber.trim() || !loanAmount) {
       addToast('Client Name, Mobile Number, and Loan Amount are required.', 'error');
       return;
@@ -250,26 +278,16 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
     }
 
     const payload = {
-      name: clientName,
-      phone: mobileNumber,
-      email: emailId || `${clientName.toLowerCase().replace(/\s+/g, '')}@example.com`,
-      amount: Number(loanAmount),
-      date: dueDate || new Date().toISOString().slice(0, 10),
-      loan_type: 'Home Loan',
-      status: 'Approved',
-      associate: 'Unassigned',
-      pan_card: panNumber.toUpperCase(),
-      aadhaar_number: aadhaarNumber,
-      residential_status: 'Resident Indian',
-      employment_status: 'Salaried',
-      monthly_net_income: '',
-      co_applicant_income: '',
-      dwelling_status: 'Owned',
-      tenure_at_address: '',
-      location: 'Mumbai, MH',
-      // Custom entry meta attributes
+      client_name: clientName,
+      mobile_number: mobileNumber,
+      email_id: emailId || `${clientName.toLowerCase().replace(/\s+/g, '')}@example.com`,
+      loan_amount: Number(loanAmount),
+      due_date: dueDate || new Date().toISOString().slice(0, 10),
+      status: 'Active',
+      pan_number: panNumber ? panNumber.toUpperCase() : '',
+      aadhaar_number: aadhaarNumber || '',
       duration,
-      interest_amount: Number(interestAmount) || Math.round(Number(loanAmount) * 0.01),
+      interest_amount: Number(interestAmount),
       co_applicant_name: coApplicantName,
       address,
       co_applicant_aadhaar: coApplicantAadhaar,
@@ -279,15 +297,23 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
     };
 
     if (editId) {
-      const original = clients.find(c => c.id === editId);
-      updateClient({
+      const original = financeEntries.find(c => c.id === editId);
+      const res = await updateFinanceEntry({
         ...original,
         ...payload,
         id: editId
       });
+      if (res?.error) {
+        addToast(`Failed: ${res.error}`, 'error');
+        return;
+      }
       addToast('Finance entry updated successfully.', 'success');
     } else {
-      addClient(payload);
+      const res = await addFinanceEntry(payload);
+      if (res?.error) {
+        addToast(`Failed: ${res.error}`, 'error');
+        return;
+      }
       addToast('New finance entry recorded successfully.', 'success');
     }
 
@@ -329,7 +355,7 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
     setLoanAmount(String(rec.principal));
     setDuration(orig.duration || '< 3 Days');
     setAadhaarNumber(orig.aadhaar_number || '');
-    setPanNumber(orig.pan_card || '');
+    setPanNumber(orig.pan_number || orig.pan_card || '');
     setDueDate(rec.dueDate);
     setInterestAmount(String(rec.interest));
     setCoApplicantName(orig.co_applicant_name || '');
@@ -340,7 +366,13 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
     setRemarks(orig.remarks || '');
     
     setIsFormOpen(true);
+    setIsViewMode(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleViewRecord = (rec) => {
+    handleEditRecord(rec);
+    setIsViewMode(true);
   };
 
   // Record deletions
@@ -350,7 +382,7 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
       message: `Are you sure you want to permanently remove ${rec.name}'s finance record? This action cannot be undone.`
     });
     if (confirmed) {
-      updateClient({
+      updateFinanceEntry({
         ...rec.originalClient,
         status: 'Closed' // Transition to Closed so it is hidden from active lists
       });
@@ -358,9 +390,86 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
     }
   };
 
+  // Save Repayment Entry
+  const handleSaveRepayment = async () => {
+    if (!repaymentRecord) return;
+    const client = repaymentRecord.originalClient;
+    const principalPaid = Number(repayPrincipalPaid || 0);
+    const interestPaid = Number(repayInterestPaid || 0);
+
+    if (isNaN(principalPaid) || isNaN(interestPaid) || principalPaid < 0 || interestPaid < 0) {
+      addToast('Please enter valid non-negative numbers for amounts.', 'error');
+      return;
+    }
+
+    if (principalPaid === 0 && interestPaid === 0) {
+      addToast('Please enter a principal or interest amount to record repayment.', 'error');
+      return;
+    }
+
+    const currentPrincipal = Number(client.loan_amount || client.amount || 0);
+    const currentInterest = client.interest_amount !== undefined && client.interest_amount !== null ? Number(client.interest_amount) : Math.round(currentPrincipal * 0.01);
+
+    if (principalPaid > currentPrincipal) {
+      addToast(`Principal paid cannot exceed outstanding principal (₹${currentPrincipal.toLocaleString('en-IN')}).`, 'error');
+      return;
+    }
+
+    if (interestPaid > currentInterest) {
+      addToast(`Interest paid cannot exceed outstanding interest (₹${currentInterest.toLocaleString('en-IN')}).`, 'error');
+      return;
+    }
+
+    const remainingPrincipal = Math.max(0, currentPrincipal - principalPaid);
+    const remainingInterest = Math.max(0, currentInterest - interestPaid);
+
+    // Update client record
+    const { amount, ...restClient } = client;
+    const updatedClient = {
+      ...restClient,
+      loan_amount: remainingPrincipal,
+      interest_amount: remainingInterest,
+      status: remainingPrincipal === 0 ? 'Paid' : 'Active'
+    };
+
+    try {
+      const res = await updateFinanceEntry(updatedClient);
+      if (res?.error) {
+        addToast(`Failed: ${res.error}`, 'error');
+        return;
+      }
+
+      // Insert transaction if interest is paid
+      if (interestPaid > 0) {
+        await addTransaction({
+          date: repayDate || new Date().toISOString().slice(0, 10),
+          type: 'Income',
+          name: client.client_name || client.name,
+          particular: `Interest Collection from ${client.client_name || client.name}`,
+          category: 'Interest Collection',
+          amount: interestPaid,
+          status: 'Received',
+          remarks: repayRemarks || 'Client interest repayment'
+        });
+      }
+
+      addToast('Repayment recorded successfully.', 'success');
+      // Reset repayment states
+      setRepaymentRecord(null);
+      setRepayPrincipalPaid('');
+      setRepayInterestPaid('');
+      setRepayRemarks('');
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to record repayment.', 'error');
+    }
+  };
+
   return {
     isFormOpen,
     setIsFormOpen,
+    isViewMode,
+    setIsViewMode,
     clientName,
     setClientName,
     mobileNumber,
@@ -416,7 +525,19 @@ export function useFinanceEntry({ clients, addClient, updateClient, addToast, co
     handleCancel,
     handleSaveEntry,
     handleEditRecord,
+    handleViewRecord,
     handleDeleteRecord,
-    handleExportCSV
+    handleExportCSV,
+    repaymentRecord,
+    setRepaymentRecord,
+    repayPrincipalPaid,
+    setRepayPrincipalPaid,
+    repayInterestPaid,
+    setRepayInterestPaid,
+    repayDate,
+    setRepayDate,
+    repayRemarks,
+    setRepayRemarks,
+    handleSaveRepayment
   };
 }

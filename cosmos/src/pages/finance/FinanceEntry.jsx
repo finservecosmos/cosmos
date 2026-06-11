@@ -15,13 +15,15 @@ export default function FinanceEntry() {
   const navigate = useNavigate();
   const { addToast } = useToast();
   const confirm = useConfirm();
-  const { clients, addClient, updateClient, investments, addTransaction, addPayment } = useAppState();
+  const { clients, financeEntries, addFinanceEntry, updateFinanceEntry, investments, transactions, addTransaction, addPayment } = useAppState();
 
   const financeEntryState = useFinanceEntry({
     clients,
-    addClient,
-    updateClient,
+    financeEntries,
+    addFinanceEntry,
+    updateFinanceEntry,
     investments,
+    transactions,
     addToast,
     confirm,
     addTransaction,

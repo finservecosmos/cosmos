@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from '../../../shared/ui/Modal';
 
 export default function InvestmentForm({
+  isViewMode = false,
   partnerName,
   setPartnerName,
   investmentAmount,
@@ -37,8 +38,8 @@ export default function InvestmentForm({
   return (
     <Modal
       size="lg"
-      title={editId ? 'Modify Investment Record' : 'Investment Entry Form'}
-      subtitle="Please fill out the details below."
+      title={isViewMode ? 'Investor Details View' : (editId ? 'Modify Investment Record' : 'Investment Entry Form')}
+      subtitle={isViewMode ? "Viewing partner investment details." : "Please fill out the details below."}
       onClose={handleCancel}
     >
       <div className="investment-form-grid" style={{ paddingTop: '10px' }}>
@@ -49,6 +50,7 @@ export default function InvestmentForm({
             placeholder="Enter full name"
             value={partnerName}
             onChange={e => setPartnerName(e.target.value)}
+            disabled={isViewMode}
           />
         </label>
 
@@ -59,6 +61,7 @@ export default function InvestmentForm({
             placeholder="0.00"
             value={investmentAmount}
             onChange={e => setInvestmentAmount(e.target.value)}
+            disabled={isViewMode}
           />
         </label>
         
@@ -70,6 +73,7 @@ export default function InvestmentForm({
               placeholder="https://drive.google.com/..."
               value={googleDriveLink}
               onChange={e => setGoogleDriveLink(e.target.value)}
+              disabled={isViewMode}
               style={{ flex: 1, margin: 0 }}
             />
             <button 
@@ -88,11 +92,12 @@ export default function InvestmentForm({
 
         <label className="span-2">
           Investment Duration
-          <select value={duration} onChange={e => setDuration(e.target.value)}>
+          <select value={duration} onChange={e => setDuration(e.target.value)} disabled={isViewMode}>
             <option value="6 Months">6 Months</option>
             <option value="12 Months">12 Months</option>
             <option value="24 Months">24 Months</option>
             <option value="36 Months">36 Months</option>
+            <option value="Not defined">Not defined</option>
           </select>
         </label>
 
@@ -103,6 +108,7 @@ export default function InvestmentForm({
             placeholder="+91 XXXXX XXXXX"
             value={mobileNumber}
             onChange={e => setMobileNumber(e.target.value)}
+            disabled={isViewMode}
           />
         </label>
 
@@ -113,6 +119,7 @@ export default function InvestmentForm({
             placeholder="XXXX XXXX XXXX"
             value={aadhaarNumber}
             onChange={e => setAadhaarNumber(e.target.value)}
+            disabled={isViewMode}
           />
         </label>
 
@@ -122,6 +129,7 @@ export default function InvestmentForm({
             type="date"
             value={startDate}
             onChange={e => setStartDate(e.target.value)}
+            disabled={isViewMode}
           />
         </label>
 
@@ -142,6 +150,7 @@ export default function InvestmentForm({
             placeholder="ABCDE1234F"
             value={panNumber}
             onChange={e => setPanNumber(e.target.value)}
+            disabled={isViewMode}
           />
         </label>
 
@@ -152,6 +161,7 @@ export default function InvestmentForm({
             placeholder="Relationship Holder"
             value={nomineeName}
             onChange={e => setNomineeName(e.target.value)}
+            disabled={isViewMode}
           />
         </label>
 
@@ -162,6 +172,7 @@ export default function InvestmentForm({
             placeholder="Internal notes..."
             value={remarks}
             onChange={e => setRemarks(e.target.value)}
+            disabled={isViewMode}
           />
         </label>
 
@@ -172,6 +183,7 @@ export default function InvestmentForm({
             placeholder="XXXX XXXX XXXX"
             value={nomineeAadhaar}
             onChange={e => setNomineeAadhaar(e.target.value)}
+            disabled={isViewMode}
           />
         </label>
 
@@ -182,6 +194,7 @@ export default function InvestmentForm({
             placeholder="PAN NUMBER"
             value={nomineePan}
             onChange={e => setNomineePan(e.target.value)}
+            disabled={isViewMode}
           />
         </label>
 
@@ -192,14 +205,21 @@ export default function InvestmentForm({
             placeholder="Residential/Business address details..."
             value={address}
             onChange={e => setAddress(e.target.value)}
+            disabled={isViewMode}
             style={{ resize: 'none' }}
           />
         </label>
 
         <div className="span-2" style={{ display: 'flex', gap: 24, alignItems: 'flex-end', justifyContent: 'flex-end', borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '16px' }}>
-          <button type="button" className="admin-action-btn" onClick={handleCancel} style={{ textDecoration: 'none', color: '#ef4444', border: 'none', background: 'transparent' }}>Cancel</button>
-          <button type="button" className="data-btn data-btn-outline" onClick={handleResetForm}>Reset</button>
-          <button type="button" className="admin-primary-btn" onClick={handleSaveInvestment} style={{ minWidth: 150 }}>Save Investment</button>
+          {isViewMode ? (
+            <button type="button" className="admin-primary-btn" onClick={handleCancel} style={{ minWidth: 150 }}>Close</button>
+          ) : (
+            <>
+              <button type="button" className="admin-action-btn" onClick={handleCancel} style={{ textDecoration: 'none', color: '#ef4444', border: 'none', background: 'transparent' }}>Cancel</button>
+              <button type="button" className="data-btn data-btn-outline" onClick={handleResetForm}>Reset</button>
+              <button type="button" className="admin-primary-btn" onClick={handleSaveInvestment} style={{ minWidth: 150 }}>Save Investment</button>
+            </>
+          )}
         </div>
       </div>
     </Modal>

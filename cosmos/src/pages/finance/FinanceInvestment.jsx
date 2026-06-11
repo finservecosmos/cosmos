@@ -17,11 +17,11 @@ function InvestmentPieChart({ data, totalInvestment }) {
   const [hoveredSegment, setHoveredSegment] = React.useState(null);
   const [donutTooltipPos, setDonutTooltipPos] = React.useState({ x: 0, y: 0 });
 
-  const size = 180;
+  const size = 220;
   const cx = size / 2;
   const cy = size / 2;
-  const r = 64;
-  const innerR = 40;
+  const r = 80;
+  const innerR = 55;
   const strokeW = r - innerR;
   const circumference = 2 * Math.PI * r;
 
@@ -194,25 +194,54 @@ export default function FinanceInvestment() {
     setStatusFilter,
     currentPage,
     setCurrentPage,
-    viewRecord,
-    setViewRecord,
     totalInvestmentAmount,
     activePartnersCount,
-    maturingThisMonthCount,
     paginatedRecords,
     totalPages,
     PAGE_SIZE,
+    isViewMode,
     handleResetForm,
     handleCancel,
     handleSaveInvestment,
     handleEditRecord,
+    handleViewRecord,
     handleDeleteRecord,
+    handleHardDeleteRecord,
     handleExportCSV
   } = investmentState;
 
   useEffect(() => {
     document.title = 'Investment Management | Cosmos';
   }, []);
+
+  const lastMonthStats = React.useMemo(() => {
+    const today = new Date('2026-06-06');
+    const prevMonthTo = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().slice(0, 10);
+    
+    const active = investments || [];
+    const currentTotal = active.reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+    const prevTotal = active.filter(inv => {
+      const d = inv.start_date || inv.startDate || '2026-06-06';
+      return d <= prevMonthTo;
+    }).reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+
+    return { currentTotal, prevTotal };
+  }, [investments]);
+
+  const investmentPct = React.useMemo(() => {
+    if (lastMonthStats.prevTotal === 0) return 0;
+    return ((lastMonthStats.currentTotal - lastMonthStats.prevTotal) / lastMonthStats.prevTotal) * 100;
+  }, [lastMonthStats]);
+
+  const renderKpiTag = (pct) => {
+    if (pct === 0) {
+      return <span className="kpi-tag muted" style={{ background: '#f1f5f9', color: '#64748b' }}>0% vs last month</span>;
+    }
+    if (pct > 0) {
+      return <span className="kpi-tag trend-up">↗ +{pct.toFixed(1)}% vs last month</span>;
+    }
+    return <span className="kpi-tag trend-down">↘ {pct.toFixed(1)}% vs last month</span>;
+  };
 
   const colors = ['#c0392b', '#1e293b', '#e74c3c', '#cbd5e1', '#3498db', '#a0c4ff', '#8e44ad', '#2c3e50', '#27ae60'];
   const partnerData = Object.entries(
@@ -264,7 +293,7 @@ export default function FinanceInvestment() {
                       <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                     </svg>
                   </div>
-                  <span className="kpi-tag trend-up">↗ +12.5% vs last month</span>
+                  {renderKpiTag(investmentPct)}
                 </div>
                 <div className="kpi-body">
                   <div className="kpi-title">TOTAL INVESTMENTS</div>
@@ -287,20 +316,6 @@ export default function FinanceInvestment() {
                 </div>
               </div>
 
-              <div className="kpi-card" style={{ margin: 0 }}>
-                <div className="kpi-header">
-                  <div className="kpi-icon-wrap" style={{ color: '#dc2626' }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                  </div>
-                  <span className="kpi-tag critical">Action required on {maturingThisMonthCount}</span>
-                </div>
-                <div className="kpi-body">
-                  <div className="kpi-title">MATURING THIS MONTH</div>
-                  <div className="kpi-value">{maturingThisMonthCount}</div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -324,6 +339,7 @@ export default function FinanceInvestment() {
         {/* Collapsible Entry Form */}
         {isFormOpen && (
           <InvestmentForm
+            isViewMode={isViewMode}
             partnerName={partnerName}
             setPartnerName={setPartnerName}
             investmentAmount={investmentAmount}
@@ -373,84 +389,9 @@ export default function FinanceInvestment() {
           handleExportCSV={handleExportCSV}
           handleEditRecord={handleEditRecord}
           handleDeleteRecord={handleDeleteRecord}
-          setViewRecord={setViewRecord}
+          handleHardDeleteRecord={handleHardDeleteRecord}
+          setViewRecord={handleViewRecord}
         />
-
-        {/* View Modal */}
-        {viewRecord && (
-          <Modal title="Investor Details View" onClose={() => setViewRecord(null)} size="sm">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Partner Name:</span>
-                <span style={{ fontWeight: 700 }}>{viewRecord.partner}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Partner Mobile:</span>
-                <span style={{ fontFamily: 'monospace' }}>{viewRecord.originalInvestment.mobile || '—'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Partner PAN Card:</span>
-                <span style={{ fontFamily: 'monospace' }}>{viewRecord.originalInvestment.pan_card || '—'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Partner Aadhaar:</span>
-                <span style={{ fontFamily: 'monospace' }}>{viewRecord.originalInvestment.aadhaar_number || '—'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Investment Principal:</span>
-                <span className="cell-amount">₹{viewRecord.amount.toLocaleString('en-IN')}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Accrued Interest:</span>
-                <span className="cell-amount">₹{viewRecord.interest.toLocaleString('en-IN')}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Nominee Name:</span>
-                <span style={{ fontWeight: 600 }}>{viewRecord.originalInvestment.nominee_name || '—'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Nominee PAN:</span>
-                <span style={{ fontFamily: 'monospace' }}>{viewRecord.originalInvestment.nominee_pan || '—'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Nominee Aadhaar:</span>
-                <span style={{ fontFamily: 'monospace' }}>{viewRecord.originalInvestment.nominee_aadhaar || '—'}</span>
-              </div>
-              {viewRecord.originalInvestment.google_drive_link && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8, alignItems: 'center' }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Google Drive Link:</span>
-                  <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                    <a
-                      href={viewRecord.originalInvestment.google_drive_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="data-btn data-btn-outline"
-                      style={{ color: 'var(--text-primary)', padding: '6px 12px', fontSize: 12, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                      Open Drive
-                    </a>
-                  </div>
-                </div>
-              )}
-              {viewRecord.originalInvestment.address && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Billing Address:</span>
-                  <span style={{ fontSize: 12.5, lineHeight: 1.4 }}>{viewRecord.originalInvestment.address}</span>
-                </div>
-              )}
-              {viewRecord.originalInvestment.remarks && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Remarks:</span>
-                  <span style={{ fontSize: 12.5, fontStyle: 'italic' }}>{viewRecord.originalInvestment.remarks}</span>
-                </div>
-              )}
-            </div>
-            <div className="modal-actions" style={{ marginTop: 20 }}>
-              <button type="button" className="admin-action-btn" onClick={() => setViewRecord(null)}>Close</button>
-            </div>
-          </Modal>
-        )}
       </div>
     </DashboardLayout>
   );

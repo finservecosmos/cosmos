@@ -41,7 +41,7 @@ export const investmentSchema = z.object({
   ),
   duration: z.string().min(1, 'Duration is required'),
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid start date format'),
-  end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid end date format').optional(),
+  end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid end date format').or(z.literal('')).optional(),
   mobile: z.string().regex(/^\d{10}$/, 'Mobile number must be exactly 10 digits').or(z.literal('')),
   aadhaar_number: z.string().regex(/^\d{12}$/, 'Aadhaar Number must be exactly 12 digits').or(z.literal('')),
   pan_card: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i, 'Invalid PAN Card format').or(z.literal('')),

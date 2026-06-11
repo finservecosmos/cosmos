@@ -36,8 +36,9 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
   const [address, setAddress] = useState('');
   const [googleDriveLink, setGoogleDriveLink] = useState('');
 
-  // Edit Mode state
+  // Edit/View Mode state
   const [editId, setEditId] = useState(null);
+  const [isViewMode, setIsViewMode] = useState(false);
 
   // Toolbar filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,6 +54,10 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
   // Auto-calculate end date based on duration months
   useEffect(() => {
     if (!startDate) return;
+    if (duration === 'Not defined') {
+      setEndDate('');
+      return;
+    }
     const sDate = new Date(startDate);
     let monthsToAdd = 12;
 
@@ -89,6 +94,7 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
   const maturingThisMonthCount = useMemo(() => {
     const active = investments || [];
     return active.filter(inv => {
+      if (inv.duration === 'Not defined') return false;
       const { remainingDays } = getDaysRemainingInfo(inv.end_date || inv.endDate);
       return remainingDays >= 0 && remainingDays <= 30;
     }).length;
@@ -115,7 +121,7 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
       // Format end date for table display
       const eDateObj = new Date(end);
       const options = { day: '2-digit', month: 'short', year: 'numeric' };
-      const formattedEndDate = eDateObj.toLocaleDateString('en-GB', options);
+      const formattedEndDate = inv.duration === 'Not defined' ? 'Not defined' : eDateObj.toLocaleDateString('en-GB', options);
 
       return {
         id: inv.id,
@@ -125,8 +131,8 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
         duration: inv.duration || '12 Months',
         endDate: end,
         displayEndDate: formattedEndDate,
-        remainingDays,
-        barColor,
+        remainingDays: inv.duration === 'Not defined' ? Infinity : remainingDays,
+        barColor: inv.duration === 'Not defined' ? 'green' : barColor,
         status: inv.status || 'Active',
         originalInvestment: inv
       };
@@ -164,6 +170,7 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
     setNomineePan('');
     setAddress('');
     setGoogleDriveLink('');
+    setIsViewMode(false);
   };
 
   const handleCancel = () => {
@@ -195,7 +202,7 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
       amount: Number(investmentAmount),
       duration,
       start_date: startDate,
-      end_date: endDate,
+      end_date: endDate || null,
       mobile: mobileNumber,
       aadhaar_number: aadhaarNumber,
       pan_card: panNumber.toUpperCase(),
@@ -245,6 +252,28 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleViewRecord = (rec) => {
+    const orig = rec.originalInvestment;
+    setEditId(rec.id);
+    setPartnerName(orig.partner);
+    setInvestmentAmount(String(orig.amount));
+    setDuration(orig.duration || '12 Months');
+    setMobileNumber(orig.mobile || '');
+    setAadhaarNumber(orig.aadhaar_number || '');
+    setStartDate(orig.start_date || orig.startDate || '2026-06-06');
+    setPanNumber(orig.pan_card || '');
+    setNomineeName(orig.nominee_name || '');
+    setRemarks(orig.remarks || '');
+    setNomineeAadhaar(orig.nominee_aadhaar || '');
+    setNomineePan(orig.nominee_pan || '');
+    setAddress(orig.address || '');
+    setGoogleDriveLink(orig.google_drive_link || '');
+
+    setIsViewMode(true);
+    setIsFormOpen(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleDeleteRecord = async (rec) => {
     const confirmed = await confirm({
       title: 'Remove Investment Record',
@@ -259,12 +288,22 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
     }
   };
 
+  const handleHardDeleteRecord = async (rec) => {
+    const confirmed = await confirm({
+      title: 'Delete Investment Record',
+      message: `Are you sure you want to permanently delete ${rec.partner}'s investment record? This cannot be undone.`
+    });
+    if (confirmed) {
+      removeInvestment(rec.id);
+      addToast('Investment record deleted permanently.', 'success');
+    }
+  };
+
   const handleExportCSV = () => {
-    const headers = ['Partner Name', 'Investment Amount', 'Interest Amount', 'Duration', 'End Date', 'Status'];
+    const headers = ['Partner Name', 'Investment Amount', 'Duration', 'End Date', 'Status'];
     const rows = filteredRecords.map(rec => [
       rec.partner,
       rec.amount,
-      rec.interest,
       rec.duration,
       rec.endDate,
       rec.status
@@ -320,8 +359,6 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
     setStatusFilter,
     currentPage,
     setCurrentPage,
-    viewRecord,
-    setViewRecord,
     totalInvestmentAmount,
     activePartnersCount,
     maturingThisMonthCount,
@@ -330,11 +367,14 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
     paginatedRecords,
     totalPages,
     PAGE_SIZE,
+    isViewMode,
     handleResetForm,
     handleCancel,
     handleSaveInvestment,
     handleEditRecord,
+    handleViewRecord,
     handleDeleteRecord,
+    handleHardDeleteRecord,
     handleExportCSV
   };
 }

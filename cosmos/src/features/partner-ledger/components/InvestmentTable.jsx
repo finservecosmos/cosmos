@@ -15,6 +15,7 @@ export default function InvestmentTable({
   handleExportCSV,
   handleEditRecord,
   handleDeleteRecord,
+  handleHardDeleteRecord,
   setViewRecord
 }) {
   const [activeMenuId, setActiveMenuId] = useState(null);
@@ -81,7 +82,6 @@ export default function InvestmentTable({
             <tr>
               <th>Partner Name</th>
               <th>Investment Amount</th>
-              <th>Int Amount</th>
               <th>Duration</th>
               <th>End Date</th>
               <th>Remaining</th>
@@ -101,19 +101,24 @@ export default function InvestmentTable({
                 <tr key={rec.id}>
                   <td style={{ fontWeight: 700 }}>{rec.partner}</td>
                   <td className="cell-amount">₹{rec.amount.toLocaleString('en-IN')}</td>
-                  <td className="cell-amount" style={{ color: 'var(--text-secondary)' }}>₹{rec.interest.toLocaleString('en-IN')}</td>
                   <td className="cell-muted">{rec.duration}</td>
                   <td className="cell-muted">{rec.displayEndDate}</td>
                   <td>
-                    <div className="remaining-days-bar-container">
-                      <span className="remaining-days-text">{rec.remainingDays} Days</span>
-                      <div className="remaining-days-bar-bg">
-                        <div
-                          className={`remaining-days-bar-fill ${rec.barColor}`}
-                          style={{ width: `${Math.min(100, (rec.remainingDays / 540) * 100)}%` }}
-                        />
+                    {rec.duration === 'Not defined' ? (
+                      <div className="remaining-days-bar-container">
+                        <span className="remaining-days-text">N/A</span>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="remaining-days-bar-container">
+                        <span className="remaining-days-text">{rec.remainingDays} Days</span>
+                        <div className="remaining-days-bar-bg">
+                          <div
+                            className={`remaining-days-bar-fill ${rec.barColor}`}
+                            style={{ width: `${Math.min(100, (rec.remainingDays / 540) * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </td>
                   <td>
                     <span className={`status-badge status-${rec.status.toLowerCase()}`}>
@@ -152,6 +157,9 @@ export default function InvestmentTable({
                           <div className="action-popover" onClick={(e) => e.stopPropagation()}>
                             <button className="popover-item danger" onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}>
                               <Trash2 size={16} style={{ marginRight: 6, verticalAlign: 'text-bottom' }} /> Deactivate
+                            </button>
+                            <button className="popover-item danger" onClick={() => { handleHardDeleteRecord(rec); setActiveMenuId(null); }}>
+                              <Trash2 size={16} style={{ marginRight: 6, verticalAlign: 'text-bottom' }} /> Delete
                             </button>
                           </div>
                         )}

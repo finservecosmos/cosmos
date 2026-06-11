@@ -14,7 +14,7 @@ export default function FinanceIncomeExpenses() {
   const navigate = useNavigate()
   const { addToast } = useToast()
   const confirm = useConfirm()
-  const { transactions, addTransaction, updateTransaction, removeTransaction } = useAppState()
+  const { transactions, addTransaction, updateTransaction, removeTransaction, clients, financeEntries, investments } = useAppState()
 
   // Date range selectors (Page Header)
   const [headerFromDate, setHeaderFromDate] = useState('2026-06-01')
@@ -33,11 +33,13 @@ export default function FinanceIncomeExpenses() {
 
   // Edit mode state
   const [editId, setEditId] = useState(null)
+  const [viewRecord, setViewRecord] = useState(null)
 
   // Table filter states
   const [searchQuery, setSearchQuery] = useState('')
   const [tableFromDate, setTableFromDate] = useState('2026-06-01')
   const [tableToDate, setTableToDate] = useState('2026-06-30')
+  const [filterType, setFilterType] = useState('All')
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
@@ -92,10 +94,64 @@ export default function FinanceIncomeExpenses() {
     return totalIncome - totalExpenses
   }, [totalIncome, totalExpenses])
 
+  const baseBankBalance = useMemo(() => {
+    const totalInv = (investments || []).reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
+    const totalLent = [...(clients || []), ...(financeEntries || [])]
+      .filter(c => ['Approved', 'Processing', 'Active', 'Disbursed', 'Paid'].includes(c.status))
+      .reduce((sum, c) => sum + Number(c.loan_amount || c.amount || 0), 0)
+    return Math.max(0, totalInv - totalLent)
+  }, [investments, clients, financeEntries])
+
   const currentBalance = useMemo(() => {
-    const opening = 10000 // Opening balance from mockup
-    return opening + netProfit
-  }, [netProfit])
+    const allTimeIncome = (transactions || [])
+      .filter(t => t.type === 'Income' && t.status === 'Received')
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+    const allTimeExpense = (transactions || [])
+      .filter(t => t.type === 'Expense')
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+    const allTimeNetProfit = allTimeIncome - allTimeExpense
+    
+    return baseBankBalance + allTimeNetProfit
+  }, [baseBankBalance, transactions])
+
+  const lastMonthStats = useMemo(() => {
+    const fromD = new Date(headerFromDate)
+    const prevMonthFrom = new Date(fromD.getFullYear(), fromD.getMonth() - 1, 1)
+    const prevMonthTo = new Date(fromD.getFullYear(), fromD.getMonth(), 0)
+    
+    const prevFromStr = prevMonthFrom.toISOString().slice(0, 10)
+    const prevToStr = prevMonthTo.toISOString().slice(0, 10)
+
+    const prevTx = (transactions || []).filter(t => {
+      const d = t.date || ''
+      return d >= prevFromStr && d <= prevToStr
+    })
+
+    const income = prevTx.filter(t => t.type === 'Income').reduce((sum, t) => sum + Number(t.amount || 0), 0)
+    const expenses = prevTx.filter(t => t.type === 'Expense').reduce((sum, t) => sum + Number(t.amount || 0), 0)
+    const profit = income - expenses
+
+    return { income, expenses, profit }
+  }, [transactions, headerFromDate])
+
+  const calcPct = (current, prev) => {
+    if (prev === 0) return 0
+    return ((current - prev) / prev) * 100
+  }
+
+  const incomePct = calcPct(totalIncome, lastMonthStats.income)
+  const expensePct = calcPct(totalExpenses, lastMonthStats.expenses)
+  const profitPct = calcPct(netProfit, lastMonthStats.profit)
+
+  const renderKpiTag = (pct) => {
+    if (pct === 0) {
+      return <span className="kpi-tag muted" style={{ background: '#f1f5f9', color: '#64748b' }}>0% vs last month</span>
+    }
+    if (pct > 0) {
+      return <span className="kpi-tag trend-up">↗ +{pct.toFixed(1)}% vs last month</span>
+    }
+    return <span className="kpi-tag trend-down">↘ {pct.toFixed(1)}% vs last month</span>
+  }
 
   // Table display records (further filtered by search & table toolbar dates)
   const derivedRecordsList = useMemo(() => {
@@ -109,9 +165,11 @@ export default function FinanceIncomeExpenses() {
         (t.category && t.category.toLowerCase().includes(query)) ||
         (t.particular && t.particular.toLowerCase().includes(query))
 
-      return matchDates && matchSearch
+      const matchType = filterType === 'All' || t.type === filterType
+
+      return matchDates && matchSearch && matchType
     }).sort((a, b) => new Date(b.date) - new Date(a.date) || b.id.localeCompare(a.id))
-  }, [dateFilteredTransactions, tableFromDate, tableToDate, searchQuery])
+  }, [dateFilteredTransactions, tableFromDate, tableToDate, searchQuery, filterType])
 
   // Pagination
   const totalPages = Math.ceil(derivedRecordsList.length / PAGE_SIZE)
@@ -119,7 +177,7 @@ export default function FinanceIncomeExpenses() {
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchQuery, tableFromDate, tableToDate])
+  }, [searchQuery, tableFromDate, tableToDate, filterType])
 
   // Income breakdowns
   const incomeBreakdown = useMemo(() => {
@@ -376,7 +434,7 @@ export default function FinanceIncomeExpenses() {
                   <polyline points="17 6 23 6 23 12" />
                 </svg>
               </div>
-              <span className="kpi-tag trend-up">↗ +12.5% vs last month</span>
+              {renderKpiTag(incomePct)}
             </div>
             <div className="kpi-body">
               <div className="kpi-title">TOTAL INCOME</div>
@@ -392,7 +450,7 @@ export default function FinanceIncomeExpenses() {
                   <polyline points="17 18 23 18 23 12" />
                 </svg>
               </div>
-              <span className="kpi-tag trend-down">↘ -8.3% vs last month</span>
+              {renderKpiTag(expensePct)}
             </div>
             <div className="kpi-body">
               <div className="kpi-title">TOTAL EXPENSES</div>
@@ -407,7 +465,7 @@ export default function FinanceIncomeExpenses() {
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
               </div>
-              <span className="kpi-tag trend-up">↗ +25.4% vs last month</span>
+              {renderKpiTag(profitPct)}
             </div>
             <div className="kpi-body">
               <div className="kpi-title">NET PROFIT</div>
@@ -653,6 +711,19 @@ export default function FinanceIncomeExpenses() {
             </div>
 
             <div className="records-filter-toolbar">
+              <div className="type-filter-container" style={{ marginRight: '8px' }}>
+                <select 
+                  className="date-scope-input" 
+                  style={{ cursor: 'pointer', paddingRight: '24px' }} 
+                  value={filterType} 
+                  onChange={e => setFilterType(e.target.value)}
+                >
+                  <option value="All">All Types</option>
+                  <option value="Income">Income</option>
+                  <option value="Expense">Expense</option>
+                </select>
+              </div>
+
               <div className="range-filter-container table-inner-dates">
                 <span>From</span>
                 <input
@@ -760,6 +831,12 @@ export default function FinanceIncomeExpenses() {
                             {activeMenuId === rec.id && (
                               <div className="action-popover" onClick={(e) => e.stopPropagation()}>
                                 <button className="popover-item" onClick={() => { 
+                                  setViewRecord(rec); 
+                                  setActiveMenuId(null);
+                                }}>
+                                  <FileText size={16} style={{ marginRight: 8, verticalAlign: "middle" }} /> View Details
+                                </button>
+                                <button className="popover-item" onClick={() => { 
                                   setActiveMenuId(null);
                                   navigate('/finance/invoice', { state: { prefillName: rec.name, prefillParticular: rec.particular, prefillAmount: rec.amount, prefillType: rec.type, prefillDate: rec.date } });
                                 }}>
@@ -797,6 +874,52 @@ export default function FinanceIncomeExpenses() {
           )}
         </div>
       </div>
+
+      {/* View Details Modal */}
+      {viewRecord && (
+        <Modal title={`${viewRecord.type} Record Details`} onClose={() => setViewRecord(null)} size="sm">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Date:</span>
+              <span style={{ fontWeight: 700 }}>{formatDateDisplay(viewRecord.date)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Name / Payer:</span>
+              <span style={{ fontWeight: 700 }}>{viewRecord.name}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Category:</span>
+              <span>{viewRecord.category}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Particular:</span>
+              <span className="cell-primary-purpose">{viewRecord.particular}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Status:</span>
+              <span className={`transaction-status-tag ${viewRecord.status.toLowerCase()}`}>
+                <span className="status-dot" />
+                {viewRecord.status}
+              </span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Amount:</span>
+              <span className={`cell-amount bold-amount ${viewRecord.type.toLowerCase()}`}>
+                ₹{viewRecord.amount.toLocaleString('en-IN')}
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Remarks:</span>
+              <span style={{ background: 'var(--bg-muted)', padding: 8, borderRadius: 6, fontSize: 13, color: 'var(--text-secondary)' }}>
+                {viewRecord.remarks || 'No remarks provided.'}
+              </span>
+            </div>
+          </div>
+          <div className="modal-actions" style={{ marginTop: 20 }}>
+            <button type="button" className="admin-action-btn" onClick={() => setViewRecord(null)}>Close</button>
+          </div>
+        </Modal>
+      )}
 
     </DashboardLayout>
   )
