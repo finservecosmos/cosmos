@@ -122,6 +122,12 @@ export default function FinanceOverview() {
     return Math.max(0, totalInvestment - totalLent)
   }, [totalInvestment, clients])
 
+  const totalIncome = useMemo(() => {
+    return (transactions || [])
+      .filter(t => t.type === 'Income' && t.status === 'Received')
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+  }, [transactions])
+
   // Derive all due records reactively from global clients state
   const derivedDueRecords = useMemo(() => {
     const activeClients = clients.filter(
@@ -351,6 +357,21 @@ export default function FinanceOverview() {
             <div className="kpi-body">
               <div className="kpi-title">Bank Account Balance</div>
               <div className="kpi-value">₹{currentBankBalance.toLocaleString('en-IN')}</div>
+            </div>
+          </div>
+
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <div className="kpi-icon-wrap" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </div>
+              <span className="kpi-tag trend-up" style={{ color: 'var(--accent)' }}>+ Income</span>
+            </div>
+            <div className="kpi-body">
+              <div className="kpi-title">Total Income</div>
+              <div className="kpi-value" style={{ color: 'var(--accent)' }}>₹{totalIncome.toLocaleString('en-IN')}</div>
             </div>
           </div>
         </div>
