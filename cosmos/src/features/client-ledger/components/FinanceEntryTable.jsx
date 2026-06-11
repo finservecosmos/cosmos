@@ -29,23 +29,32 @@ export default function FinanceEntryTable({
           <span className="records-badge">{filteredRecordsCount} TOTAL</span>
         </div>
 
-        <div className="records-filter-toolbar">
-          <div className="date-range-picker">
-            <input 
-              type="date" 
-              className="date-range-input" 
-              value={fromDate}
-              onChange={e => setFromDate(e.target.value)}
-              title="From Date"
-            />
-            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>to</span>
-            <input 
-              type="date" 
-              className="date-range-input" 
-              value={toDate}
-              onChange={e => setToDate(e.target.value)}
-              title="To Date"
-            />
+        <div className="records-filter-toolbar" style={{ alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 140 }}>
+              <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>From Date</label>
+              <input 
+                type="date" 
+                value={fromDate}
+                onChange={e => setFromDate(e.target.value)}
+                style={{
+                  border: '1px solid var(--border)', borderRadius: 8, padding: '8px 12px',
+                  fontSize: 13, color: 'var(--text-primary)', background: 'var(--bg-surface)', outline: 'none', width: '100%'
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 140 }}>
+              <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>To Date</label>
+              <input 
+                type="date" 
+                value={toDate}
+                onChange={e => setToDate(e.target.value)}
+                style={{
+                  border: '1px solid var(--border)', borderRadius: 8, padding: '8px 12px',
+                  fontSize: 13, color: 'var(--text-primary)', background: 'var(--bg-surface)', outline: 'none', width: '100%'
+                }}
+              />
+            </div>
           </div>
 
           <div className="records-search">
@@ -64,7 +73,7 @@ export default function FinanceEntryTable({
             type="button" 
             className="data-btn data-btn-outline" 
             onClick={handleExportCSV}
-            style={{ display: 'inline-flex', alignSelf: 'center', gap: 6 }}
+            style={{ display: 'inline-flex', gap: 6 }}
           >
             <Download size={16} style={{ verticalAlign: "middle" }} /> Export Excel
           </button>

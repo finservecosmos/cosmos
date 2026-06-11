@@ -109,7 +109,9 @@ export default function FinanceOverview() {
 
   const totalInvestment = useMemo(() => {
     const active = investments || []
-    return active.reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
+    return active
+      .filter(inv => inv.status !== 'Inactive')
+      .reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
   }, [investments])
 
   const totalPartnerAmount = useMemo(() => {
@@ -246,6 +248,30 @@ export default function FinanceOverview() {
       return { ...item, index: i, dashArray, rotation }
     })
   }, [donutData, totalPartnerAmount, circumference])
+
+  const loanDurationDistribution = useMemo(() => {
+    const active = [...(clients || []), ...(financeEntries || [])]
+      .filter(c => ['Approved', 'Processing', 'Active', 'Disbursed'].includes(c.status))
+
+    const counts = { '< 3 Days': 0, '< 7 Days': 0, '< 15 Days': 0, '< 30 Days': 0, '< 45 Days': 0 }
+    let total = 0
+    active.forEach(c => {
+      if (counts[c.duration] !== undefined) {
+        counts[c.duration]++
+        total++
+      }
+    })
+
+    if (total === 0) return { '< 3 Days': 0, '< 7 Days': 0, '< 15 Days': 0, '< 30 Days': 0, '< 45 Days': 0 }
+
+    return {
+      '< 3 Days': Math.round((counts['< 3 Days'] / total) * 100),
+      '< 7 Days': Math.round((counts['< 7 Days'] / total) * 100),
+      '< 15 Days': Math.round((counts['< 15 Days'] / total) * 100),
+      '< 30 Days': Math.round((counts['< 30 Days'] / total) * 100),
+      '< 45 Days': Math.round((counts['< 45 Days'] / total) * 100),
+    }
+  }, [clients, financeEntries])
 
   const handleDonutInteraction = (seg, e) => {
     setHoveredSegment(seg)
@@ -654,9 +680,9 @@ export default function FinanceOverview() {
                   <div className="chart-bar-fill-wrapper">
                     <div
                       className="chart-bar-rect income-bar"
-                      style={{ height: '12%' }}
+                      style={{ height: `${loanDurationDistribution['< 3 Days']}%` }}
                     >
-                      <span className="bar-hover-badge">12%</span>
+                      <span className="bar-hover-badge">{loanDurationDistribution['< 3 Days']}%</span>
                     </div>
                   </div>
                   <span className="bar-column-axis-label">&lt; 3 Days</span>
@@ -666,9 +692,9 @@ export default function FinanceOverview() {
                   <div className="chart-bar-fill-wrapper">
                     <div
                       className="chart-bar-rect income-bar"
-                      style={{ height: '24%' }}
+                      style={{ height: `${loanDurationDistribution['< 7 Days']}%` }}
                     >
-                      <span className="bar-hover-badge">24%</span>
+                      <span className="bar-hover-badge">{loanDurationDistribution['< 7 Days']}%</span>
                     </div>
                   </div>
                   <span className="bar-column-axis-label">&lt; 7 Days</span>
@@ -678,9 +704,9 @@ export default function FinanceOverview() {
                   <div className="chart-bar-fill-wrapper">
                     <div
                       className="chart-bar-rect profit-bar"
-                      style={{ height: '58%' }}
+                      style={{ height: `${loanDurationDistribution['< 15 Days']}%` }}
                     >
-                      <span className="bar-hover-badge">58%</span>
+                      <span className="bar-hover-badge">{loanDurationDistribution['< 15 Days']}%</span>
                     </div>
                   </div>
                   <span className="bar-column-axis-label">&lt; 15 Days</span>
@@ -690,12 +716,24 @@ export default function FinanceOverview() {
                   <div className="chart-bar-fill-wrapper">
                     <div
                       className="chart-bar-rect expense-bar"
-                      style={{ height: '6%' }}
+                      style={{ height: `${loanDurationDistribution['< 30 Days']}%` }}
                     >
-                      <span className="bar-hover-badge">6%</span>
+                      <span className="bar-hover-badge">{loanDurationDistribution['< 30 Days']}%</span>
                     </div>
                   </div>
                   <span className="bar-column-axis-label">&lt; 30 Days</span>
+                </div>
+
+                <div className="chart-graphics-column">
+                  <div className="chart-bar-fill-wrapper">
+                    <div
+                      className="chart-bar-rect profit-bar"
+                      style={{ height: `${loanDurationDistribution['< 45 Days']}%` }}
+                    >
+                      <span className="bar-hover-badge">{loanDurationDistribution['< 45 Days']}%</span>
+                    </div>
+                  </div>
+                  <span className="bar-column-axis-label">&lt; 45 Days</span>
                 </div>
               </div>
             </div>

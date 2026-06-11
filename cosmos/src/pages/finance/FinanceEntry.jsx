@@ -272,7 +272,7 @@ export default function FinanceEntry() {
                   <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Client Name</span>
                   <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{repaymentRecord.name}</span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>File Status</span>
                   <span className={`status-badge status-${repaymentRecord.status.toLowerCase()}`}>{repaymentRecord.status}</span>
                 </div>

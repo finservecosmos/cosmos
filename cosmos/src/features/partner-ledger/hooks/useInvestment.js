@@ -83,7 +83,9 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
   // KPI calculations
   const totalInvestmentAmount = useMemo(() => {
     const active = investments || [];
-    return active.reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+    return active
+      .filter(inv => inv.status !== 'Inactive')
+      .reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
   }, [investments]);
 
   const activePartnersCount = useMemo(() => {
@@ -288,6 +290,20 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
     }
   };
 
+  const handleActivateRecord = async (rec) => {
+    const confirmed = await confirm({
+      title: 'Activate Investment Record',
+      message: `Are you sure you want to activate ${rec.partner}'s investment record?`
+    });
+    if (confirmed) {
+      updateInvestment({
+        ...rec.originalInvestment,
+        status: 'Active'
+      });
+      addToast('Investment record activated successfully.', 'success');
+    }
+  };
+
   const handleHardDeleteRecord = async (rec) => {
     const confirmed = await confirm({
       title: 'Delete Investment Record',
@@ -375,6 +391,7 @@ export function useInvestment({ investments, addInvestment, updateInvestment, re
     handleViewRecord,
     handleDeleteRecord,
     handleHardDeleteRecord,
-    handleExportCSV
+    handleExportCSV,
+    handleActivateRecord
   };
 }

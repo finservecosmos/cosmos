@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Eye, Edit, MoreVertical, Trash2 } from 'lucide-react';
+import { Download, Eye, Edit, MoreVertical, Trash2, CheckCircle } from 'lucide-react';
 
 export default function InvestmentTable({
   paginatedRecords,
@@ -15,6 +15,7 @@ export default function InvestmentTable({
   handleExportCSV,
   handleEditRecord,
   handleDeleteRecord,
+  handleActivateRecord,
   handleHardDeleteRecord,
   setViewRecord
 }) {
@@ -155,9 +156,15 @@ export default function InvestmentTable({
 
                         {activeMenuId === rec.id && (
                           <div className="action-popover" onClick={(e) => e.stopPropagation()}>
-                            <button className="popover-item danger" onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}>
-                              <Trash2 size={16} style={{ marginRight: 6, verticalAlign: 'text-bottom' }} /> Deactivate
-                            </button>
+                            {rec.status === 'Inactive' ? (
+                              <button className="popover-item" onClick={() => { handleActivateRecord(rec); setActiveMenuId(null); }}>
+                                <CheckCircle size={16} style={{ marginRight: 6, verticalAlign: 'text-bottom' }} /> Activate
+                              </button>
+                            ) : (
+                              <button className="popover-item danger" onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}>
+                                <Trash2 size={16} style={{ marginRight: 6, verticalAlign: 'text-bottom' }} /> Deactivate
+                              </button>
+                            )}
                             <button className="popover-item danger" onClick={() => { handleHardDeleteRecord(rec); setActiveMenuId(null); }}>
                               <Trash2 size={16} style={{ marginRight: 6, verticalAlign: 'text-bottom' }} /> Delete
                             </button>

@@ -95,7 +95,9 @@ export default function FinanceIncomeExpenses() {
   }, [totalIncome, totalExpenses])
 
   const baseBankBalance = useMemo(() => {
-    const totalInv = (investments || []).reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
+    const totalInv = (investments || [])
+      .filter(inv => inv.status !== 'Inactive')
+      .reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
     const totalLent = [...(clients || []), ...(financeEntries || [])]
       .filter(c => ['Approved', 'Processing', 'Active', 'Disbursed', 'Paid'].includes(c.status))
       .reduce((sum, c) => sum + Number(c.loan_amount || c.amount || 0), 0)

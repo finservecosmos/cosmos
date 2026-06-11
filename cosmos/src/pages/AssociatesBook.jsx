@@ -4,6 +4,7 @@ import Modal from '../shared/ui/Modal'
 import { useAppState } from '../context/AppStateContext'
 import { nextAssociateId } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
+import { useConfirm } from '../context/ConfirmContext'
 import '../shared/ui/DataPage.css'
 import { Users, TrendingUp, Search, Eye, Edit, Banknote, Coins, Trash2 } from 'lucide-react'
 
@@ -51,6 +52,7 @@ const emptyAssociate = {
 export default function AssociatesBook() {
   const { associates, addAssociate, updateAssociate, deleteAssociate } = useAppState()
   const { addToast } = useToast()
+  const confirm = useConfirm()
   const [search, setSearch]       = useState('')
 
   const [modalOpen, setModalOpen] = useState(false)
@@ -118,11 +120,17 @@ export default function AssociatesBook() {
     setModalOpen(false)
   }
 
-  const handleDeleteAssociate = (associate) => {
-    if (window.confirm(`Are you sure you want to delete associate ${associate.name}?`)) {
+  const handleDeleteAssociate = async (associate) => {
+    setActiveMenuId(null)
+    const confirmed = await confirm({
+      title: 'Delete Associate',
+      message: `Are you sure you want to delete associate ${associate.name}?`,
+      confirmLabel: 'Delete',
+      variant: 'danger'
+    })
+    if (confirmed) {
       deleteAssociate(associate.id)
       addToast('Associate deleted successfully.', 'success')
-      setActiveMenuId(null)
     }
   }
 

@@ -150,7 +150,9 @@ export function useFinanceEntry({ financeEntries, addFinanceEntry, updateFinance
 
   // KPI calculations
   const totalInvestments = useMemo(() => {
-    const totalPartnerAmount = (investments || []).reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+    const totalPartnerAmount = (investments || [])
+      .filter(inv => inv.status !== 'Inactive')
+      .reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
     const totalLent = [...(clients || []), ...(financeEntries || [])]
       .filter(c => ['Approved', 'Processing', 'Active', 'Disbursed', 'Paid'].includes(c.status))
       .reduce((sum, c) => sum + Number(c.loan_amount || c.amount || 0), 0);
@@ -168,13 +170,15 @@ export function useFinanceEntry({ financeEntries, addFinanceEntry, updateFinance
 
   const dueThisWeekCount = useMemo(() => {
     return activeClients.filter(c => {
-      const { diffDays } = getDueInfo(c.date);
+      if (c.status === 'Paid') return false;
+      const { diffDays } = getDueInfo(c.due_date || c.date);
       return diffDays >= 0 && diffDays <= 7;
     }).length;
   }, [activeClients]);
 
   const totalInterestPayable = useMemo(() => {
     return activeClients.reduce((sum, c) => {
+      if (c.status === 'Paid') return sum;
       const principal = Number(c.loan_amount || c.amount || 0);
       const interest = c.interest_amount !== undefined && c.interest_amount !== null ? Number(c.interest_amount) : Math.round(principal * 0.01);
       return sum + interest;
@@ -198,8 +202,8 @@ export function useFinanceEntry({ financeEntries, addFinanceEntry, updateFinance
         interest,
         total,
         dueDate: date,
-        daysRemaining: dueIn,
-        dueClass,
+        daysRemaining: c.status === 'Paid' ? '-' : dueIn,
+        dueClass: c.status === 'Paid' ? 'paid' : dueClass,
         diffDays,
         status: c.status || 'Active',
         originalClient: c
