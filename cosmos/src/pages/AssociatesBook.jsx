@@ -111,7 +111,7 @@ export default function AssociatesBook() {
     setModalOpen(true)
   }
 
-  const saveAssociate = () => {
+  const saveAssociate = async () => {
     if (!formData.name || !formData.email) {
       addToast('Name and email are required.', 'error')
       return
@@ -122,14 +122,19 @@ export default function AssociatesBook() {
       disbursed: Number(formData.disbursed),
       commission: Number(formData.commission),
     }
-    if (modalMode === 'edit') {
-      updateAssociate(payload)
-      addToast('Associate updated successfully.', 'success')
-    } else {
-      addAssociate(payload)
-      addToast('Associate added successfully.', 'success')
+    try {
+      if (modalMode === 'edit') {
+        await updateAssociate(payload)
+        addToast('Associate updated successfully.', 'success')
+      } else {
+        await addAssociate(payload)
+        addToast('Associate added successfully.', 'success')
+      }
+      setModalOpen(false)
+    } catch (err) {
+      console.error('Failed to save associate:', err)
+      addToast(err.message || 'Failed to save associate database record.', 'error')
     }
-    setModalOpen(false)
   }
 
   const handleDeleteAssociate = async (associate) => {

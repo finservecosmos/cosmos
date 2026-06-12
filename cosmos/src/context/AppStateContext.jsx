@@ -261,7 +261,10 @@ export function AppStateProvider({ children }) {
     const newClient = pickClient(c, newClientId)
 
     const { data: clientData, error: clientError } = await supabase.from('clients').insert([newClient]).select().single()
-    if (clientError) { console.error('addClient error:', clientError.message); return }
+    if (clientError) {
+      console.error('addClient error:', clientError.message)
+      throw new Error(clientError.message)
+    }
     setClients(p => [unpackClient(clientData), ...p])
 
     if (['Processing', 'Approved', 'Disbursed'].includes(c.status)) {
@@ -284,7 +287,10 @@ export function AppStateProvider({ children }) {
   const updateClient = async (c) => {
     const payload = pickClient(c)
     const { data: clientData, error: clientError } = await supabase.from('clients').update(payload).eq('id', c.id).select().single()
-    if (clientError) { console.error('updateClient error:', clientError.message); return }
+    if (clientError) {
+      console.error('updateClient error:', clientError.message)
+      throw new Error(clientError.message)
+    }
     setClients(p => p.map(x => x.id === c.id ? unpackClient(clientData) : x))
 
     if (['Processing', 'Approved', 'Disbursed'].includes(c.status)) {
@@ -343,15 +349,21 @@ export function AppStateProvider({ children }) {
   const addAssociate = async (a) => {
     const newId = await nextAssociateId()
     const { data, error } = await supabase.from('associates').insert([pickAssociate(a, newId)]).select().single()
-    if (!error && data) setAssociates(p => [data, ...p])
-    else if (error) console.error('addAssociate error:', error.message)
+    if (error) {
+      console.error('addAssociate error:', error.message)
+      throw new Error(error.message)
+    }
+    if (data) setAssociates(p => [data, ...p])
   }
 
 
   const updateAssociate = async (a) => {
     const { data, error } = await supabase.from('associates').update(pickAssociate(a)).eq('id', a.id).select().single()
-    if (!error && data) setAssociates(p => p.map(x => x.id === a.id ? data : x))
-    else if (error) console.error('updateAssociate error:', error.message)
+    if (error) {
+      console.error('updateAssociate error:', error.message)
+      throw new Error(error.message)
+    }
+    if (data) setAssociates(p => p.map(x => x.id === a.id ? data : x))
   }
   const deleteAssociate = async (id) => {
     const { error } = await supabase.from('associates').delete().eq('id', id)

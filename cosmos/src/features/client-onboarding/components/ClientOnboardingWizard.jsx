@@ -126,9 +126,9 @@ export default function ClientOnboardingWizard({
                 type="button"
                 className="data-btn data-btn-primary"
                 style={{ background: '#10b981' }}
-                onClick={() => {
+                onClick={async () => {
                   if (!validateStep3()) return;
-                  const success = saveClient();
+                  const success = await saveClient();
                   if (success) {
                     setShowAddWizard(false);
                   }

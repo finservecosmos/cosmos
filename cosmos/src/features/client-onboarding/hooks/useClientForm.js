@@ -147,7 +147,7 @@ export function useClientForm({ addClient, updateClient, addToast, currentUser }
     return true;
   };
 
-  const saveClient = () => {
+  const saveClient = async () => {
     const result = clientSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors = {};
@@ -159,15 +159,21 @@ export function useClientForm({ addClient, updateClient, addToast, currentUser }
       return false;
     }
     const payload = { ...formData, amount: Number(formData.amount) };
-    if (modalMode === 'edit') {
-      updateClient(payload);
-      addToast('Client updated successfully.', 'success');
-    } else {
-      addClient(payload);
-      addToast('Client added successfully.', 'success');
+    try {
+      if (modalMode === 'edit') {
+        await updateClient(payload);
+        addToast('Client updated successfully.', 'success');
+      } else {
+        await addClient(payload);
+        addToast('Client added successfully.', 'success');
+      }
+      setModalOpen(false);
+      return true;
+    } catch (err) {
+      console.error('Failed to save client:', err);
+      addToast(err.message || 'Failed to save client database record.', 'error');
+      return false;
     }
-    setModalOpen(false);
-    return true;
   };
 
   const openAddModal = () => {

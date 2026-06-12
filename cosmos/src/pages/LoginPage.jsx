@@ -62,6 +62,13 @@ function LoginPage() {
     const devPassword = import.meta.env.VITE_DEV_PASSWORD
     if (devEmail && devPassword && email === devEmail && password === devPassword) {
       sessionStorage.setItem('dev_auth', 'true')
+      
+      // Attempt to sign in to Supabase Auth in the background so that RLS is satisfied if the database is configured.
+      const { error: devAuthError } = await supabase.auth.signInWithPassword({ email: devEmail, password: devPassword })
+      if (devAuthError) {
+        console.warn('Developer bypass background Supabase authentication failed:', devAuthError.message)
+      }
+
       setUser({
         name: 'Admin User',
         email: 'admin@cosmos.com',
