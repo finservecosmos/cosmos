@@ -734,11 +734,70 @@ export function AppStateProvider({ children }) {
     if (!error) setTransactions(p => p.filter(x => x.id !== id))
   }
 
+  const syncFinanceEntryToClientsTable = async (fe) => {
+    try {
+      const name = fe.client_name;
+      const phone = fe.mobile_number || '—';
+      const drive_link = fe.google_drive_link || '';
+      const amount = Number(fe.loan_amount || 0);
+      const status = fe.status || 'Active';
+      const extended = {
+        aadhaar: fe.aadhaar_number || '',
+        pan: fe.pan_number || '',
+        co_applicant_name: fe.co_applicant_name || '',
+        address: fe.address || '',
+        co_applicant_aadhaar: fe.co_applicant_aadhaar || '',
+        eb_no: fe.eb_no || '',
+        remarks: fe.remarks || ''
+      };
+
+      const existingClient = clients.find(c => c.name.toLowerCase().trim() === name.toLowerCase().trim());
+
+      if (existingClient) {
+        const payload = {
+          name,
+          phone,
+          drive_link,
+          loan_type: 'Finance Entry',
+          amount,
+          status,
+          extended_data: { ...(existingClient.extended_data || {}), ...extended }
+        };
+        const { data: updated, error } = await supabase.from('clients').update(payload).eq('id', existingClient.id).select().single();
+        if (!error && updated) {
+          setClients(p => p.map(c => c.id === updated.id ? { ...updated, ...updated.extended_data } : c));
+        }
+      } else {
+        const newClientId = await nextClientId();
+        const payload = {
+          id: newClientId,
+          name,
+          phone,
+          drive_link,
+          loan_type: 'Finance Entry',
+          amount,
+          status,
+          file_no: newClientId,
+          date: fe.due_date || new Date().toISOString().slice(0, 10),
+          associate: 'Unassigned',
+          extended_data: extended
+        };
+        const { data: inserted, error } = await supabase.from('clients').insert([payload]).select().single();
+        if (!error && inserted) {
+          setClients(p => [{ ...inserted, ...inserted.extended_data }, ...p]);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to sync finance entry to clients table:', err);
+    }
+  };
+
   const addFinanceEntry = async (entry) => {
     const newId = uid('FE')
     const { data, error } = await supabase.from('finance_entries').insert([{ ...entry, id: newId }]).select().single()
     if (!error && data) {
       setFinanceEntries(p => [data, ...p])
+      await syncFinanceEntryToClientsTable(data)
       return { success: true, data }
     } else {
       console.error('addFinanceEntry error:', error?.message || error)
@@ -749,6 +808,7 @@ export function AppStateProvider({ children }) {
     const { data, error } = await supabase.from('finance_entries').update(entry).eq('id', entry.id).select().single()
     if (!error && data) {
       setFinanceEntries(p => p.map(x => x.id === entry.id ? data : x))
+      await syncFinanceEntryToClientsTable(data)
       return { success: true, data }
     } else {
       console.error('updateFinanceEntry error:', error?.message || error)

@@ -80,11 +80,23 @@ export default function AssociatesBook() {
   const totalCommission = associates.reduce((s, a) => s + a.commission, 0)
   const totalDisbursed  = associates.reduce((s, a) => s + a.disbursed, 0)
 
-  const openAddModal = async () => {
+  const openAddModal = () => {
     setModalMode('add')
-    const generatedId = await nextAssociateId()
-    setFormData({ ...emptyAssociate, associate_id: generatedId })
+    setFormData({ ...emptyAssociate, associate_id: 'Generating...' })
     setModalOpen(true)
+
+    nextAssociateId().then(generatedId => {
+      setFormData(prev => {
+        if (prev.associate_id === 'Generating...') {
+          return { ...prev, associate_id: generatedId }
+        }
+        return prev
+      })
+    }).catch(err => {
+      console.warn('Failed to generate next associate ID from database, using fallback:', err)
+      const tempId = `CFA-TEMP-${Math.random().toString(36).slice(2, 6).toUpperCase()}`
+      setFormData(prev => prev.associate_id === 'Generating...' ? { ...prev, associate_id: tempId } : prev)
+    })
   }
 
   const openEditModal = (associate) => {

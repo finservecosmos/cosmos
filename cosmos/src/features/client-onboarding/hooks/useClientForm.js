@@ -170,13 +170,26 @@ export function useClientForm({ addClient, updateClient, addToast, currentUser }
     return true;
   };
 
-  const openAddModal = async () => {
+  const openAddModal = () => {
     setModalMode('add');
-    const generatedId = await nextClientId();
-    setFormData({ ...emptyClient, id: generatedId });
+    setFormData({ ...emptyClient, id: 'Generating...' });
     setValidationErrors({});
     setShowAddWizard(true);
     setWizardStep(1);
+
+    // Fetch next client ID asynchronously in the background
+    nextClientId().then(generatedId => {
+      setFormData(prev => {
+        if (prev.id === 'Generating...') {
+          return { ...prev, id: generatedId };
+        }
+        return prev;
+      });
+    }).catch(err => {
+      console.warn('Failed to generate next client ID from database, using fallback:', err);
+      const tempId = `CF-${String(new Date().getFullYear()).slice(-2)}-TEMP${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+      setFormData(prev => prev.id === 'Generating...' ? { ...prev, id: tempId } : prev);
+    });
   };
 
   const openEditModal = (client) => {
