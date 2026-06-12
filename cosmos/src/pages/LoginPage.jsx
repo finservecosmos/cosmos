@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../shared/api/supabaseClient'
 import { useToast } from '../context/ToastContext'
+import { useUser } from '../context/UserContext'
 import Modal from '../shared/ui/Modal'
 import cosmosLogo from '../assets/cosmosLogo.jpeg'
 import heroImg from '../assets/login_img1.png'
@@ -10,6 +11,7 @@ import './LoginPage.css'
 function LoginPage() {
   const navigate = useNavigate()
   const { addToast } = useToast()
+  const { setUser } = useUser()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
@@ -60,6 +62,12 @@ function LoginPage() {
     const devPassword = import.meta.env.VITE_DEV_PASSWORD
     if (devEmail && devPassword && email === devEmail && password === devPassword) {
       sessionStorage.setItem('dev_auth', 'true')
+      setUser({
+        name: 'Admin User',
+        email: 'admin@cosmos.com',
+        role: 'admin',
+        initials: 'AD'
+      })
       addToast('Logged in as dev user', 'success')
       setLoading(false)
       navigate('/dashboard')
@@ -176,6 +184,12 @@ function LoginPage() {
       setTimeout(() => {
         setBioModalOpen(false);
         sessionStorage.setItem('dev_auth', 'true');
+        setUser({
+          name: 'Admin User',
+          email: 'admin@cosmos.com',
+          role: 'admin',
+          initials: 'AD'
+        })
         addToast('Biometric authentication verified! (Simulation Mode)', 'success');
         navigate('/dashboard');
       }, 1200);
@@ -228,6 +242,12 @@ function LoginPage() {
         setTimeout(() => {
           setBioModalOpen(false);
           sessionStorage.setItem('dev_auth', 'true');
+          setUser({
+            name: 'Admin User',
+            email: 'admin@cosmos.com',
+            role: 'admin',
+            initials: 'AD'
+          })
           addToast('Passkey registered and logged in successfully!', 'success');
           navigate('/dashboard');
         }, 1200);

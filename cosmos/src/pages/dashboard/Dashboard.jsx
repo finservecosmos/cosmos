@@ -14,6 +14,7 @@ import RecentActivities from '../../widgets/RecentActivities'
 import PendingFollowUps from '../../widgets/PendingFollowUps'
 import TodaySchedule from '../../widgets/TodaySchedule'
 import DashboardLayout from '../../widgets/DashboardLayout'
+import '../../shared/ui/DataPage.css'
 import './Dashboard.css'
 
 const DATE_RANGES = ['Today', 'This Week', 'This Month']

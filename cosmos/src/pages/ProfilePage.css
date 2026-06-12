@@ -1,4 +1,4 @@
-.profile-page { max-width: 600px; }
+.profile-page { max-width: 1000px; }
 
 .profile-page-title {
   font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px;
@@ -9,6 +9,7 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 28px;
+  max-width: 600px;
 }
 
 .profile-avatar-section {
@@ -122,4 +123,14 @@
 
 .profile-cancel-btn {
   background: none;
+}
+
+.profile-admin-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.profile-admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent) !important;
 }

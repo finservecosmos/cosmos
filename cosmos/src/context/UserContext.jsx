@@ -60,6 +60,9 @@ export function UserProvider({ children }) {
     // 1. Initial load
     supabase.auth.getSession().then(({ data: { session } }) => {
       loadUser(session)
+    }).catch(err => {
+      console.warn('Failed to load Supabase session, using fallback local auth check:', err)
+      loadUser(null)
     })
 
     // 2. Listen for login/logout events

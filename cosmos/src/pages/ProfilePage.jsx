@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useUser } from '../context/UserContext'
 import { useToast } from '../context/ToastContext'
 import Modal from '../shared/ui/Modal'
 import DashboardLayout from '../widgets/DashboardLayout'
+import { Users, Shield, FileText, Settings, Database, ArrowRight, ShieldCheck } from 'lucide-react'
 import './ProfilePage.css'
 
 const roleInfo = {
@@ -11,7 +13,51 @@ const roleInfo = {
   staff: 'Can view records, follow-ups and daily tasks.',
 }
 
+const adminModules = [
+  { 
+    title: 'User Management', 
+    path: '/admin/users', 
+    icon: <Users size={24} />, 
+    color: '#3b82f6',
+    bgColor: '#dbeafe',
+    desc: 'Manage user accounts, roles, and platform access.' 
+  },
+  { 
+    title: 'Roles & Access', 
+    path: '/admin/roles', 
+    icon: <Shield size={24} />, 
+    color: '#10b981',
+    bgColor: '#d1fae5',
+    desc: 'Configure role-based access control and security policies.' 
+  },
+  { 
+    title: 'Audit Log', 
+    path: '/admin/audit-log', 
+    icon: <FileText size={24} />, 
+    color: '#8b5cf6',
+    bgColor: '#ede9fe',
+    desc: 'View system activity, login history, and audit trails.' 
+  },
+  { 
+    title: 'System Settings', 
+    path: '/admin/settings', 
+    icon: <Settings size={24} />, 
+    color: '#f59e0b',
+    bgColor: '#fef3c7',
+    desc: 'Configure system-wide preferences and session timeouts.' 
+  },
+  { 
+    title: 'Backup Data', 
+    path: '/backup', 
+    icon: <Database size={24} />, 
+    color: '#ef4444',
+    bgColor: '#fee2e2',
+    desc: 'Manage system data backups and retention policies.' 
+  },
+]
+
 function ProfilePage() {
+  const navigate = useNavigate()
   const { user, setUser } = useUser()
   const { addToast } = useToast()
   const [editMode, setEditMode] = useState(false)
@@ -140,6 +186,61 @@ function ProfilePage() {
             </button>
           </div>
         </div>
+
+        {user?.role === 'admin' && (
+          <div className="profile-admin-section" style={{ marginTop: '32px' }}>
+            <h3 style={{ 
+              fontSize: '14px', fontWeight: '700', color: 'var(--text-secondary)',
+              textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px',
+              display: 'flex', alignItems: 'center', gap: '8px'
+            }}>
+              <ShieldCheck size={18} style={{ color: 'var(--accent)' }} /> 
+              Admin Configuration Control
+            </h3>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+              {adminModules.map((module) => (
+                <div 
+                  key={module.path} 
+                  onClick={() => navigate(module.path)}
+                  style={{
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                  }}
+                  className="profile-admin-card"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ 
+                      width: '40px', height: '40px', borderRadius: '10px', 
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: module.bgColor, color: module.color
+                    }}>
+                      {module.icon}
+                    </div>
+                    <div style={{ color: 'var(--text-faint)' }}>
+                      <ArrowRight size={18} />
+                    </div>
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                      {module.title}
+                    </h4>
+                    <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+                      {module.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {passwordOpen && (
           <Modal title="Change password" onClose={() => setPasswordOpen(false)} size="sm">
