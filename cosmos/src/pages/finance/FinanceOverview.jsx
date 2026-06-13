@@ -339,11 +339,18 @@ export default function FinanceOverview() {
     setActiveMenuId(null)
     const confirmed = await confirm({
       title: 'Remove Due Record',
-      message: `Are you sure you want to remove ${rec.client}'s due entry? This action is permanent.`
+      message: `Are you sure you want to permanently remove ${rec.client}'s due entry? This action is permanent.`
     })
     if (confirmed) {
-      setRemovedDueIds(prev => [...prev, rec.id])
-      addToast('Due record removed successfully.', 'success')
+      const res = await updateFinanceEntry({
+        ...rec.originalClient,
+        status: 'Closed'
+      })
+      if (res.success) {
+        addToast('Due record removed successfully.', 'success')
+      } else {
+        addToast(res.error || 'Failed to remove due record.', 'error')
+      }
     }
   }
 

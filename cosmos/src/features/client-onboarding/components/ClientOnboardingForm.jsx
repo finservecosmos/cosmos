@@ -1,5 +1,6 @@
 import React from 'react';
 import { User, Briefcase, AlertTriangle } from 'lucide-react';
+import { useAppState } from '../../../context/AppStateContext';
 
 export default function ClientOnboardingForm({
   formData,
@@ -10,6 +11,7 @@ export default function ClientOnboardingForm({
   wizardStep = 1,
   modalMode = 'add', // 'add' | 'edit' | 'view'
 }) {
+  const { associates = [] } = useAppState();
   const disabled = modalMode === 'view';
 
   const updateField = (field, val) => {
@@ -49,7 +51,12 @@ export default function ClientOnboardingForm({
         <input type="number" min="0" value={formData.amount || ''} disabled={disabled} onChange={(e) => updateField('amount', e.target.value)} />
       </label>
       <label>Associate Name
-        <input type="text" value={formData.associate || ''} disabled={disabled} onChange={(e) => updateField('associate', e.target.value)} />
+        <select value={formData.associate || ''} disabled={disabled} onChange={(e) => updateField('associate', e.target.value)}>
+          <option value="">Select Associate (None)</option>
+          {associates.map(a => (
+            <option key={a.id} value={a.name}>{a.name}</option>
+          ))}
+        </select>
       </label>
       <label>Client Mobile Number
         <input type="text" value={formData.phone || ''} disabled={disabled} onChange={(e) => updateField('phone', e.target.value)} />
