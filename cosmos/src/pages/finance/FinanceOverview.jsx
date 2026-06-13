@@ -71,7 +71,7 @@ export default function FinanceOverview() {
   const navigate = useNavigate()
   const { addToast } = useToast()
   const confirm = useConfirm()
-  const { clients, associates, transactions, investments, financeEntries } = useAppState()
+  const { clients, associates, transactions, investments, financeEntries, updateFinanceEntry } = useAppState()
 
   // Filters state
   const [fromDate, setFromDate] = useState('')
@@ -140,14 +140,14 @@ export default function FinanceOverview() {
       .reduce((sum, c) => sum + Number(c.loan_amount || c.amount || 0), 0)
     const netProfit = totalIncome - totalExpense
     return Math.max(0, totalInvestment - totalLent + netProfit)
-  }, [totalInvestment, clients, financeEntries, totalIncome, totalExpense])
+  }, [totalInvestment, financeEntries, totalIncome, totalExpense])
 
-  // Derive all due records reactively from global clients state
+  // Derive all due records reactively from global financeEntries state
   const derivedDueRecords = useMemo(() => {
-    const activeClients = clients.filter(
-      c => ['Processing', 'Approved'].includes(c.status) && !removedDueIds.includes(c.id)
+    const activeEntries = (financeEntries || []).filter(
+      c => ['Processing', 'Approved', 'Active', 'Disbursed'].includes(c.status) && !removedDueIds.includes(c.id)
     )
-    return activeClients.map(c => {
+    return activeEntries.map(c => {
       if (dueOverrides[c.id]) {
         return {
           id: c.id,
@@ -156,14 +156,14 @@ export default function FinanceOverview() {
         }
       }
       
-      const { dueIn, dueClass, date, diffDays } = getDueInfo(c.date)
-      const principal = Math.round(c.amount * 0.05)
-      const interest = Math.round(c.amount * 0.001)
+      const { dueIn, dueClass, date, diffDays } = getDueInfo(c.due_date || c.date)
+      const principal = Number(c.loan_amount || c.amount || 0)
+      const interest = c.interest_amount !== undefined && c.interest_amount !== null ? Number(c.interest_amount) : Math.round(principal * 0.01)
       const total = principal + interest
       
       return {
         id: c.id,
-        client: c.name,
+        client: c.client_name || c.name || '',
         dueIn,
         dueClass,
         principal,
@@ -174,7 +174,7 @@ export default function FinanceOverview() {
         originalClient: c
       }
     }).sort((a, b) => a.diffDays - b.diffDays)
-  }, [clients, removedDueIds, dueOverrides])
+  }, [financeEntries, removedDueIds, dueOverrides])
 
   // Filter due records by selected dates
   const filteredRecords = useMemo(() => {
@@ -320,12 +320,14 @@ export default function FinanceOverview() {
     }))
 
     // Synchronize client details back to global context
-    const original = clients.find(c => c.id === editRecord.id)
+    const original = (financeEntries || []).find(c => c.id === editRecord.id)
     if (original) {
-      updateClient({
+      updateFinanceEntry({
         ...original,
-        name: editRecord.client,
-        amount: Math.round(principal / 0.05)
+        client_name: editRecord.client,
+        loan_amount: principal,
+        interest_amount: interest,
+        due_date: editRecord.date
       })
     }
 
