@@ -809,7 +809,7 @@ export function AppStateProvider({ children }) {
     const { data, error } = await supabase.from('finance_entries').insert([{ ...entry, id: newId }]).select().single()
     if (!error && data) {
       setFinanceEntries(p => [data, ...p])
-      await syncFinanceEntryToClientsTable(data)
+      // await syncFinanceEntryToClientsTable(data)
       return { success: true, data }
     } else {
       console.error('addFinanceEntry error:', error?.message || error)
@@ -820,7 +820,7 @@ export function AppStateProvider({ children }) {
     const { data, error } = await supabase.from('finance_entries').update(entry).eq('id', entry.id).select().single()
     if (!error && data) {
       setFinanceEntries(p => p.map(x => x.id === entry.id ? data : x))
-      await syncFinanceEntryToClientsTable(data)
+      // await syncFinanceEntryToClientsTable(data)
       return { success: true, data }
     } else {
       console.error('updateFinanceEntry error:', error?.message || error)

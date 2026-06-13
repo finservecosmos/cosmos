@@ -98,7 +98,7 @@ export default function FinanceIncomeExpenses() {
     const totalInv = (investments || [])
       .filter(inv => inv.status !== 'Inactive')
       .reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
-    const totalLent = [...(clients || []), ...(financeEntries || [])]
+    const totalLent = (financeEntries || [])
       .filter(c => ['Approved', 'Processing', 'Active', 'Disbursed', 'Paid'].includes(c.status))
       .reduce((sum, c) => sum + Number(c.loan_amount || c.amount || 0), 0)
     return Math.max(0, totalInv - totalLent)
