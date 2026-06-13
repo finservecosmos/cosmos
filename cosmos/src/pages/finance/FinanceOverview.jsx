@@ -201,8 +201,8 @@ export default function FinanceOverview() {
   const size = 180
   const cx = size / 2
   const cy = size / 2
-  const r = 64
-  const innerR = 40
+  const r = 70
+  const innerR = 54
   const strokeW = r - innerR
   const circumference = 2 * Math.PI * r
 
@@ -462,51 +462,53 @@ export default function FinanceOverview() {
 
             <div className="donut-container" style={{ minHeight: 180 }}>
               <div className="donut-wrapper" style={{ flexDirection: 'column', gap: 16 }}>
-                <svg 
-                  width={size} 
-                  height={size} 
-                  viewBox={`0 0 ${size} ${size}`} 
-                  className={`donut-svg${hoveredSegment ? ' has-hover' : ''}`}
-                >
-                  <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--bg-muted)" strokeWidth={strokeW} />
-                  {donutSegments.map((seg, i) => {
-                    const isHovered = hoveredSegment && hoveredSegment.index === seg.index
-                    return (
-                      <circle
-                        key={i}
-                        cx={cx}
-                        cy={cy}
-                        r={r}
-                        fill="none"
-                        stroke={seg.color}
-                        strokeWidth={isHovered ? strokeW + 4 : strokeW}
-                        strokeDasharray={seg.dashArray}
-                        strokeDashoffset={0}
-                        transform={`rotate(${seg.rotation} ${cx} ${cy})`}
-                        strokeLinecap="butt"
-                        className={`donut-segment${isHovered ? ' active' : ''}`}
-                        style={{
-                          transition: 'stroke-width 0.2s, filter 0.2s, opacity 0.2s',
-                          cursor: 'pointer'
-                        }}
-                        onMouseEnter={(e) => handleDonutInteraction(seg, e)}
-                        onMouseMove={(e) => handleDonutInteraction(seg, e)}
-                        onMouseLeave={() => setHoveredSegment(null)}
-                        onTouchStart={(e) => handleDonutInteraction(seg, e)}
-                        onTouchMove={(e) => handleDonutInteraction(seg, e)}
-                        onTouchEnd={() => setHoveredSegment(null)}
-                      />
-                    )
-                  })}
-                  <g className="donut-center-text">
-                    <text x={cx} y={cy - 4} textAnchor="middle" className="donut-center-val" style={{ fontSize: 20 }}>
+                <div style={{ position: 'relative', width: size, height: size, margin: '0 auto' }}>
+                  <svg 
+                    width={size} 
+                    height={size} 
+                    viewBox={`0 0 ${size} ${size}`} 
+                    className={`donut-svg${hoveredSegment ? ' has-hover' : ''}`}
+                  >
+                    <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--bg-muted)" strokeWidth={strokeW} />
+                    {donutSegments.map((seg, i) => {
+                      const isHovered = hoveredSegment && hoveredSegment.index === seg.index
+                      return (
+                        <circle
+                          key={i}
+                          cx={cx}
+                          cy={cy}
+                          r={r}
+                          fill="none"
+                          stroke={seg.color}
+                          strokeWidth={isHovered ? strokeW + 4 : strokeW}
+                          strokeDasharray={seg.dashArray}
+                          strokeDashoffset={0}
+                          transform={`rotate(${seg.rotation} ${cx} ${cy})`}
+                          strokeLinecap="butt"
+                          className={`donut-segment${isHovered ? ' active' : ''}`}
+                          style={{
+                            transition: 'stroke-width 0.2s, filter 0.2s, opacity 0.2s',
+                            cursor: 'pointer'
+                          }}
+                          onMouseEnter={(e) => handleDonutInteraction(seg, e)}
+                          onMouseMove={(e) => handleDonutInteraction(seg, e)}
+                          onMouseLeave={() => setHoveredSegment(null)}
+                          onTouchStart={(e) => handleDonutInteraction(seg, e)}
+                          onTouchMove={(e) => handleDonutInteraction(seg, e)}
+                          onTouchEnd={() => setHoveredSegment(null)}
+                        />
+                      )
+                    })}
+                  </svg>
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', padding: '0 12px' }}>
+                    <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
                       {hoveredSegment ? formatCenterAmount(hoveredSegment.count) : formatCenterAmount(totalPartnerAmount)}
-                    </text>
-                    <text x={cx} y={cy + 16} textAnchor="middle" className="donut-center-lbl">
+                    </span>
+                    <span style={{ fontSize: 10.5, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.2, marginTop: 4 }}>
                       {hoveredSegment ? hoveredSegment.type : 'Partner Investments'}
-                    </text>
-                  </g>
-                </svg>
+                    </span>
+                  </div>
+                </div>
 
                 {hoveredSegment && (
                   <div className="donut-tooltip" style={{ left: `${donutTooltipPos.x}px`, top: `${donutTooltipPos.y}px` }}>
@@ -529,11 +531,13 @@ export default function FinanceOverview() {
                       className={`donut-legend-item${hoveredSegment && hoveredSegment.index === seg.index ? ' active' : ''}`}
                       onMouseEnter={() => setHoveredSegment(seg)}
                       onMouseLeave={() => setHoveredSegment(null)}
-                      style={{ padding: '2px 4px' }}
+                      style={{ padding: '4px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 4, background: hoveredSegment && hoveredSegment.index === seg.index ? 'var(--bg-hover)' : 'transparent', cursor: 'default' }}
                     >
-                      <span className="donut-dot" style={{ background: seg.color }} />
-                      <span className="donut-label" style={{ minWidth: 'auto', fontSize: 11.5 }}>{seg.type}</span>
-                      <span className="donut-percent" style={{ fontSize: 11.5 }}>{seg.percent}%</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden' }}>
+                        <span className="donut-dot" style={{ background: seg.color, width: 8, height: 8, borderRadius: '50%', flexShrink: 0 }} />
+                        <span className="donut-label" style={{ fontSize: 11.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-primary)' }}>{seg.type}</span>
+                      </div>
+                      <span className="donut-percent" style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--text-primary)' }}>{seg.percent}%</span>
                     </div>
                   ))}
                 </div>

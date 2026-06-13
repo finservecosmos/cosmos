@@ -433,7 +433,7 @@ export function useFinanceEntry({ financeEntries, addFinanceEntry, updateFinance
       ...restClient,
       loan_amount: remainingPrincipal,
       interest_amount: remainingInterest,
-      status: remainingPrincipal === 0 ? 'Paid' : 'Active'
+      status: remainingPrincipal === 0 && remainingInterest === 0 ? 'Paid' : 'Active'
     };
 
     try {
