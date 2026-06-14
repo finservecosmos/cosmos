@@ -22,9 +22,9 @@ export default function Invoice() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const [search, setSearch]               = useState('')
-  const [modalOpen, setModalOpen]         = useState(false)
-  const [formData, setFormData]           = useState(emptyInvoice)
+  const [search, setSearch] = useState('')
+  const [modalOpen, setModalOpen] = useState(false)
+  const [formData, setFormData] = useState(emptyInvoice)
   const [selectedInvoice, setSelectedInvoice] = useState(null)
 
   // Prefill from navigation state (e.g. from Login Files)
@@ -32,10 +32,10 @@ export default function Invoice() {
     if (location.state?.prefillClient) {
       setFormData({
         ...emptyInvoice,
-        client:  location.state.prefillClient,
-        amount:  location.state.prefillAmount || 0,
+        client: location.state.prefillClient,
+        amount: location.state.prefillAmount || 0,
         service: 'Loan Processing Payout Collection',
-        date:    new Date().toISOString().slice(0, 10),
+        date: new Date().toISOString().slice(0, 10),
         history: location.state.history || [],
       })
       setModalOpen(true)
@@ -49,7 +49,7 @@ export default function Invoice() {
   })
 
   const openCreateModal = () => { setFormData(emptyInvoice); setModalOpen(true) }
-  const openViewModal   = (inv) => setSelectedInvoice(inv)
+  const openViewModal = (inv) => setSelectedInvoice(inv)
 
   const saveInvoice = () => {
     if (!formData.client || !formData.amount) {
@@ -103,7 +103,7 @@ export default function Invoice() {
         <div className="data-toolbar">
           <div className="data-search">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input
               placeholder="Search by client or invoice ID..."
@@ -197,7 +197,7 @@ export default function Invoice() {
         {/* View Invoice Modal */}
         {selectedInvoice && (() => {
           const clientRecord = clients.find(c => c.name === selectedInvoice.client)
-          const clientPhone  = clientRecord?.phone || ''
+          const clientPhone = clientRecord?.phone || ''
 
           const getHistory = () => {
             if (selectedInvoice.history?.length > 0)
