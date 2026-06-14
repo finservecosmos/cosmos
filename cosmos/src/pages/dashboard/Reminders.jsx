@@ -27,7 +27,7 @@ export default function Reminders() {
   const [filter, setFilter] = useState('All')
   const [modalOpen, setModalOpen] = useState(false)
   const [activeReminder, setActiveReminder] = useState(null)
-  const [formState, setFormState] = useState({ title: '', description: '', date: '', priority: 'medium' })
+  const [formState, setFormState] = useState({ title: '', description: '', date: '', start_date: '', end_date: '', priority: 'medium' })
   const [formErrors, setFormErrors] = useState({})
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function Reminders() {
 
   const openAddModal = () => {
     setActiveReminder(null)
-    setFormState({ title: '', description: '', date: '', priority: 'medium' })
+    setFormState({ title: '', description: '', date: '', start_date: '', end_date: '', priority: 'medium' })
     setFormErrors({})
     setModalOpen(true)
   }
@@ -56,6 +56,8 @@ export default function Reminders() {
       title: reminder.title,
       description: reminder.description,
       date: reminder.date,
+      start_date: reminder.start_date || '',
+      end_date: reminder.end_date || '',
       priority: reminder.priority,
     })
     setFormErrors({})
@@ -193,7 +195,16 @@ export default function Reminders() {
                   <div className="reminder-top">
                     <p className="reminder-title">{r.title}</p>
                     <span className="reminder-priority" style={{ color: cfg.color, background: cfg.bg }}>{cfg.label}</span>
-                    <span className="reminder-date">{r.date}</span>
+                    <div style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                      <span className="reminder-date" style={{ marginLeft: 0 }}>Due: {r.date}</span>
+                      {(r.start_date || r.end_date) && (
+                        <span style={{ fontSize: '10px', color: 'var(--text-faint)' }}>
+                          {r.start_date && `Start: ${r.start_date}`}
+                          {r.start_date && r.end_date && ' | '}
+                          {r.end_date && `End: ${r.end_date}`}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <p className="reminder-desc">{r.description}</p>
                 </div>
@@ -231,6 +242,28 @@ export default function Reminders() {
                   <option value="medium">Medium</option>
                   <option value="low">Low</option>
                 </select>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-field">
+                <label className="form-label" htmlFor="reminderStartDate">Start date</label>
+                <input
+                  id="reminderStartDate"
+                  type="date"
+                  className="form-input"
+                  value={formState.start_date}
+                  onChange={(e) => setFormState((prev) => ({ ...prev, start_date: e.target.value }))}
+                />
+              </div>
+              <div className="form-field">
+                <label className="form-label" htmlFor="reminderEndDate">End date</label>
+                <input
+                  id="reminderEndDate"
+                  type="date"
+                  className="form-input"
+                  value={formState.end_date}
+                  onChange={(e) => setFormState((prev) => ({ ...prev, end_date: e.target.value }))}
+                />
               </div>
             </div>
             <div className="form-row">

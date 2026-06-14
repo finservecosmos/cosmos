@@ -474,6 +474,8 @@ export function AppStateProvider({ children }) {
     title: r.title || '',
     description: r.description || '',
     date: r.date || new Date().toISOString().slice(0, 10),
+    start_date: r.start_date || null,
+    end_date: r.end_date || null,
     priority: r.priority || 'Normal',
     done: r.done ?? false,
   })

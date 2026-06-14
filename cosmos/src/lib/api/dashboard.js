@@ -109,18 +109,34 @@ export async function getPendingFollowUps() {
 export async function getTodaySchedule() {
   const { data, error } = await supabase
     .from('reminders')
-    .select('id, title, description, date, priority, done')
+    .select('id, title, description, date, start_date, end_date, priority, done')
     .eq('done', false)
     .order('created_at', { ascending: true })
     .limit(5)
 
   if (error || !data) return []
 
-  return data.map((r, i) => ({
-    id: r.id || i,
-    time: '—',
-    title: r.title,
-    description: r.description || '',
-    highlight: r.priority === 'high',
-  }))
+  const formatDate = (dStr) => {
+    if (!dStr) return '—'
+    const dateObj = new Date(dStr)
+    if (isNaN(dateObj.getTime())) return dStr
+    return dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+  }
+
+  return data.map((r, i) => {
+    let timeLabel = formatDate(r.date)
+    if (r.start_date && r.end_date) {
+      timeLabel = `${formatDate(r.start_date)} - ${formatDate(r.end_date)}`
+    } else if (r.start_date) {
+      timeLabel = `From ${formatDate(r.start_date)}`
+    }
+
+    return {
+      id: r.id || i,
+      time: timeLabel,
+      title: r.title,
+      description: r.description || '',
+      highlight: r.priority === 'high',
+    }
+  })
 }

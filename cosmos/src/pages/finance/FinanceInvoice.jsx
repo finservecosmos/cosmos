@@ -7,6 +7,7 @@ import { useToast } from '../../context/ToastContext'
 import useConfirm from '../../shared/lib/useConfirm'
 import '../../shared/ui/DataPage.css'
 import { FileText, CheckCircle, Clock, AlertTriangle, Receipt } from 'lucide-react'
+import cosmosLogo from '../../assets/cosmos-logo.png'
 
 function formatAmount(n) { return `₹${Number(n).toLocaleString('en-IN')}` }
 
@@ -265,16 +266,19 @@ export default function FinanceInvoice() {
               `}</style>
               
               {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--border)', paddingBottom: 16, marginBottom: 20 }}>
-                <div>
-                  <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent)' }}>COSMOS FINSERVE</h3>
-                  <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Finance Operations</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--border)', paddingBottom: 16, marginBottom: 20, alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <img src={cosmosLogo} alt="Cosmos Logo" style={{ width: 45, height: 45, borderRadius: 6, objectFit: 'contain' }} />
+                  <div>
+                    <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent)', margin: 0, lineHeight: 1.1 }}>COSMOS FINSERVE</h3>
+                    <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, margin: 0 }}>Finance Operations</p>
+                  </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <h4 style={{ fontSize: 14, fontWeight: 700 }}>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>
                     {selectedInvoice.type === 'Income' ? 'RECEIPT' : 'PAYMENT VOUCHER'}
                   </h4>
-                  <p style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--text-muted)' }}>{selectedInvoice.id}</p>
+                  <p style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>{selectedInvoice.id}</p>
                 </div>
               </div>
 
