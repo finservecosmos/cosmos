@@ -34,7 +34,7 @@ export default function ClientRecordsTable({
   const handlePrint = (client) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
-    
+
     printWindow.document.write(`
       <html>
         <head>
@@ -66,7 +66,7 @@ export default function ClientRecordsTable({
             <thead><tr><td style="height: 20mm; border: none; padding: 0;"></td></tr></thead>
             <tbody><tr><td style="border: none; padding: 0 40px;">
           <div class="header">
-            <img src="${cosmosLogo}" alt="Cosmos Logo" style="width: 50px; height: 50px; border-radius: 8px; object-fit: contain;" />
+            <img src="${cosmosLogo}" alt="Cosmos Logo" style="width: 100px; height: 100px; border-radius: 8px; object-fit: contain;" />
             <div class="header-text">
               <h1>Cosmos Financial Services</h1>
               <p>Client Record Details</p>
@@ -166,12 +166,12 @@ export default function ClientRecordsTable({
       <div className="data-toolbar">
         <div className="data-search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          <input 
-            placeholder="Search by name, phone..." 
-            value={search} 
-            onChange={e => setSearch(e.target.value)} 
+          <input
+            placeholder="Search by name, phone..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
           />
         </div>
         <select className="data-filter-select" value={loanFilter} onChange={e => setLoan(e.target.value)}>
