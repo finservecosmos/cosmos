@@ -142,3 +142,19 @@
   width: 18px;
   height: 18px;
 }
+
+/* Skeletons */
+.skeleton-pulse {
+  animation: skeleton-keyframe-pulse 1.8s ease-in-out infinite;
+  background-color: var(--bg-input) !important;
+  color: transparent !important;
+  border-color: transparent !important;
+  border-left-color: transparent !important;
+}
+.skeleton-pulse * {
+  visibility: hidden !important;
+}
+@keyframes skeleton-keyframe-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}

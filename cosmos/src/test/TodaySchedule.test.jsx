@@ -4,9 +4,10 @@ import React from 'react';
 import TodaySchedule from '../widgets/TodaySchedule';
 
 describe('TodaySchedule Component', () => {
-  it('renders loading text when loading prop is true', () => {
-    render(<TodaySchedule schedule={[]} loading={true} onAdd={() => {}} />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+  it('renders skeleton items when loading prop is true', () => {
+    const { container } = render(<TodaySchedule schedule={[]} loading={true} onAdd={() => {}} />);
+    const skeletons = container.querySelectorAll('.skeleton-pulse');
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 
   it('renders empty message when schedule is empty', () => {
