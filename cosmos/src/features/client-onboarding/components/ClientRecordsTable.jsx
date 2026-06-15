@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, Edit, Printer, Trash2 } from 'lucide-react';
-import cosmosLogo from '../../../assets/cosmos-logo.png';
+import cosmosLogo from '../../../assets/cosmos-logo.webp';
 
 export default function ClientRecordsTable({
   paginatedClients,

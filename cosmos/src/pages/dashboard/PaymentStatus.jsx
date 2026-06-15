@@ -8,7 +8,7 @@ import useConfirm from '../../shared/lib/useConfirm'
 import DonutChart from '../../shared/ui/DonutChart'
 import '../../shared/ui/DataPage.css'
 import { Coins, CheckCircle, AlertTriangle, Clock, TrendingUp, CircleDot, BarChart, Download, FileSpreadsheet, FileText, Eye, RefreshCw, Edit, Trash2, Plus, Info } from 'lucide-react';
-import cosmosLogo from '../../assets/cosmosLogo.jpeg';
+import cosmosLogo from '../../assets/cosmosLogo.webp';
 
 /* ─── Currency Formatter ────────────────────────────────────── */
 function formatAmount(n) {

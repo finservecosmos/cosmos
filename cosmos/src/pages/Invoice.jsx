@@ -7,7 +7,7 @@ import { useToast } from '../context/ToastContext'
 import useConfirm from '../shared/lib/useConfirm'
 import '../shared/ui/DataPage.css'
 import { FileText, Receipt, Eye, Download, Trash2 } from 'lucide-react'
-import cosmosLogo from '../assets/cosmos-logo.png'
+import cosmosLogo from '../assets/cosmos-logo.webp'
 import useDebounce from '../shared/lib/useDebounce'
 
 function formatAmount(n) { return `₹${n.toLocaleString('en-IN')}` }
