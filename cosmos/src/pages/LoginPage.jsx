@@ -4,7 +4,11 @@ import { supabase } from '../shared/api/supabaseClient'
 import { useToast } from '../context/ToastContext'
 import { useUser } from '../context/UserContext'
 import Modal from '../shared/ui/Modal'
+<<<<<<< HEAD
 import cosmosLogo from '../assets/cosmos-logo.png'
+=======
+import cosmosLogo from '../assets/cosmosLogo.webp'
+>>>>>>> 5e8e7b29ef03e722d90dbea2c0e2d2b43fbdbdf4
 import heroImg from '../assets/login_img1.png'
 import './LoginPage.css'
 

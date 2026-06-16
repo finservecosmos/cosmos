@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import DashboardLayout from '../../widgets/DashboardLayout'
 import Modal from '../../shared/ui/Modal'
@@ -7,7 +7,8 @@ import { useToast } from '../../context/ToastContext'
 import useConfirm from '../../shared/lib/useConfirm'
 import '../../shared/ui/DataPage.css'
 import { FileText, CheckCircle, Clock, AlertTriangle, Receipt } from 'lucide-react'
-import cosmosLogo from '../../assets/cosmos-logo.png'
+import cosmosLogo from '../../assets/cosmos-logo.webp'
+import useDebounce from '../../shared/lib/useDebounce'
 
 function formatAmount(n) { return `₹${Number(n).toLocaleString('en-IN')}` }
 
@@ -48,15 +49,24 @@ export default function FinanceInvoice() {
     }
   }, [location, navigate])
 
-  const filtered = financeInvoices.filter((inv) => {
-    const q = search.toLowerCase()
-    const matchSearch = !q || inv.name?.toLowerCase().includes(q) || inv.id?.toLowerCase().includes(q)
-    const matchType = typeFilter === 'All' || inv.type === typeFilter
-    return matchSearch && matchType
-  })
+  const debouncedSearch = useDebounce(search, 300)
 
-  const totalIncome  = financeInvoices.filter(i => i.type === 'Income').reduce((s,i) => s+i.amount, 0)
-  const totalExpense = financeInvoices.filter(i => i.type === 'Expense').reduce((s,i) => s+i.amount, 0)
+  const filtered = useMemo(() => {
+    const q = debouncedSearch.toLowerCase().trim()
+    return financeInvoices.filter((inv) => {
+      const matchSearch = !q || inv.name?.toLowerCase().includes(q) || inv.id?.toLowerCase().includes(q)
+      const matchType = typeFilter === 'All' || inv.type === typeFilter
+      return matchSearch && matchType
+    })
+  }, [financeInvoices, debouncedSearch, typeFilter])
+
+  const totalIncome = useMemo(() => {
+    return financeInvoices.filter(i => i.type === 'Income').reduce((s, i) => s + i.amount, 0)
+  }, [financeInvoices])
+
+  const totalExpense = useMemo(() => {
+    return financeInvoices.filter(i => i.type === 'Expense').reduce((s, i) => s + i.amount, 0)
+  }, [financeInvoices])
 
   const openCreateModal = () => {
     setFormData(emptyInvoice)

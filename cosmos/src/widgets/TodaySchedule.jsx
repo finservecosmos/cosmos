@@ -1,3 +1,4 @@
+import React, { memo } from 'react';
 import './TodaySchedule.css'
 
 function TodaySchedule({ schedule, loading, onAdd }) {
@@ -28,7 +29,17 @@ function TodaySchedule({ schedule, loading, onAdd }) {
       </div>
 
       {loading ? (
-        <p className="schedule-loading">Loading...</p>
+        <ul className="schedule-list">
+          {[1, 2, 3].map((n) => (
+            <li key={n} className="schedule-item">
+              <span className="schedule-time skeleton-pulse" style={{ width: '50px', height: '14px', borderRadius: '4px' }}>—</span>
+              <div className="schedule-event skeleton-pulse" style={{ height: '48px' }}>
+                <p className="schedule-event-title">—</p>
+                <p className="schedule-event-desc">—</p>
+              </div>
+            </li>
+          ))}
+        </ul>
       ) : schedule.length === 0 ? (
         <p className="schedule-empty">No events scheduled for today.</p>
       ) : (
@@ -55,4 +66,4 @@ function TodaySchedule({ schedule, loading, onAdd }) {
   )
 }
 
-export default TodaySchedule
+export default memo(TodaySchedule);

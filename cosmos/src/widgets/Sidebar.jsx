@@ -5,7 +5,11 @@ import { useUser } from '../context/UserContext'
 import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
 import Modal from '../shared/ui/Modal'
+<<<<<<< HEAD
 import cosmosLogo from '../assets/cosmosLogo.jpg'
+=======
+import cosmosLogo from '../assets/cosmosLogo.webp'
+>>>>>>> 5e8e7b29ef03e722d90dbea2c0e2d2b43fbdbdf4
 import './Sidebar.css'
 
 const mainMenuItems = [

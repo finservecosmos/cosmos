@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import DashboardLayout from '../widgets/DashboardLayout';
 import Modal from '../shared/ui/Modal';
 import { useAppState } from '../context/AppStateContext';
@@ -11,6 +11,7 @@ import ClientRecordsTable from '../features/client-onboarding/components/ClientR
 import ClientOnboardingForm from '../features/client-onboarding/components/ClientOnboardingForm';
 import '../shared/ui/DataPage.css';
 import { Users, RefreshCw, CheckCircle, Banknote, Folder, Hourglass, FileText } from 'lucide-react';
+import useDebounce from '../shared/lib/useDebounce';
 
 function maskAadhaar(num) {
   if (!num) return '';
@@ -92,26 +93,34 @@ export default function ClientRecordBook() {
     }
   };
 
+  const debouncedSearch = useDebounce(search, 300);
+
   // Reset pagination when search or filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, loanFilter, statusFilter]);
+  }, [debouncedSearch, loanFilter, statusFilter]);
 
-  const filtered = clients.filter((c) => {
-    if (c.loan_type === 'Finance Entry') return false;
-    const q = search.toLowerCase();
-    const matchSearch = !q || String(c.name || '').toLowerCase().includes(q) || String(c.phone || '').includes(q);
-    const matchLoan = loanFilter === 'All' || c.loan_type === loanFilter;
-    const matchStatus = statusFilter === 'All' || c.status === statusFilter;
-    return matchSearch && matchLoan && matchStatus;
-  });
+  const filtered = useMemo(() => {
+    return clients.filter((c) => {
+      if (c.loan_type === 'Finance Entry') return false;
+      const q = debouncedSearch.toLowerCase().trim();
+      const matchSearch = !q || String(c.name || '').toLowerCase().includes(q) || String(c.phone || '').includes(q);
+      const matchLoan = loanFilter === 'All' || c.loan_type === loanFilter;
+      const matchStatus = statusFilter === 'All' || c.status === statusFilter;
+      return matchSearch && matchLoan && matchStatus;
+    });
+  }, [clients, debouncedSearch, loanFilter, statusFilter]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paginatedClients = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const paginatedClients = useMemo(() => {
+    return filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  }, [filtered, currentPage]);
 
-  const totalDisbursed = clients
-    .filter(c => ['Approved', 'Disbursed'].includes(c.status))
-    .reduce((s, c) => s + (Number(c.amount) || 0), 0);
+  const totalDisbursed = useMemo(() => {
+    return clients
+      .filter(c => ['Approved', 'Disbursed'].includes(c.status))
+      .reduce((s, c) => s + (Number(c.amount) || 0), 0);
+  }, [clients]);
 
   if (showAddWizard) {
     return (

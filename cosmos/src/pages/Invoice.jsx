@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import DashboardLayout from '../widgets/DashboardLayout'
 import Modal from '../shared/ui/Modal'
@@ -7,7 +7,8 @@ import { useToast } from '../context/ToastContext'
 import useConfirm from '../shared/lib/useConfirm'
 import '../shared/ui/DataPage.css'
 import { FileText, Receipt, Eye, Download, Trash2 } from 'lucide-react'
-import cosmosLogo from '../assets/cosmos-logo.png'
+import cosmosLogo from '../assets/cosmos-logo.webp'
+import useDebounce from '../shared/lib/useDebounce'
 
 function formatAmount(n) { return `₹${n.toLocaleString('en-IN')}` }
 
@@ -43,10 +44,14 @@ export default function Invoice() {
     }
   }, [location, navigate])
 
-  const filtered = invoices.filter((inv) => {
-    const q = search.toLowerCase()
-    return !q || inv.client?.toLowerCase().includes(q) || inv.id?.toString().toLowerCase().includes(q)
-  })
+  const debouncedSearch = useDebounce(search, 300)
+
+  const filtered = useMemo(() => {
+    const q = debouncedSearch.toLowerCase().trim()
+    return invoices.filter((inv) => {
+      return !q || inv.client?.toLowerCase().includes(q) || inv.id?.toString().toLowerCase().includes(q)
+    })
+  }, [invoices, debouncedSearch])
 
   const openCreateModal = () => { setFormData(emptyInvoice); setModalOpen(true) }
   const openViewModal = (inv) => setSelectedInvoice(inv)
