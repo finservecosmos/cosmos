@@ -51,6 +51,13 @@ export default function Invoice() {
   const openCreateModal = () => { setFormData(emptyInvoice); setModalOpen(true) }
   const openViewModal = (inv) => setSelectedInvoice(inv)
 
+  const handleDownloadInvoice = (inv) => {
+    setSelectedInvoice(inv)
+    setTimeout(() => {
+      window.print()
+    }, 150)
+  }
+
   const saveInvoice = () => {
     if (!formData.client || !formData.amount) {
       addToast('Client and amount are required.', 'error')
@@ -146,7 +153,7 @@ export default function Invoice() {
                   <td>
                     <div className="row-actions">
                       <button className="row-btn" onClick={() => openViewModal(inv)} title="View"><Eye size={16} /></button>
-                      <button className="row-btn" onClick={() => addToast('Invoice downloaded.', 'success')} title="Download"><Download size={16} /></button>
+                      <button className="row-btn" onClick={() => handleDownloadInvoice(inv)} title="Download"><Download size={16} /></button>
                       <button className="row-btn" style={{ color: '#dc2626' }} onClick={() => handleDelete(inv)} title="Delete"><Trash2 size={16} /></button>
                     </div>
                   </td>

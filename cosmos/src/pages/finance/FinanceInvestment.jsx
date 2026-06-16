@@ -9,6 +9,7 @@ import { useInvestment } from '../../features/partner-ledger/hooks/useInvestment
 import InvestmentForm from '../../features/partner-ledger/components/InvestmentForm';
 import InvestmentTable from '../../features/partner-ledger/components/InvestmentTable';
 import '../../shared/ui/DataPage.css';
+import '../../shared/ui/DonutChart.css';
 import './FinanceInvestment.css';
 import { ExternalLink } from 'lucide-react';
 
@@ -62,66 +63,68 @@ function InvestmentPieChart({ data, totalInvestment }) {
   return (
     <div className="donut-container" style={{ minHeight: 180 }}>
       <div className="donut-wrapper" style={{ flexDirection: 'column', gap: 16 }}>
-        <svg 
-          width={size} 
-          height={size} 
-          viewBox={`0 0 ${size} ${size}`} 
-          className={`donut-svg${hoveredSegment ? ' has-hover' : ''}`}
-        >
-          <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--bg-muted)" strokeWidth={strokeW} />
-          {donutSegments.map((seg, i) => {
-            const isHovered = hoveredSegment && hoveredSegment.index === seg.index;
-            return (
-              <circle
-                key={i}
-                cx={cx}
-                cy={cy}
-                r={r}
-                fill="none"
-                stroke={seg.color}
-                strokeWidth={isHovered ? strokeW + 4 : strokeW}
-                strokeDasharray={seg.dashArray}
-                strokeDashoffset={0}
-                transform={`rotate(${seg.rotation} ${cx} ${cy})`}
-                strokeLinecap="butt"
-                className={`donut-segment${isHovered ? ' active' : ''}`}
-                style={{
-                  transition: 'stroke-width 0.2s, filter 0.2s, opacity 0.2s',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => handleDonutInteraction(seg, e)}
-                onMouseMove={(e) => handleDonutInteraction(seg, e)}
-                onMouseLeave={() => setHoveredSegment(null)}
-                onTouchStart={(e) => handleDonutInteraction(seg, e)}
-                onTouchMove={(e) => handleDonutInteraction(seg, e)}
-                onTouchEnd={() => setHoveredSegment(null)}
-              />
-            );
-          })}
-          <g className="donut-center-text">
-            <text x={cx} y={cy - 4} textAnchor="middle" className="donut-center-val" style={{ fontSize: 20 }}>
-              {hoveredSegment ? formatCenterAmount(hoveredSegment.count) : formatCenterAmount(totalInvestment)}
-            </text>
-            <text x={cx} y={cy + 16} textAnchor="middle" className="donut-center-lbl">
-              {hoveredSegment ? hoveredSegment.type : 'Total Investment'}
-            </text>
-          </g>
-        </svg>
+        <div style={{ position: 'relative', width: size, height: size }}>
+          <svg 
+            width={size} 
+            height={size} 
+            viewBox={`0 0 ${size} ${size}`} 
+            className={`donut-svg${hoveredSegment ? ' has-hover' : ''}`}
+          >
+            <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--bg-muted)" strokeWidth={strokeW} />
+            {donutSegments.map((seg, i) => {
+              const isHovered = hoveredSegment && hoveredSegment.index === seg.index;
+              return (
+                <circle
+                  key={i}
+                  cx={cx}
+                  cy={cy}
+                  r={r}
+                  fill="none"
+                  stroke={seg.color}
+                  strokeWidth={isHovered ? strokeW + 4 : strokeW}
+                  strokeDasharray={seg.dashArray}
+                  strokeDashoffset={0}
+                  transform={`rotate(${seg.rotation} ${cx} ${cy})`}
+                  strokeLinecap="butt"
+                  className={`donut-segment${isHovered ? ' active' : ''}`}
+                  style={{
+                    transition: 'stroke-width 0.2s, filter 0.2s, opacity 0.2s',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => handleDonutInteraction(seg, e)}
+                  onMouseMove={(e) => handleDonutInteraction(seg, e)}
+                  onMouseLeave={() => setHoveredSegment(null)}
+                  onTouchStart={(e) => handleDonutInteraction(seg, e)}
+                  onTouchMove={(e) => handleDonutInteraction(seg, e)}
+                  onTouchEnd={() => setHoveredSegment(null)}
+                />
+              );
+            })}
+            <g className="donut-center-text">
+              <text x={cx} y={cy - 4} textAnchor="middle" className="donut-center-val" style={{ fontSize: 20 }}>
+                {hoveredSegment ? formatCenterAmount(hoveredSegment.count) : formatCenterAmount(totalInvestment)}
+              </text>
+              <text x={cx} y={cy + 16} textAnchor="middle" className="donut-center-lbl">
+                {hoveredSegment ? hoveredSegment.type : 'Total Investment'}
+              </text>
+            </g>
+          </svg>
 
-        {hoveredSegment && (
-          <div className="donut-tooltip" style={{ left: `${donutTooltipPos.x}px`, top: `${donutTooltipPos.y}px` }}>
-            <div className="donut-tooltip-header">
-              <span className="donut-tooltip-dot" style={{ background: hoveredSegment.color }} />
-              <span className="donut-tooltip-type">{hoveredSegment.type}</span>
+          {hoveredSegment && (
+            <div className="donut-tooltip" style={{ left: `${donutTooltipPos.x}px`, top: `${donutTooltipPos.y}px` }}>
+              <div className="donut-tooltip-header">
+                <span className="donut-tooltip-dot" style={{ background: hoveredSegment.color }} />
+                <span className="donut-tooltip-type">{hoveredSegment.type}</span>
+              </div>
+              <div className="donut-tooltip-body">
+                <span className="donut-tooltip-count">₹{hoveredSegment.count.toLocaleString('en-IN')}</span>
+                <span className="donut-tooltip-pct">{hoveredSegment.percent}%</span>
+              </div>
             </div>
-            <div className="donut-tooltip-body">
-              <span className="donut-tooltip-count">₹{hoveredSegment.count.toLocaleString('en-IN')}</span>
-              <span className="donut-tooltip-pct">{hoveredSegment.percent}%</span>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        <div className="donut-legend" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', width: '100%', marginTop: 8 }}>
+        <div className="donut-legend" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px 16px', width: '100%', marginTop: 8 }}>
           {donutSegments.map((seg, i) => (
             <div 
               key={i} 

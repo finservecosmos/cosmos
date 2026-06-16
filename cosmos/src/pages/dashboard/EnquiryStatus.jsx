@@ -399,7 +399,7 @@ export default function EnquiryStatus() {
   ══════════════════════════════════════════ */
   return (
     <DashboardLayout>
-      <div className="data-page">
+      <div className="data-page" style={{ paddingBottom: 120 }}>
 
         {/* ── Header ── */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
@@ -716,7 +716,7 @@ export default function EnquiryStatus() {
                   <option value="Others">Others</option>
                 </select>
               </label>
-              <label className="form-grid-full">Google Drive Link
+              <label>Google Drive Link
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input type="text" value={formData.google_drive_link || ''} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, google_drive_link: e.target.value })} placeholder="https://drive.google.com/..." style={{ flex: 1 }} />
                   {formData.google_drive_link && (
@@ -731,10 +731,10 @@ export default function EnquiryStatus() {
                 <textarea rows={4} value={formData.note} disabled={modalMode === 'view'} onChange={(e) => setFormData({ ...formData, note: e.target.value })} placeholder="Loan details, remarks, follow-up notes..." />
               </label>
             </div>
-            <div className="modal-actions" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px' }}>
-              <button type="button" className="admin-action-btn" onClick={() => setModalOpen(false)}>Close</button>
+            <div className="form-actions" style={{ marginTop: '24px' }}>
+              <button type="button" className="btn-cancel" onClick={() => setModalOpen(false)}>Close</button>
               {modalMode !== 'view' && (
-                <button type="button" className="admin-primary-btn" onClick={saveEnquiry}>Save</button>
+                <button type="button" className="btn-submit" onClick={saveEnquiry}>Save</button>
               )}
             </div>
           </Modal>

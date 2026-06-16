@@ -8,7 +8,7 @@ import useConfirm from '../../shared/lib/useConfirm'
 import DonutChart from '../../shared/ui/DonutChart'
 import '../../shared/ui/DataPage.css'
 import { Coins, CheckCircle, AlertTriangle, Clock, TrendingUp, CircleDot, BarChart, Download, FileSpreadsheet, FileText, Eye, RefreshCw, Edit, Trash2, Plus, Info } from 'lucide-react';
-import cosmosLogo from '../../assets/cosmosLogo.jpeg';
+import cosmosLogo from '../../assets/cosmos-logo.png';
 
 /* ─── Currency Formatter ────────────────────────────────────── */
 function formatAmount(n) {
@@ -81,7 +81,6 @@ export default function PaymentStatus() {
 
   // New Payment Fields
   const [addPaymentAmount, setAddPaymentAmount] = useState('')
-  const [addPaymentBank, setAddPaymentBank] = useState('ICICI Bank')
   const [addPaymentDate, setAddPaymentDate] = useState(new Date().toISOString().slice(0, 10))
 
   /* ─── Pagination ──────────────────────────────────────────── */
@@ -399,7 +398,6 @@ export default function PaymentStatus() {
       file_no: updatePaymentRecord.file_no,
       type: 'Collection',
       amount: payVal,
-      bank: addPaymentBank,
       date: addPaymentDate,
       status: 'Completed'
     })
@@ -425,7 +423,6 @@ export default function PaymentStatus() {
 
     // Reset Fields
     setAddPaymentAmount('')
-    setAddPaymentBank('ICICI Bank')
     setAddPaymentDate(new Date().toISOString().slice(0, 10))
     setUpdatePayment(null)
   }
@@ -497,7 +494,6 @@ export default function PaymentStatus() {
         file_no: editCustomer.file_no,
         type: 'Collection',
         amount: paidNum,
-        bank: '',
         date: today,
         status: 'Completed'
       })
@@ -511,7 +507,6 @@ export default function PaymentStatus() {
         file_no: editCustomer.file_no,
         type: 'Collection',
         amount: pendingBalance,
-        bank: '',
         date: today,
         status: 'Pending'
       })

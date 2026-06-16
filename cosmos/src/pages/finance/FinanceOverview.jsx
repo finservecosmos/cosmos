@@ -6,6 +6,7 @@ import { useAppState } from '../../context/AppStateContext'
 import { useToast } from '../../context/ToastContext'
 import useConfirm from '../../shared/lib/useConfirm'
 import '../../shared/ui/DataPage.css'
+import '../../shared/ui/DonutChart.css'
 import './FinanceOverview.css'
 import { FileText, Receipt, Mail, Edit, Trash2, TrendingUp } from 'lucide-react';
 
@@ -515,23 +516,23 @@ export default function FinanceOverview() {
                       {hoveredSegment ? hoveredSegment.type : 'Partner Investments'}
                     </span>
                   </div>
+
+                  {hoveredSegment && (
+                    <div className="donut-tooltip" style={{ left: `${donutTooltipPos.x}px`, top: `${donutTooltipPos.y}px` }}>
+                      <div className="donut-tooltip-header">
+                        <span className="donut-tooltip-dot" style={{ background: hoveredSegment.color }} />
+                        <span className="donut-tooltip-type">{hoveredSegment.type}</span>
+                      </div>
+                      <div className="donut-tooltip-body">
+                        <span className="donut-tooltip-count">₹{hoveredSegment.count.toLocaleString('en-IN')}</span>
+                        <span className="donut-tooltip-pct">{hoveredSegment.percent}%</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {hoveredSegment && (
-                  <div className="donut-tooltip" style={{ left: `${donutTooltipPos.x}px`, top: `${donutTooltipPos.y}px` }}>
-                    <div className="donut-tooltip-header">
-                      <span className="donut-tooltip-dot" style={{ background: hoveredSegment.color }} />
-                      <span className="donut-tooltip-type">{hoveredSegment.type}</span>
-                    </div>
-                    <div className="donut-tooltip-body">
-                      <span className="donut-tooltip-count">₹{hoveredSegment.count.toLocaleString('en-IN')}</span>
-                      <span className="donut-tooltip-pct">{hoveredSegment.percent}%</span>
-                    </div>
-                  </div>
-                )}
-
                 {/* Legend list inside card */}
-                <div className="donut-legend" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', width: '100%', marginTop: 8 }}>
+                <div className="donut-legend" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px 16px', width: '100%', marginTop: 8 }}>
                   {donutSegments.map((seg, i) => (
                     <div 
                       key={i} 
@@ -567,7 +568,7 @@ export default function FinanceOverview() {
               </button>
             </div>
 
-            <div style={{ overflowX: 'auto', paddingBottom: 100 }}>
+            <div style={{ overflowX: 'auto', paddingBottom: 160 }}>
               <table className="data-table">
                 <thead>
                   <tr>
@@ -667,12 +668,6 @@ export default function FinanceOverview() {
               <div className="panel-title-wrap">
                 <h3 className="panel-title"><TrendingUp size={18} style={{marginRight: 6, verticalAlign: "middle"}} /> Loans Collection Performance</h3>
                 <p className="panel-subtitle">Collection efficiency breakdown by timeframe</p>
-              </div>
-              <div className="bar-chart-legend">
-                <div className="legend-indicator">
-                  <span className="legend-color-box" style={{ background: 'var(--accent)' }} />
-                  <span>Collection Rate</span>
-                </div>
               </div>
             </div>
 

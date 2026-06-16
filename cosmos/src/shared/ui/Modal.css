@@ -55,6 +55,12 @@
 }
 .modal-close:hover { background: rgba(0,0,0,0.05); color: var(--text-primary); }
 .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+.modal-body::after {
+  content: '';
+  display: block;
+  height: 24px;
+  width: 100%;
+}
 
 /* Form styles inside modals */
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }

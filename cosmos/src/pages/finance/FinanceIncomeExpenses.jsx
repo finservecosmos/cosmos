@@ -23,9 +23,17 @@ export default function FinanceIncomeExpenses() {
   // Form toggle state
   const [isFormOpen, setIsFormOpen] = useState(false)
 
+  const getLocalDateString = () => {
+    const d = new Date()
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
   // Form state
   const [entryType, setEntryType] = useState('Income') // 'Income' or 'Expense'
-  const [entryDate, setEntryDate] = useState('2026-06-20')
+  const [entryDate, setEntryDate] = useState(getLocalDateString())
   const [entryName, setEntryName] = useState('')
   const [entryCategory, setEntryCategory] = useState('Processing Fee')
   const [entryAmount, setEntryAmount] = useState('')
@@ -325,7 +333,7 @@ export default function FinanceIncomeExpenses() {
     setEntryName('')
     setEntryRemarks('')
     setEntryAmount('')
-    setEntryDate('2026-06-20')
+    setEntryDate(getLocalDateString())
   }
 
   const handleEditRecord = (rec) => {
@@ -418,6 +426,9 @@ export default function FinanceIncomeExpenses() {
                 setEditId(null)
                 handleResetForm()
               } else {
+                if (!isFormOpen) {
+                  handleResetForm()
+                }
                 setIsFormOpen(!isFormOpen)
               }
             }}
@@ -766,7 +777,7 @@ export default function FinanceIncomeExpenses() {
             </div>
           </div>
 
-          <div style={{ overflowX: 'auto', paddingBottom: 80 }}>
+          <div style={{ overflowX: 'auto', paddingBottom: 140 }}>
             <table className="data-table">
               <thead>
                 <tr>

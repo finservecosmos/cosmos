@@ -1,16 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { useUser } from '../context/UserContext'
 import { useAppState } from '../context/AppStateContext'
 import './Topbar.css'
 
-const dummySearchIndex = [
-  { id: 1, label: 'John Doe', sub: 'Housing Loan - Pending', category: 'Clients', path: '/clients' },
-  { id: 2, label: 'Q1 Payment Transfer', sub: '₹45,000 to ICICI', category: 'Payments', path: '/dashboard/payment-status' },
-  { id: 3, label: 'New Lead: Rajesh', sub: 'Personal Loan', category: 'Enquiries', path: '/dashboard/enquiries' },
-  { id: 4, label: 'System Backup', sub: 'Manual checkpoint', category: 'System', path: '/backup' }
-];
+
 
 const tabs = [
   { label: 'Overview',           path: '/dashboard',                 end: true },
@@ -91,18 +86,149 @@ function Topbar({ onToggleSidebar }) {
     description: 'Enterprise Finance Operations Platform'
   }
 
+  // ── Notifications & Global Search Data ───────────────────
+  const { 
+    notifications, clients, payments, enquiries, invoices, associates,
+    financeEntries, investments, transactions, financeInvoices 
+  } = useAppState()
+
   // ── Search ──────────────────────────────────────────────
   const [query, setQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [activeIdx, setActiveIdx] = useState(-1)
   const searchRef = useRef(null)
 
+  const searchIndex = useMemo(() => {
+    const list = []
+    
+    // Add Clients
+    if (clients) {
+      clients.forEach(c => {
+        if (c.loan_type !== 'Finance Entry') {
+          list.push({
+            id: `client-${c.id}`,
+            label: c.name || 'Unknown Client',
+            sub: `${c.loan_type || 'Loan'} — ${c.status || 'Enquiry'}`,
+            category: 'Clients',
+            path: '/clients'
+          })
+        }
+      })
+    }
+
+    // Add Payments
+    if (payments) {
+      payments.forEach(p => {
+        list.push({
+          id: `payment-${p.id}`,
+          label: p.client || 'Unknown Payer',
+          sub: `${p.type || 'Payment'} — ₹${(p.amount || 0).toLocaleString('en-IN')}`,
+          category: 'Payments',
+          path: '/payments'
+        })
+      })
+    }
+
+    // Add Enquiries
+    if (enquiries) {
+      enquiries.forEach(e => {
+        list.push({
+          id: `enquiry-${e.id}`,
+          label: e.client_name || 'New Lead',
+          sub: `${e.loan_type || 'Loan'} — ₹${Number(e.loan_amount || 0).toLocaleString('en-IN')}`,
+          category: 'Enquiries',
+          path: '/dashboard/enquiries'
+        })
+      })
+    }
+
+    // Add Invoices
+    if (invoices) {
+      invoices.forEach(inv => {
+        list.push({
+          id: `invoice-${inv.id}`,
+          label: inv.client || 'Unknown Client',
+          sub: `${inv.service || 'Service'} — ₹${(inv.amount || 0).toLocaleString('en-IN')}`,
+          category: 'Invoices',
+          path: '/payments/invoice'
+        })
+      })
+    }
+
+    // Add Associates
+    if (associates) {
+      associates.forEach(a => {
+        list.push({
+          id: `associate-${a.id}`,
+          label: a.name || 'Unknown Associate',
+          sub: `${a.expertise || 'Associate'} — ${a.phone || ''}`,
+          category: 'Associates',
+          path: '/associates'
+        })
+      })
+    }
+
+    // Add Finance Entries (Lending Ledger)
+    if (financeEntries) {
+      financeEntries.forEach(fe => {
+        list.push({
+          id: `finance-entry-${fe.id}`,
+          label: fe.client_name || 'Unknown Client',
+          sub: `Finance Entry — ₹${(fe.loan_amount || 0).toLocaleString('en-IN')} (${fe.status || 'Active'})`,
+          category: 'Finance Entries',
+          path: '/finance/entry'
+        })
+      })
+    }
+
+    // Add Partner Investments
+    if (investments) {
+      investments.forEach(inv => {
+        list.push({
+          id: `investment-${inv.id}`,
+          label: inv.partner || 'Unknown Investor',
+          sub: `Investment — ₹${(inv.amount || 0).toLocaleString('en-IN')} (${inv.status || 'Active'})`,
+          category: 'Investments',
+          path: '/finance/investment'
+        })
+      })
+    }
+
+    // Add Income/Expense Transactions
+    if (transactions) {
+      transactions.forEach(tx => {
+        list.push({
+          id: `transaction-${tx.id}`,
+          label: tx.name || 'Unknown Transaction',
+          sub: `${tx.type || 'Transaction'} — ₹${(tx.amount || 0).toLocaleString('en-IN')} (${tx.category || ''})`,
+          category: 'Transactions',
+          path: '/finance/income-expenses'
+        })
+      })
+    }
+
+    // Add Finance Invoices
+    if (financeInvoices) {
+      financeInvoices.forEach(fi => {
+        list.push({
+          id: `finance-invoice-${fi.id}`,
+          label: fi.name || 'Unknown Entity',
+          sub: `Finance Invoice (${fi.type}) — ₹${(fi.amount || 0).toLocaleString('en-IN')}`,
+          category: 'Finance Invoices',
+          path: '/finance/invoice'
+        })
+      })
+    }
+
+    return list
+  }, [clients, payments, enquiries, invoices, associates, financeEntries, investments, transactions, financeInvoices])
+
   const results = query.trim().length > 1
-    ? dummySearchIndex.filter(
+    ? searchIndex.filter(
         (item) =>
-          item.label.toLowerCase().includes(query.toLowerCase()) ||
-          item.sub.toLowerCase().includes(query.toLowerCase()) ||
-          item.category.toLowerCase().includes(query.toLowerCase())
+          String(item.label || '').toLowerCase().includes(query.toLowerCase()) ||
+          String(item.sub || '').toLowerCase().includes(query.toLowerCase()) ||
+          String(item.category || '').toLowerCase().includes(query.toLowerCase())
       ).slice(0, 8)
     : []
 
@@ -145,7 +271,6 @@ function Topbar({ onToggleSidebar }) {
   }, [])
 
   // ── Notifications ────────────────────────────────────────
-  const { notifications } = useAppState()
   const [notifOpen, setNotifOpen] = useState(false)
   const notifRef = useRef(null)
   const unreadCount = notifications ? notifications.filter((n) => !n.read).length : 0

@@ -35,7 +35,10 @@ export default function Payments() {
 
   const filtered = payments.filter((p) => {
     const q = search.toLowerCase()
-    const matchSearch = !q || p.client.toLowerCase().includes(q) || p.file_no.includes(q) || p.bank.toLowerCase().includes(q)
+    const matchSearch = !q || 
+      String(p.client || '').toLowerCase().includes(q) || 
+      String(p.file_no || '').toLowerCase().includes(q) || 
+      String(p.bank || '').toLowerCase().includes(q)
     const matchType   = typeFilter === 'All' || p.type === typeFilter
     const matchStatus = statusFilter === 'All' || p.status === statusFilter
     return matchSearch && matchType && matchStatus
