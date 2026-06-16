@@ -11,7 +11,6 @@ const Payments           = lazy(() => import('./pages/Payments'))
 const Invoice            = lazy(() => import('./pages/Invoice'))
 const BackupData         = lazy(() => import('./pages/BackupData'))
 const ProfilePage        = lazy(() => import('./pages/ProfilePage'))
-const NotificationsPage  = lazy(() => import('./pages/NotificationsPage'))
 const NotFoundPage       = lazy(() => import('./pages/NotFoundPage'))
 const EnquiryStatus      = lazy(() => import('./pages/dashboard/EnquiryStatus'))
 const LoginFile          = lazy(() => import('./pages/dashboard/LoginFile'))
@@ -63,7 +62,6 @@ function App() {
             <Route path="/finance/invoice"   element={<PR roles={['admin','advisor','staff']}><FinanceInvoice /></PR>} />
             <Route path="/backup"            element={<PR roles={['admin']}><BackupData /></PR>} />
             <Route path="/profile"           element={<PR roles={['admin','advisor','staff']}><ProfilePage /></PR>} />
-            <Route path="/notifications"     element={<PR roles={['admin','advisor','staff']}><NotificationsPage /></PR>} />
 
             {/* Admin */}
             <Route path="/admin"           element={<PR roles={['admin']}><AdminSettingsHub /></PR>} />

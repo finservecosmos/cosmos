@@ -64,10 +64,10 @@ function InvestmentPieChart({ data, totalInvestment }) {
     <div className="donut-container" style={{ minHeight: 180 }}>
       <div className="donut-wrapper" style={{ flexDirection: 'column', gap: 16 }}>
         <div style={{ position: 'relative', width: size, height: size }}>
-          <svg 
-            width={size} 
-            height={size} 
-            viewBox={`0 0 ${size} ${size}`} 
+          <svg
+            width={size}
+            height={size}
+            viewBox={`0 0 ${size} ${size}`}
             className={`donut-svg${hoveredSegment ? ' has-hover' : ''}`}
           >
             <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--bg-muted)" strokeWidth={strokeW} />
@@ -126,8 +126,8 @@ function InvestmentPieChart({ data, totalInvestment }) {
 
         <div className="donut-legend" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px 16px', width: '100%', marginTop: 8 }}>
           {donutSegments.map((seg, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className={`donut-legend-item${hoveredSegment && hoveredSegment.index === seg.index ? ' active' : ''}`}
               onMouseEnter={() => setHoveredSegment(seg)}
               onMouseLeave={() => setHoveredSegment(null)}
@@ -220,7 +220,7 @@ export default function FinanceInvestment() {
   const lastMonthStats = React.useMemo(() => {
     const today = new Date('2026-06-06');
     const prevMonthTo = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().slice(0, 10);
-    
+
     const active = investments || [];
     const currentTotal = active.reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
     const prevTotal = active.filter(inv => {
@@ -253,16 +253,16 @@ export default function FinanceInvestment() {
       return acc;
     }, {})
   )
-  .map(([name, value], index) => {
-    const percent = Math.round((value / (totalInvestmentAmount || 1)) * 100);
-    return { 
-      type: name, 
-      count: value,
-      percent,
-      color: colors[index % colors.length]
-    };
-  })
-  .sort((a, b) => b.count - a.count);
+    .map(([name, value], index) => {
+      const percent = Math.round((value / (totalInvestmentAmount || 1)) * 100);
+      return {
+        type: name,
+        count: value,
+        percent,
+        color: colors[index % colors.length]
+      };
+    })
+    .sort((a, b) => b.count - a.count);
 
   return (
     <DashboardLayout>
@@ -331,7 +331,7 @@ export default function FinanceInvestment() {
               </div>
               <button className="panel-more-btn" title="More Options" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', borderRadius: '4px', display: 'flex', alignItems: 'center' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+                  <circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" />
                 </svg>
               </button>
             </div>

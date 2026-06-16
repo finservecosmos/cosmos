@@ -8,11 +8,11 @@ import './Topbar.css'
 
 
 const tabs = [
-  { label: 'Overview',           path: '/dashboard',                 end: true },
-  { label: 'New Enquiry Status', path: '/dashboard/enquiries',       end: false },
-  { label: 'Login File',         path: '/dashboard/login-file',      end: false },
-  { label: 'Payment Status',     path: '/dashboard/payment-status',  end: false },
-  { label: 'Reminders',          path: '/dashboard/reminders',       end: false },
+  { label: 'Overview', path: '/dashboard', end: true },
+  { label: 'New Enquiry Status', path: '/dashboard/enquiries', end: false },
+  { label: 'Login File', path: '/dashboard/login-file', end: false },
+  { label: 'Payment Status', path: '/dashboard/payment-status', end: false },
+  { label: 'Reminders', path: '/dashboard/reminders', end: false },
 ]
 
 const PAGE_HEADERS = {
@@ -52,10 +52,6 @@ const PAGE_HEADERS = {
     title: 'Profile Settings',
     description: 'Configure personal settings, upload security verification files, and manage security.'
   },
-  '/notifications': {
-    title: 'Notifications Central',
-    description: 'View all recent audit logs, warnings, and compliance alerts.'
-  },
   '/admin/users': {
     title: 'User Management',
     description: 'Add, update, or remove personnel and staff accounts.'
@@ -79,17 +75,17 @@ function Topbar({ onToggleSidebar }) {
   const { user } = useUser()
   const navigate = useNavigate()
   const location = useLocation()
-  
+
   const showTabs = location.pathname.startsWith('/dashboard')
   const pageHeader = PAGE_HEADERS[location.pathname] || {
     title: 'Cosmos Finserve',
     description: 'Enterprise Finance Operations Platform'
   }
 
-  // ── Notifications & Global Search Data ───────────────────
-  const { 
-    notifications, clients, payments, enquiries, invoices, associates,
-    financeEntries, investments, transactions, financeInvoices 
+  // ── Global Search Data ───────────────────
+  const {
+    clients, payments, enquiries, invoices, associates,
+    financeEntries, investments, transactions, financeInvoices
   } = useAppState()
 
   // ── Search ──────────────────────────────────────────────
@@ -100,7 +96,7 @@ function Topbar({ onToggleSidebar }) {
 
   const searchIndex = useMemo(() => {
     const list = []
-    
+
     // Add Clients
     if (clients) {
       clients.forEach(c => {
@@ -225,11 +221,11 @@ function Topbar({ onToggleSidebar }) {
 
   const results = query.trim().length > 1
     ? searchIndex.filter(
-        (item) =>
-          String(item.label || '').toLowerCase().includes(query.toLowerCase()) ||
-          String(item.sub || '').toLowerCase().includes(query.toLowerCase()) ||
-          String(item.category || '').toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 8)
+      (item) =>
+        String(item.label || '').toLowerCase().includes(query.toLowerCase()) ||
+        String(item.sub || '').toLowerCase().includes(query.toLowerCase()) ||
+        String(item.category || '').toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 8)
     : []
 
   // Group results by category
@@ -270,29 +266,6 @@ function Topbar({ onToggleSidebar }) {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  // ── Notifications ────────────────────────────────────────
-  const [notifOpen, setNotifOpen] = useState(false)
-  const notifRef = useRef(null)
-  const unreadCount = notifications ? notifications.filter((n) => !n.read).length : 0
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) {
-        setNotifOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  function timeAgo(dateStr) {
-    const diff = Date.now() - new Date(dateStr).getTime()
-    const mins = Math.floor(diff / 60000)
-    if (mins < 60) return `${mins}m ago`
-    const hrs = Math.floor(mins / 60)
-    if (hrs < 24) return `${hrs}h ago`
-    return `${Math.floor(hrs / 24)}d ago`
-  }
 
   // ── Profile dropdown ─────────────────────────────────────
   const [profileOpen, setProfileOpen] = useState(false)
@@ -310,8 +283,8 @@ function Topbar({ onToggleSidebar }) {
 
   return (
     <header className="topbar">
-      <button 
-        className="hamburger-btn" 
+      <button
+        className="hamburger-btn"
         onClick={onToggleSidebar}
         aria-label="Toggle navigation menu"
       >
@@ -410,49 +383,6 @@ function Topbar({ onToggleSidebar }) {
           )}
         </div>
 
-        {/* ── Notifications ── */}
-        <div className="topbar-notif-wrap" ref={notifRef}>
-          <button
-            className="topbar-icon-btn"
-            aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
-            onClick={() => setNotifOpen((o) => !o)}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-            {unreadCount > 0 && (
-              <span className="notif-badge">{unreadCount}</span>
-            )}
-          </button>
-
-          {notifOpen && (
-            <div className="notif-dropdown">
-              <div className="notif-header">
-                <span className="notif-title">Notifications</span>
-                {unreadCount > 0 && <span className="notif-unread-count">{unreadCount} new</span>}
-              </div>
-              <ul className="notif-list">
-                {notifications && notifications.slice(0, 5).map((n) => (
-                  <li key={n.id} className={`notif-item${n.read ? '' : ' unread'}`}>
-                    <div className={`notif-dot-icon notif-type-${n.type}`} aria-hidden="true" />
-                    <div className="notif-body">
-                      <p className="notif-item-title">{n.title}</p>
-                      <p className="notif-item-desc">{n.description}</p>
-                      <span className="notif-item-time">{timeAgo(n.time)}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <button
-                className="notif-view-all"
-                onClick={() => { navigate('/notifications'); setNotifOpen(false) }}
-              >
-                View all notifications
-              </button>
-            </div>
-          )}
-        </div>
 
         {/* ── Theme toggle ── */}
         <button className="topbar-icon-btn" aria-label="Toggle theme" onClick={toggleTheme}>

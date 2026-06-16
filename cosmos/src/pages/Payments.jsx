@@ -11,7 +11,7 @@ function formatAmount(n) {
   return `₹${n.toLocaleString('en-IN')}`
 }
 
-const TYPES    = ['All', 'Disbursement', 'Collection', 'EMI']
+const TYPES = ['All', 'Disbursement', 'Collection', 'EMI']
 const STATUSES = ['All', 'Completed', 'Pending', 'Processing', 'Failed']
 
 const emptyPayment = {
@@ -22,12 +22,12 @@ export default function Payments() {
   const { payments, addPayment, updatePayment } = useAppState()
   const { addToast } = useToast()
   const navigate = useNavigate()
-  const [search, setSearch]       = useState('')
-  const [typeFilter, setType]     = useState('All')
+  const [search, setSearch] = useState('')
+  const [typeFilter, setType] = useState('All')
   const [statusFilter, setStatus] = useState('All')
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState('add')
-  const [formData, setFormData]   = useState(emptyPayment)
+  const [formData, setFormData] = useState(emptyPayment)
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
@@ -35,11 +35,11 @@ export default function Payments() {
 
   const filtered = payments.filter((p) => {
     const q = search.toLowerCase()
-    const matchSearch = !q || 
-      String(p.client || '').toLowerCase().includes(q) || 
-      String(p.file_no || '').toLowerCase().includes(q) || 
+    const matchSearch = !q ||
+      String(p.client || '').toLowerCase().includes(q) ||
+      String(p.file_no || '').toLowerCase().includes(q) ||
       String(p.bank || '').toLowerCase().includes(q)
-    const matchType   = typeFilter === 'All' || p.type === typeFilter
+    const matchType = typeFilter === 'All' || p.type === typeFilter
     const matchStatus = statusFilter === 'All' || p.status === statusFilter
     return matchSearch && matchType && matchStatus
   })
@@ -52,9 +52,9 @@ export default function Payments() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginatedPayments = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
-  const totalIn  = payments.filter(p => p.type === 'Collection' && p.status === 'Completed').reduce((s,p) => s+p.amount, 0)
-  const totalOut = payments.filter(p => p.type === 'Disbursement' && p.status === 'Completed').reduce((s,p) => s+p.amount, 0)
-  const pending  = payments.filter(p => p.status === 'Pending').length
+  const totalIn = payments.filter(p => p.type === 'Collection' && p.status === 'Completed').reduce((s, p) => s + p.amount, 0)
+  const totalOut = payments.filter(p => p.type === 'Disbursement' && p.status === 'Completed').reduce((s, p) => s + p.amount, 0)
+  const pending = payments.filter(p => p.status === 'Pending').length
 
   const openAddModal = () => {
     setModalMode('add')
@@ -108,7 +108,7 @@ export default function Payments() {
               <div className="kpi-value">{payments.length}</div>
             </div>
           </div>
-          
+
           <div className="kpi-card">
             <div className="kpi-header">
               <div className="kpi-icon-wrap" style={{ color: '#16a34a', background: '#dcfce7' }}>
@@ -150,7 +150,7 @@ export default function Payments() {
         <div className="data-toolbar">
           <div className="data-search">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input placeholder="Search by client, file no, bank..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
@@ -197,7 +197,7 @@ export default function Payments() {
                     <span style={{
                       fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4,
                       background: p.type === 'Disbursement' ? '#dbeafe' : p.type === 'Collection' ? '#dcfce7' : '#fef3c7',
-                      color:      p.type === 'Disbursement' ? '#2563eb' : p.type === 'Collection' ? '#16a34a' : '#d97706',
+                      color: p.type === 'Disbursement' ? '#2563eb' : p.type === 'Collection' ? '#16a34a' : '#d97706',
                     }}>{p.type}</span>
                   </td>
                   <td className="cell-amount">{formatAmount(p.amount)}</td>

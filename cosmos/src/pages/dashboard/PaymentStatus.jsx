@@ -8,11 +8,7 @@ import useConfirm from '../../shared/lib/useConfirm'
 import DonutChart from '../../shared/ui/DonutChart'
 import '../../shared/ui/DataPage.css'
 import { Coins, CheckCircle, AlertTriangle, Clock, TrendingUp, CircleDot, BarChart, Download, FileSpreadsheet, FileText, Eye, RefreshCw, Edit, Trash2, Plus, Info } from 'lucide-react';
-<<<<<<< HEAD
-import cosmosLogo from '../../assets/cosmos-logo.png';
-=======
 import cosmosLogo from '../../assets/cosmosLogo.webp';
->>>>>>> 5e8e7b29ef03e722d90dbea2c0e2d2b43fbdbdf4
 
 /* ─── Currency Formatter ────────────────────────────────────── */
 function formatAmount(n) {
@@ -469,7 +465,7 @@ export default function PaymentStatus() {
   const handleSaveEditLedger = () => {
     if (!editCustomer) return
     const actualNum = Number(editLedger.actualPayout)
-    const paidNum   = Number(editLedger.amountPaid)
+    const paidNum = Number(editLedger.amountPaid)
 
     if (!editLedger.actualPayout || isNaN(actualNum) || actualNum <= 0) {
       addToast('Please enter a valid Actual Payout amount.', 'error')
@@ -1671,9 +1667,9 @@ export default function PaymentStatus() {
         {/* ─── Modal D: Edit Customer Payout Ledger ───────────── */}
         {editCustomer && (() => {
           const actualNum = Number(editLedger.actualPayout) || 0
-          const paidNum   = Number(editLedger.amountPaid)   || 0
-          const balance   = actualNum - paidNum
-          const pct       = actualNum > 0 ? Math.round((paidNum / actualNum) * 100) : 0
+          const paidNum = Number(editLedger.amountPaid) || 0
+          const balance = actualNum - paidNum
+          const pct = actualNum > 0 ? Math.round((paidNum / actualNum) * 100) : 0
           return (
             <Modal
               title={`Edit Payout Ledger — ${editCustomer.client}`}
