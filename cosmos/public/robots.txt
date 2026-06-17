@@ -1,13 +1,8 @@
 User-agent: *
-Allow: /$
-Allow: /assets/
-Allow: /favicon.svg
-Allow: /icons.svg
-Allow: /manifest.json
-Allow: /sw.js
-Allow: /sitemap: https://cosmosfinserve.vercel.app/public/sitemap.xml
+Allow: /
 
-# Block crawling of authenticated route paths
+Sitemap: https://cosmosfinserve.vercel.app/sitemap.xml
+
 Disallow: /dashboard
 Disallow: /dashboard/
 Disallow: /clients
@@ -19,4 +14,3 @@ Disallow: /backup
 Disallow: /profile
 Disallow: /notifications
 Disallow: /unauthorized
-
