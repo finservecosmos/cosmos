@@ -77,6 +77,7 @@ function App() {
             <Route path="*"             element={<NotFoundPage />} />
           </Routes>
         </Suspense>
+        
       </BrowserRouter>
     </ErrorBoundary>
   )
