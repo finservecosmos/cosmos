@@ -20,6 +20,22 @@ export default function FinanceEntryTable({
   handleViewRecord,
   setRepaymentRecord
 }) {
+  const [activeMenuId, setActiveMenuId] = useState(null);
+  const [menuPos, setMenuPos] = useState({ x: 0, y: 0, renderUpwards: false });
+
+  // Auto-close three-dot popovers when clicking elsewhere or pressing Escape
+  useEffect(() => {
+    const handleDocumentClick = () => setActiveMenuId(null);
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setActiveMenuId(null);
+    };
+    document.addEventListener('click', handleDocumentClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('click', handleDocumentClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   return (
     <div className="new-client-form-card" style={{ padding: '20px 24px' }}>
@@ -124,19 +140,76 @@ export default function FinanceEntryTable({
                     </span>
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    <div className="row-actions" style={{ justifyContent: 'flex-end' }}>
-                      <button className="row-btn" onClick={() => handleViewRecord(rec)} title="View Details">
-                        <FileText size={15} />
+                    <div className="row-actions" style={{ justifyContent: 'flex-end', alignItems: 'center', gap: '8px' }}>
+                      <button 
+                        type="button"
+                        className="finance-table-action-link primary" 
+                        onClick={() => setRepaymentRecord(rec)} 
+                        title="Record Repayment"
+                      >
+                        Repay
                       </button>
-                      <button className="row-btn" onClick={() => setRepaymentRecord(rec)} title="Record Repayment">
-                        <DollarSign size={15} />
+                      <button 
+                        type="button"
+                        className="finance-table-action-link secondary" 
+                        onClick={() => handleViewRecord(rec)} 
+                        title="View Details"
+                      >
+                        View
                       </button>
-                      <button className="row-btn" onClick={() => handleEditRecord(rec)} title="Edit Details">
-                        <Edit size={15} />
-                      </button>
-                      <button className="row-btn danger" onClick={() => handleDeleteRecord(rec)} title="Delete Record">
-                        <Trash2 size={15} />
-                      </button>
+
+                      <div className="action-menu-container" style={{ zIndex: activeMenuId === rec.id ? 999 : 1, position: 'relative' }}>
+                        <button
+                          type="button"
+                          className="three-dot-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveMenuId(activeMenuId === rec.id ? null : rec.id);
+                            
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const spaceBelow = window.innerHeight - rect.bottom;
+                            const renderUpwards = spaceBelow < 120;
+                            
+                            setMenuPos({ 
+                              x: rect.right - 160, 
+                              y: renderUpwards ? rect.top - 85 : rect.bottom + 5,
+                              renderUpwards 
+                            });
+                          }}
+                          aria-label="More Actions"
+                        >
+                          &#8942;
+                        </button>
+                        {activeMenuId === rec.id && (
+                          <div 
+                            className="action-popover" 
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              position: 'fixed',
+                              top: menuPos.renderUpwards ? 'auto' : menuPos.y,
+                              bottom: menuPos.renderUpwards ? window.innerHeight - menuPos.y - 85 : 'auto',
+                              left: menuPos.x,
+                              margin: 0,
+                              zIndex: 9999
+                            }}
+                          >
+                            <button 
+                              type="button"
+                              className="popover-item" 
+                              onClick={() => { handleEditRecord(rec); setActiveMenuId(null); }}
+                            >
+                              <Edit size={14} /> Edit details
+                            </button>
+                            <button 
+                              type="button"
+                              className="popover-item danger" 
+                              onClick={() => { handleDeleteRecord(rec); setActiveMenuId(null); }}
+                            >
+                              <Trash2 size={14} /> Delete record
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>

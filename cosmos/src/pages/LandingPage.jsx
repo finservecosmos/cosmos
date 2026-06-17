@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
@@ -31,6 +31,10 @@ export default function LandingPage() {
   const { addEnquiry } = useAppState()
   const { addToast } = useToast()
   
+  useEffect(() => {
+    document.title = "Cosmos Finserve | Institutional Wealth, Loan & Payment Advisory";
+  }, []);
+
   // Tab state for Precision Lending Instruments
   const [activeTab, setActiveTab] = useState('home-loan')
   
@@ -226,7 +230,7 @@ export default function LandingPage() {
       <header className="landing-header">
         <div className="nav-container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('home')}>
-            <img src={cosmosLogo} alt="CosmosFinserv Logo" className="h-10 w-auto object-contain" />
+            <img src={cosmosLogo} alt="Cosmos Finserve - Premium Wealth and Loan Advisory Logo" className="h-10 w-auto object-contain" />
             <span className="brand-logo-text text-xl font-bold tracking-tight text-slate-900">
               Cosmos<span className="text-accent">Finserv</span>
             </span>
@@ -299,7 +303,7 @@ export default function LandingPage() {
               </div>
               <img 
                 src={heroAdvisorChart} 
-                alt="Financial Analysis Charts" 
+                alt="Cosmos Finserve - Premium Wealth Management Dashboard and Capital Growth Charts" 
                 className="w-full h-auto object-cover rounded-b-lg aspect-[4/3]"
               />
               
@@ -430,7 +434,7 @@ export default function LandingPage() {
           <div className="relative">
             {/* Image handshake with border highlight */}
             <div className="relative rounded-2xl overflow-hidden border-[6px] border-amber-400 shadow-xl max-w-[540px] mx-auto">
-              <img src={handshakeDeal} alt="Corporate Handshake Deal" className="w-full h-auto aspect-[4/3] object-cover" />
+              <img src={handshakeDeal} alt="Cosmos Finserve - Corporate Lending Deal and Client Partnership Handshake" className="w-full h-auto aspect-[4/3] object-cover" />
               <div className="absolute bottom-6 left-6 right-6 bg-slate-950/95 backdrop-blur-sm p-6 rounded-lg text-white text-left border-l-4 border-amber-400">
                 <p className="italic text-sm text-slate-200 mb-3">
                   "Your financial freedom isn't just about spreadsheets or numbers; it's about securing peace of mind for your legacy."
@@ -662,7 +666,7 @@ export default function LandingPage() {
             </div>
 
             <div className="rounded-2xl overflow-hidden shadow-lg border border-slate-100">
-              <img src={citySkylineRiver} alt="City Skyline" className="w-full h-auto aspect-[16/10] object-cover" />
+              <img src={citySkylineRiver} alt="Cosmos Finserve Regional Financial Hub City Skyline" className="w-full h-auto aspect-[16/10] object-cover" />
             </div>
           </div>
 
@@ -769,7 +773,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
             <div className="md:col-span-6 text-left">
               <div className="flex items-center gap-3 mb-6">
-                <img src={cosmosLogo} alt="CosmosFinserv Logo" className="h-8 w-auto object-contain brightness-0 invert" />
+                <img src={cosmosLogo} alt="Cosmos Finserve - Institutional Wealth and Loan Advisory Logo" className="h-8 w-auto object-contain brightness-0 invert" />
                 <span className="text-white text-lg font-bold">CosmosFinserv</span>
               </div>
               <p className="text-sm text-slate-400 max-w-sm leading-relaxed">

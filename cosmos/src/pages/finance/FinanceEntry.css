@@ -221,3 +221,33 @@
     width: 100%;
   }
 }
+
+/* Custom Table Action Links */
+.finance-table-action-link {
+  background: none;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.finance-table-action-link.primary {
+  color: var(--accent);
+}
+.finance-table-action-link.primary:hover {
+  background: var(--accent-light);
+}
+
+.finance-table-action-link.secondary {
+  color: var(--text-secondary);
+}
+.finance-table-action-link.secondary:hover {
+  background: var(--bg-muted);
+  color: var(--text-primary);
+}
