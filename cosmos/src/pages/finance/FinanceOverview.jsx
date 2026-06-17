@@ -469,7 +469,7 @@ export default function FinanceOverview() {
             </div>
 
             <div className="donut-container" style={{ minHeight: 180 }}>
-              <div className="donut-wrapper" style={{ flexDirection: 'column', gap: 16 }}>
+              <div className="donut-wrapper" style={{ flexDirection: 'column', gap: 16, width: '100%', maxWidth: '100%' }}>
                 <div style={{ position: 'relative', width: size, height: size, margin: '0 auto' }}>
                   <svg 
                     width={size} 
@@ -541,7 +541,7 @@ export default function FinanceOverview() {
                       onMouseLeave={() => setHoveredSegment(null)}
                       style={{ padding: '4px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 4, background: hoveredSegment && hoveredSegment.index === seg.index ? 'var(--bg-hover)' : 'transparent', cursor: 'default' }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden', minWidth: 0, flex: 1 }}>
                         <span className="donut-dot" style={{ background: seg.color, width: 8, height: 8, borderRadius: '50%', flexShrink: 0 }} />
                         <span className="donut-label" style={{ fontSize: 11.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-primary)' }}>{seg.type}</span>
                       </div>

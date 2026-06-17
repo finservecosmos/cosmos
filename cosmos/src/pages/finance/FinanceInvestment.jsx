@@ -62,7 +62,7 @@ function InvestmentPieChart({ data, totalInvestment }) {
 
   return (
     <div className="donut-container" style={{ minHeight: 180 }}>
-      <div className="donut-wrapper" style={{ flexDirection: 'column', gap: 16 }}>
+      <div className="donut-wrapper" style={{ flexDirection: 'column', gap: 16, width: '100%' }}>
         <div style={{ position: 'relative', width: size, height: size }}>
           <svg
             width={size}
@@ -131,11 +131,13 @@ function InvestmentPieChart({ data, totalInvestment }) {
               className={`donut-legend-item${hoveredSegment && hoveredSegment.index === seg.index ? ' active' : ''}`}
               onMouseEnter={() => setHoveredSegment(seg)}
               onMouseLeave={() => setHoveredSegment(null)}
-              style={{ padding: '2px 4px' }}
+              style={{ padding: '2px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
             >
-              <span className="donut-dot" style={{ background: seg.color }} />
-              <span className="donut-label" style={{ minWidth: 'auto', fontSize: 11.5 }}>{seg.type}</span>
-              <span className="donut-percent" style={{ fontSize: 11.5 }}>{seg.percent}%</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden', minWidth: 0, flex: 1 }}>
+                <span className="donut-dot" style={{ background: seg.color, width: 8, height: 8, borderRadius: '50%', flexShrink: 0 }} />
+                <span className="donut-label" style={{ fontSize: 11.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-primary)' }}>{seg.type}</span>
+              </div>
+              <span className="donut-percent" style={{ fontSize: 11.5, flexShrink: 0 }}>{seg.percent}%</span>
             </div>
           ))}
         </div>

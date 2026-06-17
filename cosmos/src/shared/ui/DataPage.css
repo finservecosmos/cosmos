@@ -65,6 +65,7 @@
 .data-table-card {
   background: var(--bg-surface); border: 1px solid var(--border);
   border-radius: 12px;
+  overflow-x: auto;
 }
 
 .data-table {
@@ -153,7 +154,18 @@
 
 /* Empty state */
 .data-empty {
-  padding: 60px 20px; text-align: center;
+  padding: 60px 20px;
+  text-align: center;
+  position: sticky;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 .data-empty-icon { font-size: 40px; margin-bottom: 12px; }
 .data-empty-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
@@ -752,12 +764,46 @@
   .client-records-header-row {
     flex-direction: column;
     align-items: flex-start;
+    gap: 16px;
   }
   .records-filter-toolbar {
     width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
   .records-search {
     width: 100%;
+    min-width: 0;
+  }
+  .type-filter-container {
+    width: 100%;
+    margin-right: 0 !important;
+  }
+  .type-filter-container select,
+  .type-filter-container .date-scope-input {
+    width: 100% !important;
+  }
+  .records-filter-toolbar .data-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .data-toolbar {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .data-search {
+    width: 100%;
+    min-width: 0;
+  }
+  .data-filter-select {
+    width: 100%;
+  }
+  .data-toolbar .data-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 

@@ -346,3 +346,23 @@
 .overview-footer-link:hover {
   color: var(--accent);
 }
+
+/* Responsiveness for Loans Collection Performance Chart */
+@media (max-width: 768px) {
+  .chart-graphics-column {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+  .chart-bar-rect {
+    width: 65%;
+    max-width: 48px;
+  }
+  .bar-column-axis-label {
+    font-size: 9px;
+    margin-top: 6px;
+    text-align: center;
+    white-space: nowrap;
+  }
+}
+

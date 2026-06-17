@@ -144,6 +144,7 @@
   border-radius: 6px;
   transition: background 0.15s, transform 0.15s;
   cursor: pointer;
+  min-width: 0;
 }
 
 .donut-legend-item:hover,
@@ -160,6 +161,7 @@
 }
 
 .donut-label {
+  display: block;
   font-size: 12.5px;
   color: var(--text-secondary);
   flex: 1;
@@ -177,4 +179,13 @@
   font-weight: 700;
   color: var(--text-primary);
 }
+
+@media (max-width: 768px) {
+  .donut-wrapper {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 16px !important;
+  }
+}
+
 

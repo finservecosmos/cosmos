@@ -467,5 +467,38 @@
     border-bottom: none;
     padding-bottom: 0;
   }
+  .chart-graphics-column {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+  .chart-bar-rect {
+    width: 65%;
+    max-width: 48px;
+  }
+  .bar-column-axis-label {
+    font-size: 9px;
+    margin-top: 6px;
+    text-align: center;
+    white-space: nowrap;
+  }
 }
+
+@media (max-width: 640px) {
+  .range-filter-container {
+    display: grid !important;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 8px 12px;
+    width: 100% !important;
+    box-sizing: border-box;
+    padding: 10px 14px;
+  }
+  .date-scope-input {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+}
+
+
 

@@ -32,7 +32,7 @@ export function UserProvider({ children }) {
         .from('profiles')
         .select('full_name, role, email')
         .eq('id', session.user.id)
-        .single()
+        .maybeSingle()
 
       if (profile && !error) {
         setUser({
