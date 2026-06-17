@@ -127,9 +127,10 @@ export default function Invoice() {
         </div>
 
         {/* Table */}
-        <div className="data-table-card">
-          <table className="data-table">
-            <thead>
+        <div className="data-table-card" style={{ width: '100%', overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table">
+              <thead>
               <tr>
                 <th>Invoice ID</th>
                 <th>Client</th>
@@ -166,6 +167,7 @@ export default function Invoice() {
               ))}
             </tbody>
           </table>
+          </div>
           {filtered.length > 0 && (
             <div className="data-pagination">
               <span className="data-pagination-info">Showing {filtered.length} of {invoices.length} invoices</span>

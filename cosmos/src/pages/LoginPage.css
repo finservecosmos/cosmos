@@ -139,7 +139,7 @@
 
 .input-wrapper input {
   width: 100%;
-  padding: 12px 14px 12px 40px;
+  padding: 12px 40px 12px 40px;
   border: 1.5px solid #e0e0e0;
   border-radius: 8px;
   font-size: 14px;
@@ -148,6 +148,24 @@
   box-sizing: border-box;
   transition: border-color 0.2s, background 0.2s;
   outline: none;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #aaaaaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.password-toggle-btn:hover {
+  color: #555555;
 }
 
 .input-wrapper input::placeholder {

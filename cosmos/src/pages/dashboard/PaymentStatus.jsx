@@ -51,6 +51,7 @@ export default function PaymentStatus() {
 
   /* ─── Element UI Overlay Popovers ─────────────────────────── */
   const [activeMenuId, setActiveMenuId] = useState(null)
+  const [menuPos, setMenuPos] = useState({ x: 0, y: 0 })
   const [downloadOpen, setDownloadOpen] = useState(false)
   const downloadRef = useRef(null)
 
@@ -779,6 +780,8 @@ export default function PaymentStatus() {
           border-radius: 16px;
           box-shadow: var(--shadow-sm);
           margin-bottom: 30px;
+          width: 100%;
+          overflow: hidden;
         }
 
         .ps-table {
@@ -995,6 +998,26 @@ export default function PaymentStatus() {
         }
         .modal-xl {
           max-width: 960px !important;
+        }
+
+        /* ─── Responsive Queries ────────────────────────────────── */
+        @media (max-width: 1024px) {
+          .ps-charts-row {
+            grid-template-columns: 1fr;
+          }
+          .ps-filter-grid {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+        @media (max-width: 640px) {
+          .ps-filter-grid {
+            grid-template-columns: 1fr;
+          }
+          .ps-page-wrap {
+            flex-direction: column;
+            gap: 12px;
+            padding: 14px;
+          }
         }
       `}</style>
 
@@ -1252,9 +1275,10 @@ export default function PaymentStatus() {
 
         {/* ─── Customer Records Table Module ───────────────────── */}
         <div className="ps-table-card">
-          <table className="ps-table">
-            <thead>
-              <tr>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="ps-table">
+              <thead>
+                <tr>
                 <th>Customer Name</th>
                 <th>Actual Payout</th>
                 <th>Received Amount</th>
@@ -1338,6 +1362,17 @@ export default function PaymentStatus() {
                         onClick={(e) => {
                           e.stopPropagation()
                           setActiveMenuId(isMenuOpen ? null : uniqueKey)
+                          
+                          // Calculate position for fixed popover
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const spaceBelow = window.innerHeight - rect.bottom;
+                          const renderUpwards = spaceBelow < 250; // Popover needs ~200px
+                          
+                          setMenuPos({ 
+                            x: rect.right - 160, // 150px width + padding
+                            y: renderUpwards ? rect.top - 200 : rect.bottom + 5,
+                            renderUpwards 
+                          })
                         }}
                       >
                         ⋮
@@ -1347,8 +1382,12 @@ export default function PaymentStatus() {
                         <div
                           className="ps-actions-popover action-popover"
                           style={{
-                            top: paginatedRecords.length - rowIndex <= 2 ? 'auto' : '40px',
-                            bottom: paginatedRecords.length - rowIndex <= 2 ? '40px' : 'auto'
+                            position: 'fixed',
+                            top: menuPos.renderUpwards ? 'auto' : menuPos.y,
+                            bottom: menuPos.renderUpwards ? window.innerHeight - menuPos.y - 200 : 'auto',
+                            left: menuPos.x,
+                            margin: 0,
+                            zIndex: 9999
                           }}
                         >
                           <button
@@ -1425,6 +1464,7 @@ export default function PaymentStatus() {
               )}
             </tbody>
           </table>
+          </div>
 
           {/* Table pagination controller footer */}
           <div className="ps-page-wrap">

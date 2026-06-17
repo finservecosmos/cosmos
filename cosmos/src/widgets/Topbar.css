@@ -51,7 +51,8 @@
   height: 100%;
   overflow-x: auto;
   scrollbar-width: none;
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 0;
 }
 .topbar-tabs::-webkit-scrollbar { display: none; }
 
@@ -298,11 +299,29 @@
   }
 
   .topbar {
-    padding: 0 16px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .topbar-actions {
+    gap: 4px;
   }
 
   .topbar-search input {
-    width: 100px;
+    width: 60px;
+    transition: width 0.3s;
+  }
+  
+  .topbar-search input:focus {
+    width: 140px;
+  }
+
+  .search-dropdown {
+    position: fixed;
+    top: 56px;
+    left: 10px;
+    right: 10px;
+    width: auto;
   }
 
   .topbar-desc {

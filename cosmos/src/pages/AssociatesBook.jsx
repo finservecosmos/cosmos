@@ -63,6 +63,7 @@ export default function AssociatesBook() {
 
   // Three-dot ellipsis menu states
   const [activeMenuId, setActiveMenuId] = useState(null)
+  const [menuPos, setMenuPos] = useState({ x: 0, y: 0 })
 
   // Auto-close three-dot popovers when clicking elsewhere
   useEffect(() => {
@@ -214,9 +215,10 @@ export default function AssociatesBook() {
         </div>
 
         {/* Table */}
-        <div className="data-table-card">
-          <table className="data-table">
-            <thead>
+        <div className="data-table-card" style={{ width: '100%', overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table">
+              <thead>
               <tr>
                 <th>Associate</th>
 
@@ -260,13 +262,34 @@ export default function AssociatesBook() {
                         onClick={(e) => {
                           e.stopPropagation();
                           setActiveMenuId(activeMenuId === a.id ? null : a.id);
+                          
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const spaceBelow = window.innerHeight - rect.bottom;
+                          const renderUpwards = spaceBelow < 150;
+                          
+                          setMenuPos({ 
+                            x: rect.right - 160, 
+                            y: renderUpwards ? rect.top - 120 : rect.bottom + 5,
+                            renderUpwards 
+                          });
                         }}
                         aria-label="Actions"
                       >
                         ⋮
                       </button>
                       {activeMenuId === a.id && (
-                        <div className="action-popover" onClick={(e) => e.stopPropagation()}>
+                        <div 
+                          className="action-popover" 
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            position: 'fixed',
+                            top: menuPos.renderUpwards ? 'auto' : menuPos.y,
+                            bottom: menuPos.renderUpwards ? window.innerHeight - menuPos.y - 120 : 'auto',
+                            left: menuPos.x,
+                            margin: 0,
+                            zIndex: 9999
+                          }}
+                        >
                           <button className="popover-item" onClick={() => { openViewModal(a); setActiveMenuId(null); }}>
                             <Eye size={16} style={{marginRight: 8, verticalAlign: "middle"}} /> View details
                           </button>
@@ -284,6 +307,7 @@ export default function AssociatesBook() {
               ))}
             </tbody>
           </table>
+          </div>
           {filtered.length > 0 && (
             <div className="data-pagination">
               <span className="data-pagination-info">Showing {filtered.length} of {associates.length} associates</span>

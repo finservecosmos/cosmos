@@ -85,7 +85,7 @@ function ProtectedRoute({ children, allowedRoles }) {
     )
   }
 
-  if (status === 'unauthorized') return <Navigate to="/" replace />
+  if (status === 'unauthorized') return <Navigate to="/login" replace />
   if (status === 'forbidden') return <Navigate to="/unauthorized" replace />
 
   return children

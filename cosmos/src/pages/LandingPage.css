@@ -1,0 +1,131 @@
+/* ── CosmosFinance Landing Page Custom Styling ─────────────────────────────────────────── */
+
+.landing-layout {
+  font-family: 'Plus Jakarta Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
+  color: #0f172a;
+  background-color: #ffffff;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Sticky Header styling */
+.landing-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(241, 245, 249, 0.9);
+  transition: all 0.3s ease;
+}
+
+/* Quick contact buttons override */
+.fixed.bottom-6.right-6 {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hide scrollbar utility for the tab headers */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Accent element utility classes */
+.text-accent {
+  color: var(--accent, #c0392b);
+}
+
+.bg-accent {
+  background-color: var(--accent, #c0392b);
+}
+
+.bg-accentHover {
+  background-color: var(--accent-hover, #a93226);
+}
+
+/* Premium Badge stylings */
+.badge-excellence {
+  box-shadow: 0 4px 12px rgba(192, 57, 43, 0.06);
+  animation: pulseLight 3s infinite alternate;
+}
+
+@keyframes pulseLight {
+  0% {
+    box-shadow: 0 4px 12px rgba(192, 57, 43, 0.06);
+    border-color: rgba(192, 57, 43, 0.15);
+  }
+  100% {
+    box-shadow: 0 4px 20px rgba(192, 57, 43, 0.12);
+    border-color: rgba(192, 57, 43, 0.3);
+  }
+}
+
+/* Service Card Lift up animation */
+.service-card {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+  border-color: rgba(192, 57, 43, 0.1);
+}
+
+.service-card:hover .icon-box {
+  background-color: var(--accent, #c0392b);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.icon-box {
+  transition: all 0.3s ease;
+}
+
+/* Smooth active state transitions for tab panels */
+.tab-content-panel {
+  animation: fadeInPanel 0.4s ease-out;
+}
+
+@keyframes fadeInPanel {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Form inputs hover effect */
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.08);
+  border-color: var(--accent, #c0392b) !important;
+}
+
+/* Image zoom/shadow transitions */
+.zoom-effect-wrap img {
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.zoom-effect-wrap:hover img {
+  transform: scale(1.03);
+}
+
+/* Dashboard Login Button active highlight styles */
+.dashboard-login-btn {
+  box-shadow: 0 4px 12px rgba(192, 57, 43, 0.25);
+  transition: all 0.3s ease;
+}
+
+.dashboard-login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(192, 57, 43, 0.35);
+}

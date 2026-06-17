@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import ErrorBoundary      from './shared/ui/ErrorBoundary'
 import ProtectedRoute     from './app/providers/ProtectedRoute'
 
+const LandingPage        = lazy(() => import('./pages/LandingPage'))
 const LoginPage          = lazy(() => import('./pages/LoginPage'))
 const Dashboard          = lazy(() => import('./pages/dashboard/Dashboard'))
 const ClientRecordBook   = lazy(() => import('./pages/ClientRecordBook'))
@@ -41,7 +42,8 @@ function App() {
         }>
           <Routes>
             {/* Public */}
-            <Route path="/" element={<LoginPage />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
 
             {/* Dashboard tabs */}
             <Route path="/dashboard"                  element={<PR roles={['admin','advisor','staff']}><Dashboard /></PR>} />

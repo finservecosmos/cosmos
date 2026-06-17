@@ -559,71 +559,76 @@ export default function EnquiryStatus() {
                   return (
                     <div
                       key={e.id}
+                      className="flex flex-wrap xl:flex-nowrap items-start xl:items-center gap-4 py-4 px-4 sm:px-5"
                       style={{
-                        display: 'flex', alignItems: 'center', gap: 16,
-                        padding: '16px 20px',
                         borderTop: idx > 0 ? '1px solid #f5f5f5' : 'none',
                       }}
                     >
-                      {/* Avatar */}
-                      <div style={{
-                        width: 44, height: 44, borderRadius: '50%',
-                        background: bgColor, color: '#fff',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontWeight: 700, fontSize: 14, flexShrink: 0
-                      }}>
-                        {initials}
-                      </div>
-
-                      {/* Name + phone + date */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                          <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{e.client_name}</span>
-                          <span style={{
-                            fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
-                            background: meta.bg, color: meta.color, border: `1px solid ${meta.border}`
-                          }}>
-                            {e.status === 'Accepted' ? '● ' : ''}
-                            {e.status}
-                          </span>
+                      {/* Left: Avatar + Info */}
+                      <div className="flex items-center gap-4 w-full xl:w-auto xl:flex-1 min-w-0">
+                        {/* Avatar */}
+                        <div style={{
+                          width: 44, height: 44, borderRadius: '50%',
+                          background: bgColor, color: '#fff',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontWeight: 700, fontSize: 14, flexShrink: 0
+                        }}>
+                          {initials}
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px', fontSize: 12, color: 'var(--text-faint)', marginTop: 4 }}>
-                          <span>+91 {e.client_mobile_number}</span>
-                          {e.created_at ? <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>•<Calendar size={12} style={{ marginLeft: 2 }} /> {e.created_at.slice(0, 10)}</span> : ''}
-                        </div>
-                      </div>
 
-                      {/* Inline status action buttons */}
-                      <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
-                        {['Accepted', 'Rejected', 'Callback', 'Others'].map((s) => (
-                          <StatusActionBtn key={s} status={s} active={e.status} onClick={(ns) => handleInlineStatus(e, ns)} />
-                        ))}
-                      </div>
-
-                      {/* Amount + bank */}
-                      <div style={{ textAlign: 'right', flexShrink: 0, minWidth: 110 }}>
-                        <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>
-                          {formatAmount(e.loan_amount)}
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 2 }}>
-                          {e.associate_name && e.associate_name !== 'Unassigned' ? `${e.associate_name}` : 'Unassigned'}
+                        {/* Name + phone + date */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{e.client_name}</span>
+                            <span style={{
+                              fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
+                              background: meta.bg, color: meta.color, border: `1px solid ${meta.border}`
+                            }}>
+                              {e.status === 'Accepted' ? '● ' : ''}
+                              {e.status}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px', fontSize: 12, color: 'var(--text-faint)', marginTop: 4 }}>
+                            <span>+91 {e.client_mobile_number}</span>
+                            {e.created_at ? <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>•<Calendar size={12} style={{ marginLeft: 2 }} /> {e.created_at.slice(0, 10)}</span> : ''}
+                          </div>
                         </div>
                       </div>
 
-                      {/* Three-dot menu */}
-                      <div style={{ position: 'relative', flexShrink: 0 }}>
-                        <button
-                          type="button"
-                          onClick={(ev) => { ev.stopPropagation(); setActiveMenuId(activeMenuId === e.id ? null : e.id) }}
-                          style={{
-                            background: 'none', border: 'none', cursor: 'pointer',
-                            fontSize: 20, color: 'var(--text-faint)', padding: '4px 6px', borderRadius: 6,
-                            lineHeight: 1
-                          }}
-                          aria-label="Actions"
-                        >
-                          ⋮
-                        </button>
+                      {/* Right: Actions + Amount + Menu */}
+                      <div className="flex items-center flex-wrap gap-4 w-full xl:w-auto justify-between xl:justify-end mt-2 xl:mt-0">
+                        {/* Inline status action buttons */}
+                        <div className="flex flex-wrap gap-2">
+                          {['Accepted', 'Rejected', 'Callback', 'Others'].map((s) => (
+                            <StatusActionBtn key={s} status={s} active={e.status} onClick={(ns) => handleInlineStatus(e, ns)} />
+                          ))}
+                        </div>
+
+                        <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end mt-2 sm:mt-0">
+                          {/* Amount + bank */}
+                          <div className="text-left sm:text-right" style={{ flexShrink: 0, minWidth: 90 }}>
+                            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>
+                              {formatAmount(e.loan_amount)}
+                            </div>
+                            <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 2 }}>
+                              {e.associate_name && e.associate_name !== 'Unassigned' ? `${e.associate_name}` : 'Unassigned'}
+                            </div>
+                          </div>
+
+                          {/* Three-dot menu */}
+                          <div style={{ position: 'relative', flexShrink: 0 }}>
+                            <button
+                              type="button"
+                              onClick={(ev) => { ev.stopPropagation(); setActiveMenuId(activeMenuId === e.id ? null : e.id) }}
+                              style={{
+                                background: 'none', border: 'none', cursor: 'pointer',
+                                fontSize: 20, color: 'var(--text-faint)', padding: '4px 6px', borderRadius: 6,
+                                lineHeight: 1
+                              }}
+                              aria-label="Actions"
+                            >
+                              ⋮
+                            </button>
                         {activeMenuId === e.id && (
                           <div
                             onClick={(ev) => ev.stopPropagation()}
@@ -659,7 +664,9 @@ export default function EnquiryStatus() {
                         )}
                       </div>
                     </div>
-                  )
+                  </div>
+                </div>
+              )
                 })}
               </div>
             </div>

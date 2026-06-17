@@ -23,6 +23,7 @@ export default function ClientRecordsTable({
   handleDeleteClient
 }) {
   const [activeMenuId, setActiveMenuId] = useState(null);
+  const [menuPos, setMenuPos] = useState({ x: 0, y: 0 });
 
   // Auto-close three-dot popovers when clicking elsewhere
   useEffect(() => {
@@ -184,9 +185,10 @@ export default function ClientRecordsTable({
       </div>
 
       {/* Table */}
-      <div className="data-table-card">
-        <table className="data-table">
-          <thead>
+      <div className="data-table-card" style={{ width: '100%', overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table">
+            <thead>
             <tr>
               <th>Client</th>
               <th>Loan Type</th>
@@ -233,13 +235,34 @@ export default function ClientRecordsTable({
                         onClick={(e) => {
                           e.stopPropagation();
                           setActiveMenuId(activeMenuId === c.id ? null : c.id);
+                          
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const spaceBelow = window.innerHeight - rect.bottom;
+                          const renderUpwards = spaceBelow < 200;
+                          
+                          setMenuPos({ 
+                            x: rect.right - 160, 
+                            y: renderUpwards ? rect.top - 150 : rect.bottom + 5,
+                            renderUpwards 
+                          });
                         }}
                         aria-label="Actions"
                       >
                         ⋮
                       </button>
                       {activeMenuId === c.id && (
-                        <div className="action-popover" onClick={(e) => e.stopPropagation()}>
+                        <div 
+                          className="action-popover" 
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            position: 'fixed',
+                            top: menuPos.renderUpwards ? 'auto' : menuPos.y,
+                            bottom: menuPos.renderUpwards ? window.innerHeight - menuPos.y - 150 : 'auto',
+                            left: menuPos.x,
+                            margin: 0,
+                            zIndex: 9999
+                          }}
+                        >
                           <button className="popover-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => { openViewModal(c); setActiveMenuId(null); }}>
                             <Eye size={16} /> View details
                           </button>
@@ -261,6 +284,7 @@ export default function ClientRecordsTable({
             )}
           </tbody>
         </table>
+        </div>
         {filteredCount > 0 && (
           <div className="data-pagination">
             <span className="data-pagination-info">

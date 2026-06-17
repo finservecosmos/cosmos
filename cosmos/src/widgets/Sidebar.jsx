@@ -127,7 +127,7 @@ function Sidebar({ isOpen, onClose }) {
     } catch (err) {
       console.warn('Supabase signout failed, logging out locally:', err)
     }
-    navigate('/')
+    navigate('/login')
   }
 
 
