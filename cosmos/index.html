@@ -1,49 +1,59 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#b45309" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Cosmos Finserve is a premier institutional wealth, loan advisory, and payment ledger portal for clients and associates." />
-    <meta name="keywords" content="Cosmos Finserve, loan advisory, wealth management, payout collections, financial ledger, associates book" />
-    <meta name="author" content="Cosmos Finserve" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://cosmos-finserve.vercel.app/" />
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://cosmos-finserve.vercel.app/" />
-    <meta property="og:title" content="Cosmos Finserve — Wealth & Loan Advisory Portal" />
-    <meta property="og:description" content="Manage client records, payouts, and financial ledgers with a premium secure dashboard." />
-    <meta property="og:image" content="/favicon.svg" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="google-site-verification" content="zVKeSe0vCTWJhekRsl19swJjgUgvDFKeTggMTFM1vJI" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#b45309" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary" />
-    <meta property="twitter:url" content="https://cosmos-finserve.vercel.app/" />
-    <meta property="twitter:title" content="Cosmos Finserve — Wealth & Loan Advisory Portal" />
-    <meta property="twitter:description" content="Manage client records, payouts, and financial ledgers with a premium secure dashboard." />
-    <meta property="twitter:image" content="/favicon.svg" />
+  <!-- SEO Meta Tags -->
+  <meta name="description"
+    content="Cosmos Finserve is a premier institutional wealth, loan advisory, and payment ledger portal for clients and associates." />
+  <meta name="keywords"
+    content="Cosmos Finserve, loan advisory, wealth management, payout collections, financial ledger, associates book" />
+  <meta name="author" content="Cosmos Finserve" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://cosmos-finserve.vercel.app/" />
 
-    <title>Cosmos Finserve Portal</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((reg) => console.log('ServiceWorker registration successful with scope: ', reg.scope))
-            .catch((err) => console.log('ServiceWorker registration failed: ', err));
-        });
-      }
-    </script>
-  </body>
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://cosmos-finserve.vercel.app/" />
+  <meta property="og:title" content="Cosmos Finserve — Wealth & Loan Advisory Portal" />
+  <meta property="og:description"
+    content="Manage client records, payouts, and financial ledgers with a premium secure dashboard." />
+  <meta property="og:image" content="/favicon.svg" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary" />
+  <meta property="twitter:url" content="https://cosmos-finserve.vercel.app/" />
+  <meta property="twitter:title" content="Cosmos Finserve — Wealth & Loan Advisory Portal" />
+  <meta property="twitter:description"
+    content="Manage client records, payouts, and financial ledgers with a premium secure dashboard." />
+  <meta property="twitter:image" content="/favicon.svg" />
+
+  <title>Cosmos Finserve Portal</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((reg) => console.log('ServiceWorker registration successful with scope: ', reg.scope))
+          .catch((err) => console.log('ServiceWorker registration failed: ', err));
+      });
+    }
+  </script>
+</body>
+
 </html>
