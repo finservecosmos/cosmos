@@ -773,7 +773,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
             <div className="md:col-span-6 text-left">
               <div className="flex items-center gap-3 mb-6">
-                <img src={cosmosLogo} alt="Cosmos Finserve - Institutional Wealth and Loan Advisory Logo" className="h-8 w-auto object-contain brightness-0 invert" />
+                <img src={cosmosLogo} alt="Cosmos Finserve - Institutional Wealth and Loan Advisory Logo" className="h-8 w-auto object-contain rounded-sm bg-white p-1" />
                 <span className="text-white text-lg font-bold">CosmosFinserv</span>
               </div>
               <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
