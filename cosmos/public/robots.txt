@@ -5,6 +5,7 @@ Allow: /favicon.svg
 Allow: /icons.svg
 Allow: /manifest.json
 Allow: /sw.js
+Allow: /sitemap: https://cosmosfinserve.vercel.app/public/sitemap.xml
 
 # Block crawling of authenticated route paths
 Disallow: /dashboard
@@ -19,4 +20,3 @@ Disallow: /profile
 Disallow: /notifications
 Disallow: /unauthorized
 
-Sitemap: https://cosmos-finserve.vercel.app/sitemap.xml
