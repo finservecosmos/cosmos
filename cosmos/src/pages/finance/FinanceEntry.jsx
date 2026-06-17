@@ -140,7 +140,7 @@ export default function FinanceEntry() {
             </div>
             <div className="kpi-body">
               <div className="kpi-title">BANK ACCOUNT BALANCE</div>
-              <div className="kpi-value">₹{totalInvestments.toLocaleString('en-IN')}</div>
+              <div className="kpi-value" style={{ color: totalInvestments < 0 ? '#dc2626' : undefined }}>₹{totalInvestments.toLocaleString('en-IN')}</div>
             </div>
           </div>
 

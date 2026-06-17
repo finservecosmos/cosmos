@@ -140,7 +140,7 @@ export default function FinanceOverview() {
       .filter(c => ['Approved', 'Processing', 'Active', 'Disbursed', 'Paid'].includes(c.status))
       .reduce((sum, c) => sum + Number(c.loan_amount || c.amount || 0), 0)
     const netProfit = totalIncome - totalExpense
-    return Math.max(0, totalInvestment - totalLent + netProfit)
+    return totalInvestment - totalLent + netProfit
   }, [totalInvestment, financeEntries, totalIncome, totalExpense])
 
   // Derive all due records reactively from global financeEntries state
@@ -404,7 +404,7 @@ export default function FinanceOverview() {
             </div>
             <div className="kpi-body">
               <div className="kpi-title">Bank Account Balance</div>
-              <div className="kpi-value">₹{currentBankBalance.toLocaleString('en-IN')}</div>
+              <div className="kpi-value" style={{ color: currentBankBalance < 0 ? '#dc2626' : undefined }}>₹{currentBankBalance.toLocaleString('en-IN')}</div>
             </div>
           </div>
 

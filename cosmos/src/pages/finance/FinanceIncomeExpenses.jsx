@@ -109,7 +109,7 @@ export default function FinanceIncomeExpenses() {
     const totalLent = (financeEntries || [])
       .filter(c => ['Approved', 'Processing', 'Active', 'Disbursed', 'Paid'].includes(c.status))
       .reduce((sum, c) => sum + Number(c.loan_amount || c.amount || 0), 0)
-    return Math.max(0, totalInv - totalLent)
+    return totalInv - totalLent
   }, [investments, clients, financeEntries])
 
   const currentBalance = useMemo(() => {
@@ -498,7 +498,7 @@ export default function FinanceIncomeExpenses() {
             </div>
             <div className="kpi-body">
               <div className="kpi-title">BANK ACCOUNT BALANCE</div>
-              <div className="kpi-value">₹{currentBalance.toLocaleString('en-IN')}</div>
+              <div className="kpi-value" style={{ color: currentBalance < 0 ? '#dc2626' : undefined }}>₹{currentBalance.toLocaleString('en-IN')}</div>
             </div>
           </div>
         </div>

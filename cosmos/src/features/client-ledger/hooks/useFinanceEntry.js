@@ -165,7 +165,7 @@ export function useFinanceEntry({ financeEntries, addFinanceEntry, updateFinance
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
     const netProfit = allTimeIncome - allTimeExpense;
 
-    return Math.max(0, totalPartnerAmount - totalLent + netProfit);
+    return totalPartnerAmount - totalLent + netProfit;
   }, [investments, clients, financeEntries, transactions]);
 
   const dueThisWeekCount = useMemo(() => {
