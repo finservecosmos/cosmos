@@ -29,7 +29,7 @@ function ProtectedRoute({ children, allowedRoles }) {
         .from('profiles')
         .select('role')
         .eq('id', session.user.id)
-        .single()
+        .maybeSingle()
 
       if (error) {
         console.warn('profiles table not found or error — allowing access:', error.message)
@@ -55,7 +55,7 @@ function ProtectedRoute({ children, allowedRoles }) {
     // Subscribe to auth state changes for real-time session expiry/update handling
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!active) return
-      
+
       // ── Dev bypass check ──
       const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || import.meta.env.DEV
       if (isDev && sessionStorage.getItem('dev_auth') === 'true') {
@@ -63,7 +63,7 @@ function ProtectedRoute({ children, allowedRoles }) {
         return
       }
       // ──────────────────────
-      
+
       if (event === 'SIGNED_OUT') {
         setStatus('unauthorized')
       } else if (event === 'TOKEN_REFRESH_INITIALIZED' || event === 'SIGNED_IN' || event === 'USER_UPDATED') {
