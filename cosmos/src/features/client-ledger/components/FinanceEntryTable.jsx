@@ -96,7 +96,7 @@ export default function FinanceEntryTable({
         </div>
       </div>
 
-      <div style={{ overflowX: 'auto', marginTop: 16, paddingBottom: 140 }}>
+      <div style={{ overflowX: 'auto', marginTop: 16 }}>
         <table className="data-table">
           <thead>
             <tr>
