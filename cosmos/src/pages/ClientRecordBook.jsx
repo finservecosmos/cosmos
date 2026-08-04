@@ -48,7 +48,7 @@ export default function ClientRecordBook() {
   const [loanFilter, setLoan] = useState('All');
   const [statusFilter, setStatus] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 8;
 
   const clientFormState = useClientForm({
     addClient,

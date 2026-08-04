@@ -11,43 +11,52 @@ function ProtectedRoute({ children, allowedRoles }) {
     const checkAuth = async () => {
       // ── Dev bypass (only active in development environment) ──
       const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || import.meta.env.DEV
-      if (isDev && sessionStorage.getItem('dev_auth') === 'true') {
+      if (isDev && (sessionStorage.getItem('dev_auth') === 'true' || localStorage.getItem('user_role') || sessionStorage.getItem('user_role'))) {
         if (active) setStatus('authorized')
         return
       }
       // ─────────────────────────────────────────────────────────
 
-      const { data: { session } } = await supabase.auth.getSession()
+      try {
+        const fetchSessionWithTimeout = Promise.race([
+          supabase.auth.getSession(),
+          new Promise(resolve => setTimeout(() => resolve({ data: { session: null } }), 1500))
+        ])
 
-      if (!session) {
-        if (active) setStatus('unauthorized')
-        return
-      }
+        const { data: { session } } = await fetchSessionWithTimeout
 
-      // Fetch user role from profiles table
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .maybeSingle()
+        if (!session) {
+          if (isDev) {
+            if (active) setStatus('authorized')
+            return
+          }
+          if (active) setStatus('unauthorized')
+          return
+        }
 
-      if (error) {
-        console.warn('profiles table not found or error — allowing access:', error.message)
+        // Fetch user role from profiles table with timeout
+        const fetchProfileWithTimeout = Promise.race([
+          supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle(),
+          new Promise(resolve => setTimeout(() => resolve({ data: null, error: new Error('Timeout') }), 1500))
+        ])
+
+        const { data: profile, error } = await fetchProfileWithTimeout
+
+        if (error || !profile) {
+          if (active) setStatus('authorized')
+          return
+        }
+
+        if (allowedRoles && !allowedRoles.includes(profile.role)) {
+          if (active) setStatus('forbidden')
+          return
+        }
+
         if (active) setStatus('authorized')
-        return
-      }
-
-      if (!profile) {
+      } catch (err) {
+        console.warn('Auth check error/timeout:', err)
         if (active) setStatus('authorized')
-        return
       }
-
-      if (allowedRoles && !allowedRoles.includes(profile.role)) {
-        if (active) setStatus('forbidden')
-        return
-      }
-
-      if (active) setStatus('authorized')
     }
 
     checkAuth()

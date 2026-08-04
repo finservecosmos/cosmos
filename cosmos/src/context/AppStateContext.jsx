@@ -1,101 +1,12 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { supabase } from '../shared/api/supabaseClient'
-// We keep dummy data as a fallback to avoid crashing if DB is empty,
-// or just initialize with empty arrays. For this refactor, we initialize with empty arrays.
+import { nextClientId, nextAssociateId, nextInvoiceId, nextFinanceInvoiceId } from '../shared/lib/idGenerator'
 
 const AppStateContext = createContext()
 
 /* ─── Unique ID Generator (used for non-client/invoice entities) ────── */
 function uid(prefix = '') {
   return `${prefix}${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`
-}
-
-/* ─── Sequential ID Helpers ─────────────────────────────────────────── */
-
-// Client: CF-YY-XXD  (X = A-Z, D = 0-9)  →  6,760 IDs / year
-function decodeClientSeq(suffix) {
-  const l1 = suffix.charCodeAt(0) - 65
-  const l2 = suffix.charCodeAt(1) - 65
-  const d  = parseInt(suffix[2], 10)
-  return l1 * 260 + l2 * 10 + d
-}
-function encodeClientSeq(seq) {
-  const d  = seq % 10
-  const l2 = Math.floor(seq / 10) % 26
-  const l1 = Math.floor(seq / 260)
-  return String.fromCharCode(65 + l1) + String.fromCharCode(65 + l2) + d
-}
-
-// Invoice: 1st/2nd digit A-Z (26), 3rd digit A-Z then 0-9 (36) → 24,336 IDs / year
-function decodeInvoiceSeq(suffix) {
-  const c1 = suffix.charCodeAt(0) - 65
-  const c2 = suffix.charCodeAt(1) - 65
-  const c3Char = suffix[2]
-  let c3
-  if (c3Char >= 'A' && c3Char <= 'Z') c3 = c3Char.charCodeAt(0) - 65
-  else c3 = 26 + parseInt(c3Char, 10)
-  return c1 * 936 + c2 * 36 + c3
-}
-function encodeInvoiceSeq(seq) {
-  const chars3 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-  const c3 = chars3[seq % 36]
-  const c2 = String.fromCharCode(65 + Math.floor(seq / 36) % 26)
-  const c1 = String.fromCharCode(65 + Math.floor(seq / 936))
-  return c1 + c2 + c3
-}
-
-export async function nextClientId() {
-  const yy = String(new Date().getFullYear()).slice(-2)
-  const prefix = `CF-${yy}-`
-  const { data } = await supabase.from('clients')
-    .select('id').like('id', `${prefix}%`).order('id', { ascending: false }).limit(50)
-  if (!data || data.length === 0) return `${prefix}AA0`
-  const seqs = data
-    .map(r => r.id.slice(prefix.length))
-    .filter(s => /^[A-Z]{2}[0-9]$/.test(s))
-    .map(decodeClientSeq)
-  if (seqs.length === 0) return `${prefix}AA0`
-  return `${prefix}${encodeClientSeq(Math.max(...seqs) + 1)}`
-}
-
-async function nextInvoiceId() {
-  const yy = String(new Date().getFullYear()).slice(-2)
-  const prefix = `CFI-${yy}-`
-  const { data } = await supabase.from('invoices')
-    .select('id').like('id', `${prefix}%`).order('id', { ascending: false }).limit(50)
-  if (!data || data.length === 0) return `${prefix}AAA`
-  const seqs = data
-    .map(r => r.id.slice(prefix.length))
-    .filter(s => /^[A-Z]{2}[A-Z0-9]$/.test(s))
-    .map(decodeInvoiceSeq)
-  if (seqs.length === 0) return `${prefix}AAA`
-  return `${prefix}${encodeInvoiceSeq(Math.max(...seqs) + 1)}`
-}
-
-async function nextFinanceInvoiceId() {
-  const yy = String(new Date().getFullYear()).slice(-2)
-  const prefix = `FI-${yy}-`
-  const { data } = await supabase.from('finance_invoices')
-    .select('id').like('id', `${prefix}%`).order('id', { ascending: false }).limit(50)
-  if (!data || data.length === 0) return `${prefix}AAA`
-  const seqs = data
-    .map(r => r.id.slice(prefix.length))
-    .filter(s => /^[A-Z]{2}[A-Z0-9]$/.test(s))
-    .map(decodeInvoiceSeq)
-  if (seqs.length === 0) return `${prefix}AAA`
-  return `${prefix}${encodeInvoiceSeq(Math.max(...seqs) + 1)}`
-}
-
-export async function nextAssociateId() {
-  const { data } = await supabase.from('associates')
-    .select('id').like('id', 'CFA-%').order('id', { ascending: false }).limit(50)
-  if (!data || data.length === 0) return 'CFA-01'
-  const nums = data
-    .map(r => parseInt(r.id.slice(4), 10))
-    .filter(n => !isNaN(n))
-  if (nums.length === 0) return 'CFA-01'
-  const next = Math.max(...nums) + 1
-  return `CFA-${String(next).padStart(2, '0')}`
 }
 
 /* ─── Constants for Stages ──────────────────────────────────── */
@@ -141,6 +52,12 @@ export function AppStateProvider({ children }) {
   const fetchInitialData = useCallback(async () => {
     setLoading(true)
     try {
+      const fetchWithTimeout = (promise, ms = 1500) =>
+        Promise.race([
+          promise,
+          new Promise(resolve => setTimeout(() => resolve({ data: null, error: new Error('Timeout') }), ms))
+        ])
+
       const [
         { data: clientsData }, { data: associatesData }, { data: paymentsData },
         { data: invoicesData }, { data: financeInvoicesData }, { data: productsData },
@@ -148,21 +65,21 @@ export function AppStateProvider({ children }) {
         { data: loginFilesData }, { data: backupsData }, { data: usersData },
         { data: investmentsData }, { data: transactionsData }, { data: financeEntriesData }
       ] = await Promise.all([
-        supabase.from('clients').select('*').order('created_at', { ascending: false }),
-        supabase.from('associates').select('*').order('created_at', { ascending: false }),
-        supabase.from('payments').select('*').order('created_at', { ascending: false }),
-        supabase.from('invoices').select('*').order('created_at', { ascending: false }),
-        supabase.from('finance_invoices').select('*').order('created_at', { ascending: false }),
-        supabase.from('products').select('*').order('created_at', { ascending: false }),
-        supabase.from('reminders').select('*').order('created_at', { ascending: false }),
-        supabase.from('notifications').select('*').order('created_at', { ascending: false }),
-        supabase.from('enquiries').select('*').order('created_at', { ascending: false }),
-        supabase.from('login_files').select('*').order('created_at', { ascending: false }),
-        supabase.from('backups').select('*').order('created_at', { ascending: false }),
-        supabase.from('system_users').select('*').order('created_at', { ascending: false }),
-        supabase.from('investments').select('*').order('created_at', { ascending: false }),
-        supabase.from('transactions').select('*').order('created_at', { ascending: false }),
-        supabase.from('finance_entries').select('*').order('created_at', { ascending: false })
+        fetchWithTimeout(supabase.from('clients').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('associates').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('payments').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('invoices').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('finance_invoices').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('products').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('reminders').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('notifications').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('enquiries').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('login_files').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('backups').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('system_users').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('investments').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('transactions').select('*').order('created_at', { ascending: false })),
+        fetchWithTimeout(supabase.from('finance_entries').select('*').order('created_at', { ascending: false }))
       ])
 
       setClients((clientsData || []).map(unpackClient))
@@ -385,18 +302,33 @@ export function AppStateProvider({ children }) {
 
   const addPayment = async (pay) => {
     const newId = uid('P')
-    const { data, error } = await supabase.from('payments').insert([pickPayment(pay, newId)]).select().single()
-    if (!error && data) setPayments(p => [data, ...p])
-    else if (error) console.error('addPayment error:', error.message)
+    const item = pickPayment(pay, newId)
+    const { data, error } = await supabase.from('payments').insert([item]).select().single()
+    if (!error && data) {
+      setPayments(p => [data, ...p])
+      return data
+    } else {
+      if (error) console.error('addPayment error:', error.message)
+      setPayments(p => [item, ...p])
+      return item
+    }
   }
   const updatePayment = async (pay) => {
-    const { data, error } = await supabase.from('payments').update(pickPayment(pay)).eq('id', pay.id).select().single()
-    if (!error && data) setPayments(p => p.map(x => x.id === pay.id ? data : x))
-    else if (error) console.error('updatePayment error:', error.message)
+    const item = pickPayment(pay)
+    const { data, error } = await supabase.from('payments').update(item).eq('id', pay.id).select().single()
+    if (!error && data) {
+      setPayments(p => p.map(x => x.id === pay.id ? data : x))
+      return data
+    } else {
+      if (error) console.error('updatePayment error:', error.message)
+      setPayments(p => p.map(x => x.id === pay.id ? item : x))
+      return item
+    }
   }
   const removePayment = async (id) => {
     const { error } = await supabase.from('payments').delete().eq('id', id)
-    if (!error) setPayments(p => p.filter(x => x.id !== id))
+    if (error) console.error('removePayment error:', error.message)
+    setPayments(p => p.filter(x => x.id !== id))
   }
 
   /* ─── Invoices ── */
@@ -547,8 +479,9 @@ export function AppStateProvider({ children }) {
     const newId = uid('LF')
     const payload = pickLoginFile(f, newId)
     const { data: lfData, error: lfError } = await supabase.from('login_files').insert([payload]).select().single()
-    if (lfError) { console.error('addLoginFile error:', lfError.message); return }
-    const merged = { ...lfData, currentStageIndex: lfData.current_stage_index ?? 0 }
+    if (lfError) console.error('addLoginFile error:', lfError.message)
+    const fileToAdd = (!lfError && lfData) ? lfData : payload
+    const merged = { ...fileToAdd, currentStageIndex: fileToAdd.current_stage_index ?? fileToAdd.currentStageIndex ?? 0 }
     setLoginFiles(p => [merged, ...p])
 
     const exists = clients.some(c => 
@@ -571,23 +504,32 @@ export function AppStateProvider({ children }) {
         extended_data: null
       }
       const { data: cData, error: cErr } = await supabase.from('clients').insert([newClient]).select().single()
-      if (!cErr && cData) setClients(p => [cData, ...p])
+      if (!cErr && cData) {
+        setClients(p => [cData, ...p])
+      } else {
+        setClients(p => [newClient, ...p])
+      }
     }
   }
 
   const removeLoginFile = async (id) => {
     const { error } = await supabase.from('login_files').delete().eq('id', id)
-    if (!error) setLoginFiles(p => p.filter(x => x.id !== id))
+    if (error) console.error('removeLoginFile error:', error.message)
+    setLoginFiles(p => p.filter(x => x.id !== id))
   }
 
   const updateLoginFile = async (f) => {
     const payload = pickLoginFile(f)
 
-    const { data: updatedFile, error: updateError } = await supabase.from('login_files').update(payload).eq('id', f.id).select().single()
-    if (updateError) { console.error('updateLoginFile error:', updateError.message); return }
+    let updatedFile = { ...f, currentStageIndex: f.currentStageIndex ?? f.current_stage_index ?? 0 }
+    const { data: updatedData, error: updateError } = await supabase.from('login_files').update(payload).eq('id', f.id).select().single()
+    if (!updateError && updatedData) {
+      updatedFile = { ...updatedData, currentStageIndex: updatedData.current_stage_index ?? updatedData.currentStageIndex ?? 0 }
+    } else if (updateError) {
+      console.error('updateLoginFile error:', updateError.message)
+    }
     
-    const merged = { ...updatedFile, currentStageIndex: updatedFile.current_stage_index ?? 0 }
-    setLoginFiles(p => p.map(x => x.id === f.id ? merged : x))
+    setLoginFiles(p => p.map(x => x.id === f.id ? updatedFile : x))
 
     if (f.done) {
       const today = new Date().toISOString().slice(0, 10)
@@ -596,83 +538,98 @@ export function AppStateProvider({ children }) {
       const clientToUpdate = clients.find(c => c.file_no === f.client_id || c.name === f.client)
       if (clientToUpdate && clientToUpdate.status !== 'Disbursed') {
         const { data: upClient, error: cErr } = await supabase.from('clients').update({ status: 'Disbursed' }).eq('id', clientToUpdate.id).select().single()
-        if (!cErr && upClient) setClients(p => p.map(c => c.id === upClient.id ? upClient : c))
+        if (!cErr && upClient) {
+          setClients(p => p.map(c => c.id === upClient.id ? upClient : c))
+        } else {
+          setClients(p => p.map(c => c.id === clientToUpdate.id ? { ...c, status: 'Disbursed' } : c))
+        }
       }
 
       // Auto-append Disbursement/Collection transaction to Payment Ledger
       const isPayout = f.amount_paid !== undefined && f.amount_paid !== null
       const paymentType = isPayout ? 'Collection' : 'Disbursement'
-      const hasPayment = payments.some(x => x.file_no === f.client_id && x.type === paymentType)
-      
-      if (!hasPayment) {
-        if (isPayout) {
-          const actualPayout = Number(f.actual_payout || f.amount_paid || 0);
-          const amountPaid = Number(f.amount_paid || 0);
-          const pendingAmount = actualPayout - amountPaid;
+      const existingPayments = payments.filter(x => 
+        ((x.file_no && f.client_id && x.file_no === f.client_id) || 
+         (x.client && f.client && x.client.toLowerCase().trim() === f.client.toLowerCase().trim())) && 
+        x.type === paymentType
+      )
 
-          const paymentsToAdd = [];
+      if (isPayout) {
+        const actualPayout = Number(f.actual_payout || f.amount_paid || 0);
+        const amountPaid = Number(f.amount_paid || 0);
+        const pendingAmount = actualPayout - amountPaid;
 
-          if (amountPaid > 0) {
-            paymentsToAdd.push({
-              id: uid('P'),
-              client: f.client,
-              file_no: f.client_id,
-              type: paymentType,
-              amount: amountPaid,
-              bank: 'ICICI Bank',
-              date: today,
-              status: 'Completed',
-              particular: 'Cosmos Payout Collection',
-              category: 'Processing Fee'
-            });
-          }
+        const paymentsToAdd = [];
 
-          if (pendingAmount > 0) {
-            paymentsToAdd.push({
-              id: uid('P'),
-              client: f.client,
-              file_no: f.client_id,
-              type: paymentType,
-              amount: pendingAmount,
-              bank: 'ICICI Bank',
-              date: today,
-              status: 'Pending',
-              particular: 'Cosmos Payout Pending',
-              category: 'Processing Fee'
-            });
-          }
-
-          if (paymentsToAdd.length === 0) {
-            paymentsToAdd.push({
-              id: uid('P'),
-              client: f.client,
-              file_no: f.client_id,
-              type: paymentType,
-              amount: 0,
-              bank: 'ICICI Bank',
-              date: today,
-              status: 'Completed',
-              particular: 'Cosmos Payout Collection',
-              category: 'Processing Fee'
-            });
-          }
-
-          const { data: pData, error: pErr } = await supabase.from('payments').insert(paymentsToAdd).select()
-          if (!pErr && pData) setPayments(p => [...pData, ...p])
-        } else {
-          const payPayload = {
-            id: uid('P'),
+        if (amountPaid > 0) {
+          paymentsToAdd.push(pickPayment({
             client: f.client,
-            file_no: f.client_id,
+            file_no: f.client_id || f.file_no || '',
             type: paymentType,
-            amount: clientToUpdate?.amount || 2500000,
+            amount: amountPaid,
             bank: 'ICICI Bank',
             date: today,
-            status: 'Completed'
-          }
-          const { data: pData, error: pErr } = await supabase.from('payments').insert([payPayload]).select().single()
-          if (!pErr && pData) setPayments(p => [pData, ...p])
+            status: 'Completed',
+            particular: 'Cosmos Payout Collection',
+            category: 'Processing Fee'
+          }, uid('P')));
         }
+
+        if (pendingAmount > 0) {
+          paymentsToAdd.push(pickPayment({
+            client: f.client,
+            file_no: f.client_id || f.file_no || '',
+            type: paymentType,
+            amount: pendingAmount,
+            bank: 'ICICI Bank',
+            date: today,
+            status: 'Pending',
+            particular: 'Cosmos Payout Pending',
+            category: 'Processing Fee'
+          }, uid('P')));
+        }
+
+        if (paymentsToAdd.length === 0) {
+          paymentsToAdd.push(pickPayment({
+            client: f.client,
+            file_no: f.client_id || f.file_no || '',
+            type: paymentType,
+            amount: 0,
+            bank: 'ICICI Bank',
+            date: today,
+            status: 'Completed',
+            particular: 'Cosmos Payout Collection',
+            category: 'Processing Fee'
+          }, uid('P')));
+        }
+
+        // Delete any existing auto-generated payout records from DB so we don't accumulate duplicates on recalculation
+        if (existingPayments.length > 0) {
+          for (const ep of existingPayments) {
+            await supabase.from('payments').delete().eq('id', ep.id)
+          }
+        }
+
+        const { data: pData, error: pErr } = await supabase.from('payments').insert(paymentsToAdd).select()
+        const newPaymentsList = (!pErr && pData && pData.length > 0) ? pData : paymentsToAdd
+
+        setPayments(p => {
+          const filtered = p.filter(x => !existingPayments.some(ep => ep.id === x.id))
+          return [...newPaymentsList, ...filtered]
+        })
+      } else if (existingPayments.length === 0) {
+        const payPayload = pickPayment({
+          client: f.client,
+          file_no: f.client_id || f.file_no || '',
+          type: paymentType,
+          amount: clientToUpdate?.amount || 2500000,
+          bank: 'ICICI Bank',
+          date: today,
+          status: 'Completed'
+        }, uid('P'))
+        const { data: pData, error: pErr } = await supabase.from('payments').insert([payPayload]).select().single()
+        const newPayment = (!pErr && pData) ? pData : payPayload
+        setPayments(p => [newPayment, ...p])
       }
     }
   }

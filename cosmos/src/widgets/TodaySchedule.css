@@ -4,7 +4,8 @@
   border-radius: 12px;
   padding: 20px;
   position: relative;
-  height: 100%;
+  height: fit-content;
+  align-self: start;
 }
 
 .schedule-header {

@@ -418,12 +418,29 @@ export default function LoginFile() {
     setModalOpen(false)
   }
 
-  const saveEditFile = () => {
+  const saveEditFile = async () => {
     if (!editData?.client?.trim()) {
       addToast('Customer name is required.', 'error')
       return
     }
-    updateLoginFile(editData)
+
+    const isCosmosPayoutCompleted =
+      editData.done ||
+      (editData.stages?.['COSMOS PAYOUT']?.actual != null) ||
+      (editData.currentStageIndex >= STAGES.length)
+
+    if (isCosmosPayoutCompleted) {
+      setModalOpen(false)
+      setPayoutData({
+        amount_paid: editData.amount_paid ?? '',
+        actual_payout: editData.actual_payout ?? '',
+        file: editData,
+      })
+      setPayoutModalOpen(true)
+      return
+    }
+
+    await updateLoginFile(editData)
     addToast('File updated successfully.', 'success')
     setModalOpen(false)
   }
@@ -454,7 +471,7 @@ export default function LoginFile() {
     }
   }
 
-  const savePayoutAmount = () => {
+  const savePayoutAmount = async () => {
     const amtPaidNum = Number(payoutData.amount_paid)
     const actualPayoutNum = Number(payoutData.actual_payout)
 
@@ -476,34 +493,7 @@ export default function LoginFile() {
     updated.amount_paid = amtPaidNum
     updated.actual_payout = actualPayoutNum
 
-    updateLoginFile(updated)
-
-    // 1. Record what the customer has already paid as a Completed collection
-    if (amtPaidNum > 0) {
-      addPayment({
-        client: f.client,
-        file_no: f.client_id || f.file_no || '',
-        type: 'Collection',
-        amount: amtPaidNum,
-        bank: '',
-        date: todayStr(),
-        status: 'Completed'
-      })
-    }
-
-    // 2. Record the remaining balance (actual_payout - amount_paid) as a Pending collection
-    const pendingBalance = actualPayoutNum - amtPaidNum
-    if (pendingBalance > 0) {
-      addPayment({
-        client: f.client,
-        file_no: f.client_id || f.file_no || '',
-        type: 'Collection',
-        amount: pendingBalance,
-        bank: '',
-        date: todayStr(),
-        status: 'Pending'
-      })
-    }
+    await updateLoginFile(updated)
 
     addToast(`${f.client} — Cosmos Payout marked done and payment recorded!`, 'success')
     setPayoutModalOpen(false)
