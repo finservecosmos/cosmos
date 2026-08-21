@@ -39,7 +39,10 @@ import {
   Stamp,
   Receipt,
   HelpCircle,
-  RotateCcw
+  RotateCcw,
+  Sliders,
+  Shield,
+  Zap
 } from 'lucide-react'
 import cosmosLogo from '../assets/cosmosLogo.webp'
 import heroAdvisorChart from '../assets/hero_advisor_chart.png'
@@ -455,7 +458,17 @@ export default function LandingPage() {
   const [partnerFilter, setPartnerFilter] = useState('all')
   const [searchPartner, setSearchPartner] = useState('')
 
-  // Eligibility Form
+  // Hero Quick Quote Multi-Step State
+  const [heroStep, setHeroStep] = useState(1)
+  const [heroLoanType, setHeroLoanType] = useState('Home Loan')
+  const [heroAmount, setHeroAmount] = useState(2500000)
+  const [heroName, setHeroName] = useState('')
+  const [heroMobile, setHeroMobile] = useState('')
+  const [heroCity, setHeroCity] = useState('Tiruppur')
+  const [heroSubmitting, setHeroSubmitting] = useState(false)
+  const [heroSubmitted, setHeroSubmitted] = useState(false)
+
+  // Eligibility Form (Block below)
   const [eligibilityForm, setEligibilityForm] = useState({
     name: '',
     mobile: '',
@@ -488,6 +501,51 @@ export default function LandingPage() {
                           p.fullName.toLowerCase().includes(searchPartner.toLowerCase())
     return matchesType && matchesSearch
   })
+
+  // Hero Quick Quote Submit Handler
+  const handleHeroQuoteSubmit = async (e) => {
+    e.preventDefault()
+
+    if (!heroName || !heroMobile) {
+      addToast('Please enter your name and mobile number', 'error')
+      return
+    }
+
+    const cleanMobile = heroMobile.replace(/\D/g, '')
+    if (cleanMobile.length < 10) {
+      addToast('Please enter a valid 10-digit mobile number', 'error')
+      return
+    }
+
+    setHeroSubmitting(true)
+    try {
+      let mappedLoanType = 'Housing'
+      if (heroLoanType.includes('Business') || heroLoanType.includes('Working')) mappedLoanType = 'Business OD/CC'
+      else if (heroLoanType.includes('Property')) mappedLoanType = 'Loan Against Property'
+      else if (heroLoanType.includes('Personal') || heroLoanType.includes('Vehicle')) mappedLoanType = 'Others'
+
+      const payload = {
+        client_name: heroName,
+        co_applicate_name: '',
+        client_mobile_number: Number(cleanMobile),
+        loan_type: mappedLoanType,
+        loan_amount: Number(heroAmount),
+        associate_name: 'Unassigned',
+        status: 'New',
+        note: `Hero Quick Quote: ₹${(heroAmount/100000).toFixed(1)} L ${heroLoanType} in ${heroCity}`,
+        google_drive_link: ''
+      }
+
+      await addEnquiry(payload)
+      setHeroSubmitted(true)
+      addToast('Instant eligibility request submitted! Advisor calling in 15 mins.', 'success')
+    } catch (err) {
+      console.error(err)
+      addToast('Failed to submit request. Please try again.', 'error')
+    } finally {
+      setHeroSubmitting(false)
+    }
+  }
 
   // Submit eligibility request
   const handleEligibilitySubmit = async (e) => {
@@ -557,6 +615,15 @@ export default function LandingPage() {
       totalInterest: Math.round(totalInterest),
       totalPayment: Math.round(totalPayment)
     }
+  }
+
+  // Quick Estimated EMI for Hero Slider (8.5% p.a., 20 Yr)
+  const estimateHeroEMI = () => {
+    const P = heroAmount
+    const r = 8.5 / 12 / 100
+    const n = 20 * 12
+    const emi = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
+    return Math.round(emi)
   }
 
   const calcResults = calculateEMI()
@@ -696,11 +763,11 @@ export default function LandingPage() {
         )}
       </header>
 
-      {/* ── Section 1: Hero Section ── */}
+      {/* ── Section 1: Hero Section with Interactive Multi-Step Quick-Quote ── */}
       <section id="home" className="hero-section pt-24 lg:pt-28 pb-16 bg-gradient-to-b from-red-50/40 via-white to-slate-50 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
-          {/* Left Text Column */}
+          {/* Left Text & Hook Column */}
           <div className="lg:col-span-6 flex flex-col items-start text-left">
             
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-[1.15] mb-3 tracking-tight">
@@ -708,69 +775,280 @@ export default function LandingPage() {
               <span className="text-[#800000]">FINANCIAL PARTNER</span>
             </h1>
 
-            <p className="text-[11px] sm:text-xs font-bold text-[#800000] bg-red-100/60 px-3 py-1.5 rounded-md mb-6 border-l-4 border-[#800000]">
-              40+ Banks &amp; NBFCs | One Stop Solution for All Your Loan Needs
+            <p className="text-xs sm:text-sm font-extrabold text-slate-700 bg-red-100/60 px-3.5 py-2 rounded-lg mb-5 border-l-4 border-[#800000] leading-snug">
+              Compare &amp; Get Sanctioned from <strong className="text-[#800000]">40+ Banks &amp; NBFCs</strong> starting at <strong className="text-[#800000]">7.50% p.a.</strong>
             </p>
 
             {/* Checklist */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-8 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-6 w-full">
               <div className="flex items-center gap-2 text-slate-700 text-xs sm:text-[13px] font-semibold">
                 <div className="h-4 w-4 rounded-full bg-[#C59B27] text-white flex items-center justify-center shrink-0">
                   <Check size={11} strokeWidth={3} />
                 </div>
-                <span>Best Interest Rates</span>
+                <span>Best Interest Rates (7.50%*)</span>
               </div>
               <div className="flex items-center gap-2 text-slate-700 text-xs sm:text-[13px] font-semibold">
                 <div className="h-4 w-4 rounded-full bg-[#C59B27] text-white flex items-center justify-center shrink-0">
                   <Check size={11} strokeWidth={3} />
                 </div>
-                <span>Quick Approvals</span>
+                <span>Quick Approvals in 48 Hrs</span>
               </div>
               <div className="flex items-center gap-2 text-slate-700 text-xs sm:text-[13px] font-semibold">
                 <div className="h-4 w-4 rounded-full bg-[#C59B27] text-white flex items-center justify-center shrink-0">
                   <Check size={11} strokeWidth={3} />
                 </div>
-                <span>Doorstep Loans</span>
+                <span>Doorstep Loan Advisory</span>
               </div>
               <div className="flex items-center gap-2 text-slate-700 text-xs sm:text-[13px] font-semibold">
                 <div className="h-4 w-4 rounded-full bg-[#C59B27] text-white flex items-center justify-center shrink-0">
                   <Check size={11} strokeWidth={3} />
                 </div>
-                <span>End to End Support</span>
+                <span>Zero Hidden Fees Guidance</span>
               </div>
               <div className="flex items-center gap-2 text-slate-700 text-xs sm:text-[13px] font-semibold sm:col-span-2">
                 <div className="h-4 w-4 rounded-full bg-[#C59B27] text-white flex items-center justify-center shrink-0">
                   <Check size={11} strokeWidth={3} />
                 </div>
-                <span>Minimal Documentation</span>
+                <span>Minimal Paperwork &amp; End-to-End Support</span>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full sm:w-auto">
-              <button 
-                onClick={() => scrollToSection('eligibility-form')}
-                className="px-6 py-3 rounded-lg text-xs font-black text-white bg-[#800000] hover:bg-[#660000] shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
-              >
-                Check Eligibility <ChevronRight size={16} />
-              </button>
+            {/* High Conversion Trust Triggers */}
+            <div className="w-full bg-white border border-emerald-200/80 rounded-xl p-3 shadow-sm mb-6 flex flex-wrap items-center justify-around gap-2 text-[11px] font-bold text-slate-700">
+              <div className="flex items-center gap-1.5 text-emerald-700">
+                <Shield size={14} className="shrink-0" />
+                <span>No CIBIL Score Drop</span>
+              </div>
+              <span className="text-slate-300 hidden sm:inline">•</span>
+              <div className="flex items-center gap-1.5 text-emerald-700">
+                <Lock size={14} className="shrink-0" />
+                <span>100% Free &amp; Secure</span>
+              </div>
+              <span className="text-slate-300 hidden sm:inline">•</span>
+              <div className="flex items-center gap-1.5 text-emerald-700">
+                <Zap size={14} className="shrink-0" />
+                <span>Advisor Calling in 15 Mins</span>
+              </div>
+            </div>
+
+            {/* Action Direct Expert Phone Button */}
+            <div className="flex items-center gap-3 w-full">
               <a 
                 href="tel:+919003635556"
-                className="px-6 py-3 rounded-lg text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-6 py-3 rounded-lg text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Phone size={15} className="text-[#800000]" /> Talk to Expert
+                <Phone size={15} className="text-[#800000]" /> Speak with Senior Advisor
               </a>
             </div>
+
           </div>
 
-          {/* Right Hero Image */}
-          <div className="lg:col-span-6 relative">
-            <div className="relative mx-auto max-w-md lg:max-w-none rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-white">
-              <img 
-                src={heroAdvisorChart} 
-                alt="Cosmos Finserve Loan Advisory" 
-                className="w-full h-auto object-cover aspect-[4/3]"
-              />
+          {/* Right Interactive Quick Quote & Eligibility Card */}
+          <div className="lg:col-span-6">
+            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xl overflow-hidden relative">
+              
+              {/* Card Header Banner */}
+              <div className="bg-[#0B192C] text-white px-5 py-3.5 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+                    <Sliders size={14} className="text-amber-400" />
+                    <span>INSTANT LOAN ELIGIBILITY CHECKER</span>
+                  </div>
+                  <p className="text-[10px] text-slate-300 font-medium mt-0.5">
+                    Calculate EMI &amp; Compare 40+ Bank Sanctions in 30 Seconds
+                  </p>
+                </div>
+                
+                {/* Step Indicator Pill */}
+                <div className="px-2.5 py-1 bg-white/10 rounded-full text-[10px] font-bold text-amber-300 uppercase tracking-wider shrink-0">
+                  Step {heroStep} of 2
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-slate-100 h-1.5">
+                <div 
+                  className="bg-gradient-to-r from-[#800000] to-[#C59B27] h-full transition-all duration-300"
+                  style={{ width: heroStep === 1 ? '50%' : '100%' }}
+                ></div>
+              </div>
+
+              <div className="p-5 sm:p-6">
+                {heroSubmitted ? (
+                  <div className="py-8 text-center flex flex-col items-center">
+                    <div className="h-16 w-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-3">
+                      <CheckCircle size={36} />
+                    </div>
+                    <h3 className="text-lg font-black text-slate-900 mb-1">Instant Enquiry Received!</h3>
+                    <p className="text-xs text-slate-600 max-w-sm mb-4">
+                      Our senior loan advisor is matching your eligibility against 40+ banks and will contact you within 15 minutes.
+                    </p>
+                    <button 
+                      onClick={() => { setHeroSubmitted(false); setHeroStep(1); }}
+                      className="text-xs font-bold text-[#800000] uppercase tracking-wider hover:underline"
+                    >
+                      Calculate Another Loan Offer
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleHeroQuoteSubmit}>
+                    
+                    {/* Step 1: Select Loan & Amount Slider (Micro-Commitment) */}
+                    {heroStep === 1 && (
+                      <div className="space-y-4">
+                        
+                        {/* Loan Type Buttons Grid */}
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2">
+                            Select Loan Category
+                          </label>
+                          <div className="grid grid-cols-3 gap-1.5">
+                            {['Home Loan', 'LAP', 'Business Loan', 'Personal Loan', 'Vehicle Loan', 'BT & Top-up'].map((type) => (
+                              <button
+                                key={type}
+                                type="button"
+                                onClick={() => setHeroLoanType(type)}
+                                className={`py-2 px-1 rounded-lg text-[11px] font-bold transition-all text-center border cursor-pointer ${
+                                  heroLoanType === type
+                                    ? 'bg-[#800000] text-white border-[#800000] shadow-sm'
+                                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                                }`}
+                              >
+                                {type}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Loan Amount Slider */}
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Required Loan Amount</label>
+                            <span className="text-sm font-black text-[#800000]">
+                              ₹ {(heroAmount / 100000).toFixed(1)} Lakhs
+                            </span>
+                          </div>
+                          <input 
+                            type="range"
+                            min={100000}
+                            max={50000000}
+                            step={100000}
+                            value={heroAmount}
+                            onChange={(e) => setHeroAmount(Number(e.target.value))}
+                            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#800000]"
+                          />
+                          <div className="flex justify-between text-[9px] text-slate-400 font-semibold mt-1">
+                            <span>₹1 Lakh</span>
+                            <span>₹5 Crores</span>
+                          </div>
+                        </div>
+
+                        {/* Estimated Starting EMI Preview Box */}
+                        <div className="bg-red-50/70 border border-red-100 rounded-xl p-3 flex items-center justify-between">
+                          <div>
+                            <div className="text-[10px] font-bold text-slate-500 uppercase">Est. Monthly EMI Starting At</div>
+                            <div className="text-xs text-slate-400 font-semibold">@ 7.50% p.a. (20 Yrs)</div>
+                          </div>
+                          <div className="text-base font-black text-[#800000]">
+                            ₹ {estimateHeroEMI().toLocaleString('en-IN')} <span className="text-[10px] font-normal text-slate-500">/mo</span>
+                          </div>
+                        </div>
+
+                        <button 
+                          type="button"
+                          onClick={() => setHeroStep(2)}
+                          className="w-full py-3 rounded-lg text-xs font-black text-white bg-[#800000] hover:bg-[#660000] transition-all shadow-md uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer mt-2"
+                        >
+                          Continue to See Bank Offers <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Step 2: Contact Details (Lead Capture) */}
+                    {heroStep === 2 && (
+                      <div className="space-y-3.5">
+                        
+                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-700 flex justify-between items-center mb-1">
+                          <span>{heroLoanType} • ₹ {(heroAmount/100000).toFixed(1)} Lakhs</span>
+                          <button 
+                            type="button" 
+                            onClick={() => setHeroStep(1)}
+                            className="text-[10px] font-bold text-[#800000] hover:underline"
+                          >
+                            Edit
+                          </button>
+                        </div>
+
+                        <div>
+                          <label htmlFor="hero-name" className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                            Your Full Name
+                          </label>
+                          <input 
+                            id="hero-name"
+                            type="text"
+                            placeholder="Enter your full name"
+                            value={heroName}
+                            onChange={(e) => setHeroName(e.target.value)}
+                            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#800000]/20 focus:border-[#800000]"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label htmlFor="hero-mobile" className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                            Mobile Number
+                          </label>
+                          <input 
+                            id="hero-mobile"
+                            type="tel"
+                            placeholder="Enter 10-digit mobile number"
+                            value={heroMobile}
+                            onChange={(e) => setHeroMobile(e.target.value)}
+                            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#800000]/20 focus:border-[#800000]"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label htmlFor="hero-city" className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                            Nearest Service Area / City
+                          </label>
+                          <select 
+                            id="hero-city"
+                            value={heroCity}
+                            onChange={(e) => setHeroCity(e.target.value)}
+                            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#800000]/20 focus:border-[#800000] cursor-pointer"
+                          >
+                            <option value="Tiruppur">Tiruppur</option>
+                            <option value="Coimbatore">Coimbatore</option>
+                            <option value="Erode">Erode</option>
+                            <option value="Pollachi">Pollachi</option>
+                            <option value="Other">Other Locations (PAN India)</option>
+                          </select>
+                        </div>
+
+                        <button 
+                          type="submit"
+                          disabled={heroSubmitting}
+                          className="w-full py-3 mt-1 rounded-lg text-xs font-black text-white bg-[#800000] hover:bg-[#660000] transition-all shadow-md uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                        >
+                          {heroSubmitting ? 'Checking Offers...' : 'Get Sanctioned Bank Offers'} <ChevronRight size={16} />
+                        </button>
+
+                        <div className="text-center pt-1">
+                          <p className="text-[10px] font-semibold text-slate-500 flex items-center justify-center gap-1">
+                            <Lock size={11} className="text-emerald-600" />
+                            <span>No unwanted calls • 100% Data Protection Guarantee</span>
+                          </p>
+                        </div>
+
+                      </div>
+                    )}
+
+                  </form>
+                )}
+              </div>
+
             </div>
           </div>
 
