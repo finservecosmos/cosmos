@@ -2,19 +2,19 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppState } from '../context/AppStateContext'
 import { useToast } from '../context/ToastContext'
-import {
-  Home as HomeIcon,
-  Building2,
-  Briefcase,
-  Percent,
-  ShieldCheck,
-  MapPin,
-  Phone,
-  Mail,
-  ArrowRight,
-  FileText,
-  TrendingUp,
-  Users,
+import { 
+  Home as HomeIcon, 
+  Building2, 
+  Briefcase, 
+  Percent, 
+  ShieldCheck, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  ArrowRight, 
+  FileText, 
+  TrendingUp, 
+  Users, 
   CheckCircle,
   MessageSquare,
   Sparkles,
@@ -38,13 +38,14 @@ import {
   ArrowRightLeft,
   Stamp,
   Receipt,
-  HelpCircle
+  HelpCircle,
+  RotateCcw
 } from 'lucide-react'
 import cosmosLogo from '../assets/cosmosLogo.webp'
 import heroAdvisorChart from '../assets/hero_advisor_chart.png'
 import './LandingPage.css'
 
-// Master list of 38 Banks & NBFCs with partner details
+// Master list of 38 Banks & NBFCs with authentic brand metadata
 const PARTNERS_LIST = [
   { id: 'sbi', name: 'SBI', fullName: 'State Bank of India', type: 'bank', color: '#0083CA' },
   { id: 'hdfc', name: 'HDFC BANK', fullName: 'HDFC Bank', type: 'bank', color: '#004B8D' },
@@ -86,10 +87,363 @@ const PARTNERS_LIST = [
   { id: 'niva', name: 'Niva Bupa Health Insurance', fullName: 'Niva Bupa Health Insurance', type: 'nbfc', color: '#0284C7' },
 ]
 
+// Render authentic brand logo graphics matching exact bank identity
+function renderPartnerBrandLogo(id) {
+  switch (id) {
+    case 'sbi':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <svg className="w-6 h-6 shrink-0" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="#0083CA" />
+            <circle cx="50" cy="35" r="15" fill="#FFFFFF" />
+            <rect x="44" y="35" width="12" height="40" fill="#FFFFFF" />
+          </svg>
+          <span className="font-black text-sm tracking-tight text-[#0083CA]">SBI</span>
+        </div>
+      )
+    case 'hdfc':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="w-5 h-5 bg-[#004B8D] relative shrink-0 p-0.5 flex items-center justify-center rounded-sm">
+            <div className="w-2.5 h-2.5 bg-[#E31B23]"></div>
+            <div className="absolute top-0 left-0 w-2 h-2 bg-white"></div>
+            <div className="absolute top-0 right-0 w-2 h-2 bg-white"></div>
+            <div className="absolute bottom-0 left-0 w-2 h-2 bg-white"></div>
+            <div className="absolute bottom-0 right-0 w-2 h-2 bg-white"></div>
+          </div>
+          <span className="font-black text-xs sm:text-sm tracking-tighter text-[#004B8D]">HDFC BANK</span>
+        </div>
+      )
+    case 'icici':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="w-5 h-5 rounded-full bg-[#F37021] text-white font-black text-[10px] flex items-center justify-center shrink-0 shadow-sm">
+            i
+          </div>
+          <span className="font-black text-xs sm:text-sm tracking-tight text-[#004B8D]">
+            ICICI <span className="text-[#F37021]">Bank</span>
+          </span>
+        </div>
+      )
+    case 'axis':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <svg className="w-5 h-5 shrink-0" viewBox="0 0 100 100">
+            <polygon points="50,10 90,90 65,90 50,55 35,90 10,90" fill="#97144D" />
+          </svg>
+          <span className="font-black text-xs sm:text-sm tracking-tighter text-[#97144D]">AXIS BANK</span>
+        </div>
+      )
+    case 'kotak':
+      return (
+        <div className="flex items-center justify-center gap-1">
+          <div className="h-5 w-5 rounded bg-[#ED1C24] text-white font-extrabold text-[11px] flex items-center justify-center shrink-0">
+            k
+          </div>
+          <div className="flex flex-col text-left leading-none">
+            <span className="font-black text-xs text-[#ED1C24] lowercase">kotak</span>
+            <span className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter">Kotak Mahindra Bank</span>
+          </div>
+        </div>
+      )
+    case 'yes':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="h-5 w-5 bg-[#005A9C] rounded shrink-0 flex items-center justify-center relative">
+            <div className="text-white font-black text-[10px] stroke-red-600">✓</div>
+          </div>
+          <span className="font-black text-xs sm:text-sm tracking-tight text-[#005A9C]">
+            YES <span className="text-[#E31B23]">BANK</span>
+          </span>
+        </div>
+      )
+    case 'idfc':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="px-1.5 py-0.5 bg-[#9E1B32] text-white font-black text-[9px] rounded shrink-0 uppercase tracking-tighter">
+            FIRST
+          </div>
+          <span className="font-black text-xs sm:text-sm tracking-tighter text-[#9E1B32]">IDFC FIRST Bank</span>
+        </div>
+      )
+    case 'indusind':
+      return (
+        <div className="flex items-center justify-center gap-1">
+          <span className="font-black text-xs sm:text-sm tracking-tight text-[#941617]">IndusInd Bank</span>
+        </div>
+      )
+    case 'boi':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <svg className="w-5 h-5 shrink-0" viewBox="0 0 100 100">
+            <polygon points="50,5 64,36 98,36 70,57 81,91 50,70 19,91 30,57 2,36 36,36" fill="#E31837" />
+          </svg>
+          <span className="font-black text-xs text-[#E31837]">Bank of India</span>
+        </div>
+      )
+    case 'pnb':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="w-5 h-5 rounded-full bg-[#A00000] text-amber-300 font-black text-[9px] flex items-center justify-center shrink-0">
+            pnb
+          </div>
+          <div className="flex flex-col text-left leading-none">
+            <span className="font-black text-xs text-[#A00000] lowercase">pnb</span>
+            <span className="text-[7px] font-bold text-slate-400 uppercase">punjab national bank</span>
+          </div>
+        </div>
+      )
+    case 'union':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="flex items-center shrink-0">
+            <span className="text-[#003B73] font-black text-xs">U</span>
+            <span className="text-[#E31B23] font-black text-xs -ml-1">B</span>
+          </div>
+          <span className="font-black text-xs tracking-tight text-[#003B73]">Union Bank <span className="text-slate-500 text-[9px] font-bold">of India</span></span>
+        </div>
+      )
+    case 'indian':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="w-5 h-5 rounded-full bg-[#1F3A60] text-white font-black text-[9px] flex items-center justify-center shrink-0">
+            IB
+          </div>
+          <span className="font-black text-xs text-[#1F3A60]">Indian Bank</span>
+        </div>
+      )
+    case 'canara':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <svg className="w-5 h-5 shrink-0" viewBox="0 0 100 100">
+            <polygon points="20,80 50,20 80,80" fill="#0069B4" />
+            <polygon points="35,80 50,45 65,80" fill="#F59E0B" />
+          </svg>
+          <span className="font-black text-xs text-[#0069B4]">Canara Bank</span>
+        </div>
+      )
+    case 'cbi':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="w-5 h-5 bg-[#003399] text-white font-black text-[9px] rounded-full flex items-center justify-center shrink-0">
+            C
+          </div>
+          <span className="font-black text-xs text-[#003399]">Central Bank <span className="text-[8px] font-semibold text-slate-500">of India</span></span>
+        </div>
+      )
+    case 'bob':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <svg className="w-5 h-5 shrink-0" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="#F26522" />
+            <path d="M30 65 L50 25 L70 65 Z" fill="#FFFFFF" />
+          </svg>
+          <span className="font-black text-xs text-[#F26522]">Bank of Baroda</span>
+        </div>
+      )
+    case 'federal':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="px-1 py-0.5 bg-[#004A8F] text-amber-400 font-black text-[8px] rounded shrink-0">
+            FED
+          </div>
+          <span className="font-black text-xs tracking-tighter text-[#004A8F]">FEDERAL BANK</span>
+        </div>
+      )
+    case 'idbi':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="w-5 h-5 rounded-full bg-[#008751] text-white font-black text-[9px] flex items-center justify-center shrink-0">
+            i
+          </div>
+          <span className="font-black text-xs tracking-tighter text-[#008751]">IDBI BANK</span>
+        </div>
+      )
+    case 'dcb':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="font-black text-xs tracking-tighter text-[#00529B]">DCB BANK</span>
+        </div>
+      )
+    case 'rbl':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="w-4 h-4 rounded-full bg-[#1A365D] shrink-0 border border-red-500"></div>
+          <span className="font-black text-xs tracking-tighter text-[#1A365D]">RBLBANK</span>
+        </div>
+      )
+    case 'au':
+      return (
+        <div className="flex items-center justify-center gap-1">
+          <div className="px-1 py-0.5 bg-[#EE7203] text-white font-black text-[9px] rounded shrink-0">
+            AU
+          </div>
+          <div className="flex flex-col text-left leading-none">
+            <span className="font-black text-[10px] text-[#EE7203]">AU SMALL</span>
+            <span className="text-[7px] font-bold text-slate-400">FINANCE BANK</span>
+          </div>
+        </div>
+      )
+    case 'tata':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <svg className="w-5 h-5 shrink-0" viewBox="0 0 100 100">
+            <polygon points="50,10 90,50 50,90 10,50" fill="#005696" />
+          </svg>
+          <span className="font-black text-xs tracking-tighter text-[#005696]">TATA CAPITAL</span>
+        </div>
+      )
+    case 'lt':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="px-1 py-0.5 bg-[#005C9E] text-white font-black text-[9px] rounded shrink-0">
+            L&amp;T
+          </div>
+          <span className="font-black text-xs text-[#005C9E]">L&amp;T Finance</span>
+        </div>
+      )
+    case 'bajaj':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="w-5 h-5 bg-[#0066B3] text-white font-black text-[11px] rounded flex items-center justify-center shrink-0">
+            B
+          </div>
+          <span className="font-black text-xs tracking-tighter text-[#0066B3]">BAJAJ FINSERV</span>
+        </div>
+      )
+    case 'chola':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="w-4 h-4 rounded-full bg-[#E31B23] border border-green-600 shrink-0"></div>
+          <div className="flex flex-col text-left leading-none">
+            <span className="font-black text-xs text-[#E31B23]">Chola</span>
+            <span className="text-[6px] font-bold text-slate-400">Enter a better life</span>
+          </div>
+        </div>
+      )
+    case 'mahindra':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="font-black text-xs text-[#E31B23]">Mahindra</span>
+          <span className="text-[9px] font-bold text-slate-500 uppercase">FINANCE</span>
+        </div>
+      )
+    case 'aditya':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <svg className="w-4 h-4 shrink-0" viewBox="0 0 100 100">
+            <polygon points="50,10 90,90 10,90" fill="#B91C1C" />
+          </svg>
+          <span className="font-black text-[10px] tracking-tighter text-[#B91C1C]">ADITYA BIRLA CAPITAL</span>
+        </div>
+      )
+    case 'muthoot':
+      return (
+        <div className="flex items-center justify-center gap-1">
+          <div className="w-5 h-5 rounded bg-[#D97706] text-white font-black text-[10px] flex items-center justify-center shrink-0">
+            M
+          </div>
+          <span className="font-black text-xs text-[#D97706]">Muthoot <span className="text-[9px] font-bold text-slate-600">FINCORP</span></span>
+        </div>
+      )
+    case 'shriram':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="px-1 py-0.5 bg-[#B45309] text-white font-black text-[8px] rounded shrink-0">
+            SHRIRAM
+          </div>
+          <span className="font-black text-xs text-[#B45309]">Shriram <span className="text-[8px] font-bold text-slate-400">Finance</span></span>
+        </div>
+      )
+    case 'mas':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="px-1.5 py-0.5 bg-[#1D4ED8] text-white font-black text-[9px] rounded shrink-0">
+            MAS
+          </div>
+          <span className="font-black text-[9px] tracking-tighter text-[#1D4ED8]">FINANCIAL SERVICES</span>
+        </div>
+      )
+    case 'edelweiss':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <svg className="w-5 h-5 shrink-0" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" fill="#2563EB" />
+          </svg>
+          <span className="font-black text-xs text-[#2563EB]">Edelweiss</span>
+        </div>
+      )
+    case 'piramal':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="w-4 h-4 rounded-full bg-[#EA580C] shrink-0"></div>
+          <span className="font-black text-xs text-[#EA580C]">Piramal <span className="text-[8px] font-semibold text-slate-500">Capital</span></span>
+        </div>
+      )
+    case 'jm':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="px-1.5 py-0.5 bg-[#DC2626] text-white font-black text-[9px] rounded shrink-0">
+            JM
+          </div>
+          <span className="font-black text-xs tracking-tighter text-[#DC2626]">JM FINANCIAL</span>
+        </div>
+      )
+    case 'hdb':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="px-1.5 py-0.5 bg-[#1E40AF] text-white font-black text-[9px] rounded shrink-0">
+            HDB
+          </div>
+          <span className="font-black text-[9px] tracking-tighter text-[#1E40AF]">FINANCIAL SERVICES</span>
+        </div>
+      )
+    case 'sundaram':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="w-4 h-4 rounded-full bg-[#1E3A8A] text-white font-black text-[8px] flex items-center justify-center shrink-0">
+            S
+          </div>
+          <span className="font-black text-[9px] tracking-tighter text-[#1E3A8A]">SUNDARAM FINANCE</span>
+        </div>
+      )
+    case 'ikf':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="font-black text-xs tracking-tighter text-[#991B1B]">IKF FINANCE</span>
+        </div>
+      )
+    case 'incred':
+      return (
+        <div className="flex items-center justify-center gap-1">
+          <span className="font-black text-xs text-[#F97316]">InCred <span className="text-[8px] font-bold text-slate-500">finance</span></span>
+        </div>
+      )
+    case 'vivriti':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="font-black text-xs tracking-tighter text-[#374151]">VIVRITI CAPITAL</span>
+        </div>
+      )
+    case 'niva':
+      return (
+        <div className="flex items-center justify-center gap-1">
+          <div className="w-4 h-4 rounded-full bg-[#0284C7] shrink-0"></div>
+          <div className="flex flex-col text-left leading-none">
+            <span className="font-black text-xs text-[#0284C7]">niva</span>
+            <span className="text-[6px] font-bold text-slate-500">Health Insurance</span>
+          </div>
+        </div>
+      )
+    default:
+      return <span className="font-black text-xs text-slate-800">{id}</span>
+  }
+}
+
 export default function LandingPage() {
   const { addEnquiry } = useAppState()
   const { addToast } = useToast()
-
+  
   useEffect(() => {
     document.title = "Cosmos Finserve | 40+ Banks & NBFC Loan Advisory";
   }, []);
@@ -130,15 +484,15 @@ export default function LandingPage() {
   // Filter partners
   const filteredPartners = PARTNERS_LIST.filter(p => {
     const matchesType = partnerFilter === 'all' || p.type === partnerFilter
-    const matchesSearch = p.name.toLowerCase().includes(searchPartner.toLowerCase()) ||
-      p.fullName.toLowerCase().includes(searchPartner.toLowerCase())
+    const matchesSearch = p.name.toLowerCase().includes(searchPartner.toLowerCase()) || 
+                          p.fullName.toLowerCase().includes(searchPartner.toLowerCase())
     return matchesType && matchesSearch
   })
 
   // Submit eligibility request
   const handleEligibilitySubmit = async (e) => {
     e.preventDefault()
-
+    
     if (!eligibilityForm.name || !eligibilityForm.mobile) {
       addToast('Please enter your full name and mobile number', 'error')
       return
@@ -217,11 +571,11 @@ export default function LandingPage() {
 
   return (
     <div className="landing-layout selection:bg-red-900 selection:text-white">
-
+      
       {/* ── Top Announcement Strip ── */}
       <div className="bg-[#800000] text-white py-1.5 px-4 text-[11px] font-semibold border-b border-red-900/60">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-1.5">
-
+          
           <div className="flex items-center gap-1.5 flex-wrap justify-center sm:justify-start">
             <MapPin size={13} className="text-amber-300 shrink-0" />
             <span className="text-slate-100 tracking-wide">
@@ -233,19 +587,19 @@ export default function LandingPage() {
             <span className="text-amber-200/90 text-[10px] font-bold uppercase tracking-wider hidden md:inline">Follow Us:</span>
             <div className="flex items-center gap-3 text-white">
               <a href="https://facebook.com" target="_blank" rel="noreferrer" className="hover:text-amber-300 transition-colors" aria-label="Facebook">
-                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
               </a>
               <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-amber-300 transition-colors" aria-label="Instagram">
-                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
+                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
               </a>
               <a href="https://wa.me/919003635556" target="_blank" rel="noreferrer" className="hover:text-amber-300 transition-colors" aria-label="WhatsApp">
-                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z" /></svg>
+                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
               </a>
               <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="hover:text-amber-300 transition-colors" aria-label="LinkedIn">
-                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
+                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
               </a>
               <a href="https://youtube.com" target="_blank" rel="noreferrer" className="hover:text-amber-300 transition-colors" aria-label="YouTube">
-                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" /></svg>
+                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
               </a>
             </div>
           </div>
@@ -256,7 +610,7 @@ export default function LandingPage() {
       {/* ── Main Sticky Navbar ── */}
       <header className="landing-header">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 lg:h-18 flex items-center justify-between">
-
+          
           {/* Logo */}
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => scrollToSection('home')}>
             <img src={cosmosLogo} alt="Cosmos Finserve Logo" className="h-9 lg:h-10 w-auto object-contain" />
@@ -283,15 +637,15 @@ export default function LandingPage() {
 
           {/* Action Buttons */}
           <div className="hidden lg:flex items-center gap-2.5">
-            <button
+            <button 
               onClick={() => scrollToSection('eligibility-form')}
               className="px-3.5 py-2 rounded-lg text-[11px] font-black text-white bg-[#800000] hover:bg-[#660000] transition-all shadow-md uppercase tracking-wider cursor-pointer whitespace-nowrap"
             >
               Check Eligibility
             </button>
 
-            <Link
-              to="/login"
+            <Link 
+              to="/login" 
               className="px-3.5 py-2 rounded-lg text-[11px] font-black text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all shadow-sm uppercase tracking-wider whitespace-nowrap"
             >
               Sign In
@@ -300,7 +654,7 @@ export default function LandingPage() {
 
           {/* Mobile hamburger */}
           <div className="xl:hidden flex items-center gap-2">
-            <button
+            <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 text-slate-700 hover:text-[#800000] focus:outline-none"
               aria-label="Toggle menu"
@@ -324,14 +678,14 @@ export default function LandingPage() {
               <button onClick={() => scrollToSection('contact')} className="text-left py-1 hover:text-[#800000]">Contact Us</button>
             </nav>
             <div className="pt-3 border-t border-slate-100 flex flex-col gap-2.5">
-              <button
+              <button 
                 onClick={() => scrollToSection('eligibility-form')}
                 className="w-full py-2.5 rounded-lg text-center text-xs font-black text-white bg-[#800000] uppercase tracking-wider shadow-sm"
               >
                 Check Eligibility
               </button>
-              <Link
-                to="/login"
+              <Link 
+                to="/login" 
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full py-2.5 rounded-lg text-center text-xs font-black text-[#800000] border border-[#800000] uppercase tracking-wider shadow-sm"
               >
@@ -345,10 +699,10 @@ export default function LandingPage() {
       {/* ── Section 1: Hero Section ── */}
       <section id="home" className="hero-section pt-24 lg:pt-28 pb-16 bg-gradient-to-b from-red-50/40 via-white to-slate-50 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-
+          
           {/* Left Text Column */}
           <div className="lg:col-span-6 flex flex-col items-start text-left">
-
+            
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-[1.15] mb-3 tracking-tight">
               YOUR TRUSTED <br />
               <span className="text-[#800000]">FINANCIAL PARTNER</span>
@@ -394,13 +748,13 @@ export default function LandingPage() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full sm:w-auto">
-              <button
+              <button 
                 onClick={() => scrollToSection('eligibility-form')}
                 className="px-6 py-3 rounded-lg text-xs font-black text-white bg-[#800000] hover:bg-[#660000] shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
               >
                 Check Eligibility <ChevronRight size={16} />
               </button>
-              <a
+              <a 
                 href="tel:+919003635556"
                 className="px-6 py-3 rounded-lg text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
@@ -409,25 +763,23 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right Image + ROI Badge */}
+          {/* Right Hero Image */}
           <div className="lg:col-span-6 relative">
             <div className="relative mx-auto max-w-md lg:max-w-none rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-white">
-              <img
-                src={heroAdvisorChart}
-                alt="Cosmos Finserve Loan Advisory"
+              <img 
+                src={heroAdvisorChart} 
+                alt="Cosmos Finserve Loan Advisory" 
                 className="w-full h-auto object-cover aspect-[4/3]"
               />
-
-
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* ── Section 2: OUR BANKING & NBFC PARTNERS (PLACED HIGHER UP) ── */}
+      {/* ── Section 2: OUR BANKING & NBFC PARTNERS (BRAND LOGOS GRID) ── */}
       <section id="banks-nbfc" className="py-16 bg-slate-50 border-t border-b border-slate-200">
-
+        
         {/* Maroon Banner Header */}
         <div className="bg-[#800000] text-white py-8 px-4 mb-10 text-center shadow-md">
           <div className="max-w-4xl mx-auto">
@@ -441,79 +793,98 @@ export default function LandingPage() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
+          
           {/* Search & Filter Toolbar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-1.5 p-1 bg-slate-200/80 rounded-lg w-full sm:w-auto">
               <button
                 onClick={() => setPartnerFilter('all')}
-                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${partnerFilter === 'all'
+                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${
+                  partnerFilter === 'all'
                     ? 'bg-[#800000] text-white shadow-sm'
                     : 'text-slate-700 hover:bg-slate-300/50'
-                  }`}
+                }`}
               >
-                All
+                All ({PARTNERS_LIST.length})
               </button>
               <button
                 onClick={() => setPartnerFilter('bank')}
-                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${partnerFilter === 'bank'
+                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${
+                  partnerFilter === 'bank'
                     ? 'bg-[#800000] text-white shadow-sm'
                     : 'text-slate-700 hover:bg-slate-300/50'
-                  }`}
+                }`}
               >
-                Banks
+                Banks ({PARTNERS_LIST.filter(p => p.type === 'bank').length})
               </button>
               <button
                 onClick={() => setPartnerFilter('nbfc')}
-                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${partnerFilter === 'nbfc'
+                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${
+                  partnerFilter === 'nbfc'
                     ? 'bg-[#800000] text-white shadow-sm'
                     : 'text-slate-700 hover:bg-slate-300/50'
-                  }`}
+                }`}
               >
-                NBFCs
+                NBFCs ({PARTNERS_LIST.filter(p => p.type === 'nbfc').length})
               </button>
             </div>
 
             <div className="relative w-full sm:w-72">
-              <input
+              <input 
                 type="text"
                 placeholder="Search Bank or NBFC"
                 value={searchPartner}
                 onChange={(e) => setSearchPartner(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#800000]/20 focus:border-[#800000] shadow-sm"
+                className="w-full pl-9 pr-8 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#800000]/20 focus:border-[#800000] shadow-sm"
               />
               <Search size={15} className="absolute left-3 top-2.5 text-slate-400" />
-            </div>
-          </div>
-
-          {/* Grid of Bank Cards (Dense Layout Matching Image 1) */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
-            {filteredPartners.map((partner) => (
-              <div
-                key={partner.id}
-                className="bg-white border border-slate-200 rounded-xl p-3 h-[72px] flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group cursor-pointer"
-              >
-                <div
-                  className="font-black text-xs sm:text-sm tracking-tight mb-0.5"
-                  style={{ color: partner.color }}
+              {searchPartner && (
+                <button 
+                  onClick={() => setSearchPartner('')}
+                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-700 text-xs font-bold"
                 >
-                  {partner.name}
-                </div>
-                <div className="text-[9px] font-bold text-slate-400 truncate max-w-[120px]">
-                  {partner.fullName}
-                </div>
-              </div>
-            ))}
-
-            <div className="bg-white border-2 border-dashed border-red-200 rounded-xl p-3 h-[72px] flex flex-col items-center justify-center text-center shadow-sm hover:bg-red-50/50 transition-all cursor-pointer">
-              <div className="font-extrabold text-xs text-[#800000] mb-0.5">
-                &amp; Many More...
-              </div>
-              <div className="text-[9px] font-bold text-slate-500">
-                Partners
-              </div>
+                  ✕
+                </button>
+              )}
             </div>
           </div>
+
+          {/* Grid of Authentic Brand Logo Cards */}
+          {filteredPartners.length === 0 ? (
+            <div className="py-12 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center">
+              <Search size={36} className="text-slate-300 mb-2" />
+              <div className="text-sm font-bold text-slate-700 mb-1">No partner found matching "{searchPartner}"</div>
+              <button 
+                onClick={() => { setSearchPartner(''); setPartnerFilter('all'); }}
+                className="inline-flex items-center gap-1 text-xs font-bold text-[#800000] hover:underline uppercase tracking-wider"
+              >
+                <RotateCcw size={12} /> Reset Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+              {filteredPartners.map((partner) => (
+                <div 
+                  key={partner.id}
+                  className="bg-white border border-slate-200/90 rounded-xl px-3 py-2.5 h-[76px] sm:h-[80px] flex items-center justify-center text-center shadow-sm hover:shadow-lg hover:border-red-300 hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer overflow-hidden"
+                  title={partner.fullName}
+                >
+                  <div className="w-full h-full flex items-center justify-center">
+                    {renderPartnerBrandLogo(partner.id)}
+                  </div>
+                </div>
+              ))}
+
+              <div className="bg-white border-2 border-dashed border-red-200 rounded-xl px-3 py-2.5 h-[76px] sm:h-[80px] flex flex-col items-center justify-center text-center shadow-sm hover:bg-red-50/50 transition-all cursor-pointer">
+                <div className="font-extrabold text-xs text-[#800000] mb-0.5">
+                  &amp; Many More...
+                </div>
+                <div className="text-[9px] font-bold text-slate-500">
+                  Partners
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
       </section>
@@ -528,7 +899,7 @@ export default function LandingPage() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4 text-center">
-
+          
           <div className="flex flex-col items-center p-3 rounded-lg hover:bg-slate-800/60 transition-colors">
             <div className="h-12 w-12 rounded-full bg-[#1E293B] border border-slate-700 text-[#C59B27] flex items-center justify-center mb-2.5">
               <Landmark size={22} />
@@ -584,7 +955,7 @@ export default function LandingPage() {
       {/* ── Section 4: Eligibility Form + Service Areas + Calculators ── */}
       <section id="eligibility-form" className="py-16 bg-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-
+          
           {/* Block 1: Check Loan Eligibility Form */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden">
             <div className="bg-[#0B192C] text-white p-4 text-center">
@@ -606,7 +977,7 @@ export default function LandingPage() {
                   <p className="text-xs text-slate-500 mb-5">
                     Our loan advisor will contact you with curated loan offers shortly.
                   </p>
-                  <button
+                  <button 
                     onClick={() => setEligibilitySubmitted(false)}
                     className="text-xs font-bold text-[#800000] uppercase hover:underline"
                   >
@@ -619,7 +990,7 @@ export default function LandingPage() {
                     <label htmlFor="eligibility-name" className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
                       Full Name
                     </label>
-                    <input
+                    <input 
                       id="eligibility-name"
                       type="text"
                       placeholder="Enter Your Name"
@@ -634,7 +1005,7 @@ export default function LandingPage() {
                     <label htmlFor="eligibility-mobile" className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
                       Mobile Number
                     </label>
-                    <input
+                    <input 
                       id="eligibility-mobile"
                       type="tel"
                       placeholder="Enter Mobile Number"
@@ -649,7 +1020,7 @@ export default function LandingPage() {
                     <label htmlFor="eligibility-loantype" className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
                       Loan Type
                     </label>
-                    <select
+                    <select 
                       id="eligibility-loantype"
                       value={eligibilityForm.loanType}
                       onChange={(e) => setEligibilityForm({ ...eligibilityForm, loanType: e.target.value })}
@@ -669,7 +1040,7 @@ export default function LandingPage() {
                     <label htmlFor="eligibility-city" className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
                       City
                     </label>
-                    <select
+                    <select 
                       id="eligibility-city"
                       value={eligibilityForm.city}
                       onChange={(e) => setEligibilityForm({ ...eligibilityForm, city: e.target.value })}
@@ -683,7 +1054,7 @@ export default function LandingPage() {
                     </select>
                   </div>
 
-                  <button
+                  <button 
                     type="submit"
                     disabled={submittingEligibility}
                     className="w-full py-2.5 mt-1 rounded-lg text-xs font-bold text-white bg-[#800000] hover:bg-[#660000] transition-all shadow-md uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
@@ -736,10 +1107,10 @@ export default function LandingPage() {
               {/* Vector Map Graphic */}
               <div className="relative bg-red-50/50 rounded-xl p-3 border border-red-100 flex items-center justify-center min-h-[170px]">
                 <svg viewBox="0 0 200 220" className="w-full h-auto max-h-[160px] filter drop-shadow">
-                  <path
-                    d="M30 20 Q100 10 170 30 Q180 80 160 120 Q120 190 90 210 Q60 170 40 110 Z"
-                    fill="#FEE2E2"
-                    stroke="#800000"
+                  <path 
+                    d="M30 20 Q100 10 170 30 Q180 80 160 120 Q120 190 90 210 Q60 170 40 110 Z" 
+                    fill="#FEE2E2" 
+                    stroke="#800000" 
                     strokeWidth="2"
                     strokeDasharray="4 2"
                   />
@@ -771,7 +1142,7 @@ export default function LandingPage() {
             </h3>
 
             <div className="space-y-1.5 mb-5">
-              <button
+              <button 
                 onClick={() => openCalculatorModal('Home Loan EMI Calculator', 3000000, 8.5, 20)}
                 className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-red-50 text-left transition-colors group cursor-pointer"
               >
@@ -782,7 +1153,7 @@ export default function LandingPage() {
                 <ChevronRight size={13} className="text-slate-400 group-hover:text-[#800000]" />
               </button>
 
-              <button
+              <button 
                 onClick={() => openCalculatorModal('Personal Loan EMI Calculator', 500000, 10.5, 5)}
                 className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-red-50 text-left transition-colors group cursor-pointer"
               >
@@ -793,7 +1164,7 @@ export default function LandingPage() {
                 <ChevronRight size={13} className="text-slate-400 group-hover:text-[#800000]" />
               </button>
 
-              <button
+              <button 
                 onClick={() => openCalculatorModal('Business Loan EMI Calculator', 2000000, 9.25, 7)}
                 className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-red-50 text-left transition-colors group cursor-pointer"
               >
@@ -804,7 +1175,7 @@ export default function LandingPage() {
                 <ChevronRight size={13} className="text-slate-400 group-hover:text-[#800000]" />
               </button>
 
-              <button
+              <button 
                 onClick={() => openCalculatorModal('Loan Against Property Calculator', 5000000, 8.75, 15)}
                 className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-red-50 text-left transition-colors group cursor-pointer"
               >
@@ -815,7 +1186,7 @@ export default function LandingPage() {
                 <ChevronRight size={13} className="text-slate-400 group-hover:text-[#800000]" />
               </button>
 
-              <button
+              <button 
                 onClick={() => openCalculatorModal('Balance Transfer Savings Calculator', 2500000, 8.4, 15)}
                 className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-red-50 text-left transition-colors group cursor-pointer"
               >
@@ -826,7 +1197,7 @@ export default function LandingPage() {
                 <ChevronRight size={13} className="text-slate-400 group-hover:text-[#800000]" />
               </button>
 
-              <button
+              <button 
                 onClick={() => openCalculatorModal('Stamp Duty Calculator', 4000000, 7.0, 1)}
                 className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-red-50 text-left transition-colors group cursor-pointer"
               >
@@ -837,7 +1208,7 @@ export default function LandingPage() {
                 <ChevronRight size={13} className="text-slate-400 group-hover:text-[#800000]" />
               </button>
 
-              <button
+              <button 
                 onClick={() => openCalculatorModal('Processing Fee + GST Calculator', 2000000, 0.5, 1)}
                 className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-red-50 text-left transition-colors group cursor-pointer"
               >
@@ -848,7 +1219,7 @@ export default function LandingPage() {
                 <ChevronRight size={13} className="text-slate-400 group-hover:text-[#800000]" />
               </button>
 
-              <button
+              <button 
                 onClick={() => openCalculatorModal('Eligibility Calculator', 3500000, 8.5, 25)}
                 className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-red-50 text-left transition-colors group cursor-pointer"
               >
@@ -860,7 +1231,7 @@ export default function LandingPage() {
               </button>
             </div>
 
-            <button
+            <button 
               onClick={() => openCalculatorModal('Loan EMI Calculator Advisor', 2500000, 8.5, 20)}
               className="w-full py-2.5 rounded-lg text-xs font-bold text-white bg-[#800000] hover:bg-[#660000] transition-all shadow-md uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer"
             >
@@ -871,7 +1242,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Section 5: LOANS WE OFFER (PLACED LOWER DOWN) ── */}
+      {/* ── Section 5: LOANS WE OFFER (7 Cards Grid) ── */}
       <section id="loans" className="py-16 bg-white border-t border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-1.5">
@@ -888,7 +1259,7 @@ export default function LandingPage() {
 
         {/* Loan Cards Grid (7 Cards Matching Image 2) */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3.5">
-
+          
           {/* Card 1: Home Loan */}
           <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
             <div>
@@ -899,7 +1270,7 @@ export default function LandingPage() {
               <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
               <div className="text-base font-black text-[#800000] mb-3">7.50%*</div>
             </div>
-            <button
+            <button 
               onClick={() => scrollToSection('eligibility-form')}
               className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
             >
@@ -917,7 +1288,7 @@ export default function LandingPage() {
               <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
               <div className="text-base font-black text-[#800000] mb-3">8.75%*</div>
             </div>
-            <button
+            <button 
               onClick={() => scrollToSection('eligibility-form')}
               className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
             >
@@ -936,7 +1307,7 @@ export default function LandingPage() {
               <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
               <div className="text-base font-black text-[#800000] mb-3">8.50%*</div>
             </div>
-            <button
+            <button 
               onClick={() => scrollToSection('eligibility-form')}
               className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
             >
@@ -954,7 +1325,7 @@ export default function LandingPage() {
               <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
               <div className="text-base font-black text-[#800000] mb-3">10.50%*</div>
             </div>
-            <button
+            <button 
               onClick={() => scrollToSection('eligibility-form')}
               className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
             >
@@ -972,7 +1343,7 @@ export default function LandingPage() {
               <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
               <div className="text-base font-black text-[#800000] mb-3">10.50%*</div>
             </div>
-            <button
+            <button 
               onClick={() => scrollToSection('eligibility-form')}
               className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
             >
@@ -990,7 +1361,7 @@ export default function LandingPage() {
               <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
               <div className="text-base font-black text-[#800000] mb-3">8.75%*</div>
             </div>
-            <button
+            <button 
               onClick={() => scrollToSection('eligibility-form')}
               className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
             >
@@ -1008,7 +1379,7 @@ export default function LandingPage() {
               <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
               <div className="text-base font-black text-[#800000] mb-3">8.75%*</div>
             </div>
-            <button
+            <button 
               onClick={() => scrollToSection('eligibility-form')}
               className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
             >
@@ -1019,7 +1390,7 @@ export default function LandingPage() {
         </div>
 
         <div className="text-center mt-8">
-          <button
+          <button 
             onClick={() => scrollToSection('eligibility-form')}
             className="px-6 py-2.5 rounded-lg text-xs font-bold text-white bg-[#800000] hover:bg-[#660000] shadow-md hover:shadow-lg transition-all uppercase tracking-wider cursor-pointer"
           >
@@ -1046,7 +1417,7 @@ export default function LandingPage() {
         {/* 9 Step Roadmap Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-3 text-center">
-
+            
             {/* Step 01 */}
             <div className="flex flex-col items-center bg-slate-50 p-3 rounded-xl border border-slate-200/60 hover:shadow-md transition-shadow">
               <div className="h-8 w-8 rounded-full bg-[#800000] text-white font-black text-[11px] flex items-center justify-center mb-2 shadow-sm">
@@ -1181,7 +1552,7 @@ export default function LandingPage() {
       <section className="bg-[#800000] text-white py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-red-900/60">
-
+            
             <div className="flex flex-col items-center p-2">
               <div className="flex items-center gap-2 mb-1">
                 <Building size={28} className="text-amber-300" />
@@ -1221,7 +1592,7 @@ export default function LandingPage() {
       {/* ── Section 8: Ready to Take Next Step CTA ── */}
       <section id="contact" className="bg-[#700000] text-white py-10 border-t border-red-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
-
+          
           <div className="flex items-center gap-3.5">
             <div className="h-12 w-12 rounded-full bg-white/10 text-white flex items-center justify-center shrink-0 hidden sm:flex">
               <Phone size={24} />
@@ -1237,15 +1608,15 @@ export default function LandingPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-            <a
-              href="tel:+919003635556"
+            <a 
+              href="tel:+919003635556" 
               className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-white text-slate-900 hover:bg-slate-100 font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
             >
               <Phone size={15} className="text-[#800000]" /> 90036 35556
             </a>
-            <a
-              href="https://wa.me/919003635556"
-              target="_blank"
+            <a 
+              href="https://wa.me/919003635556" 
+              target="_blank" 
               rel="noreferrer"
               className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#25D366] text-white hover:bg-[#20ba59] font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
             >
@@ -1282,7 +1653,7 @@ export default function LandingPage() {
       <footer className="bg-slate-950 text-slate-400 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-10">
-
+            
             <div className="md:col-span-5 text-left">
               <div className="flex items-center gap-2.5 mb-3">
                 <img src={cosmosLogo} alt="Cosmos Finserve Logo" className="h-8 w-auto object-contain bg-white rounded p-1" />
@@ -1355,17 +1726,17 @@ export default function LandingPage() {
 
       {/* Floating Bottom Quick Contacts */}
       <div className="fixed bottom-5 right-5 flex flex-col gap-2.5 z-40">
-        <a
-          href="https://wa.me/919003635556"
-          target="_blank"
+        <a 
+          href="https://wa.me/919003635556" 
+          target="_blank" 
           rel="noopener noreferrer"
           className="h-11 w-11 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
           aria-label="Contact on WhatsApp"
         >
           <MessageSquare size={20} fill="white" stroke="none" />
         </a>
-        <a
-          href="tel:+919003635556"
+        <a 
+          href="tel:+919003635556" 
           className="h-11 w-11 bg-[#800000] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
           aria-label="Call Direct Advisor"
         >
@@ -1377,7 +1748,7 @@ export default function LandingPage() {
       {calculatorModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 relative my-6">
-
+            
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b pb-3 mb-5">
               <div className="flex items-center gap-2">
@@ -1386,7 +1757,7 @@ export default function LandingPage() {
                   {calcTitle}
                 </h3>
               </div>
-              <button
+              <button 
                 onClick={() => setCalculatorModalOpen(false)}
                 className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
@@ -1396,19 +1767,19 @@ export default function LandingPage() {
 
             {/* Slider & Input Controls */}
             <div className="space-y-5">
-
+              
               {/* Loan Amount */}
               <div>
                 <div className="flex justify-between items-center mb-1.5">
                   <label className="text-[11px] font-bold text-slate-700 uppercase">Loan Amount (₹)</label>
                   <span className="text-xs font-black text-[#800000]">₹ {calcAmount.toLocaleString('en-IN')}</span>
                 </div>
-                <input
-                  type="range"
-                  min={100000}
-                  max={50000000}
+                <input 
+                  type="range" 
+                  min={100000} 
+                  max={50000000} 
                   step={50000}
-                  value={calcAmount}
+                  value={calcAmount} 
                   onChange={(e) => setCalcAmount(Number(e.target.value))}
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#800000]"
                 />
@@ -1424,12 +1795,12 @@ export default function LandingPage() {
                   <label className="text-[11px] font-bold text-slate-700 uppercase">Interest Rate (% p.a.)</label>
                   <span className="text-xs font-black text-[#800000]">{calcRate}%</span>
                 </div>
-                <input
-                  type="range"
-                  min={6.5}
-                  max={18.0}
+                <input 
+                  type="range" 
+                  min={6.5} 
+                  max={18.0} 
                   step={0.1}
-                  value={calcRate}
+                  value={calcRate} 
                   onChange={(e) => setCalcRate(Number(e.target.value))}
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#800000]"
                 />
@@ -1445,12 +1816,12 @@ export default function LandingPage() {
                   <label className="text-[11px] font-bold text-slate-700 uppercase">Tenure (Years)</label>
                   <span className="text-xs font-black text-[#800000]">{calcTenure} Years</span>
                 </div>
-                <input
-                  type="range"
-                  min={1}
-                  max={30}
+                <input 
+                  type="range" 
+                  min={1} 
+                  max={30} 
                   step={1}
-                  value={calcTenure}
+                  value={calcTenure} 
                   onChange={(e) => setCalcTenure(Number(e.target.value))}
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#800000]"
                 />
@@ -1480,7 +1851,7 @@ export default function LandingPage() {
 
             {/* Apply Button */}
             <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
-              <button
+              <button 
                 onClick={() => {
                   setCalculatorModalOpen(false)
                   scrollToSection('eligibility-form')
@@ -1489,7 +1860,7 @@ export default function LandingPage() {
               >
                 Apply for Loan with this EMI
               </button>
-              <button
+              <button 
                 onClick={() => setCalculatorModalOpen(false)}
                 className="px-5 py-2.5 rounded-lg text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all uppercase tracking-wider cursor-pointer"
               >
