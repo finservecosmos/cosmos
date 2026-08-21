@@ -16,9 +16,9 @@ export default function FinanceIncomeExpenses() {
   const confirm = useConfirm()
   const { transactions, addTransaction, updateTransaction, removeTransaction, clients, financeEntries, investments } = useAppState()
 
-  // Date range selectors (Page Header)
-  const [headerFromDate, setHeaderFromDate] = useState('2026-06-01')
-  const [headerToDate, setHeaderToDate] = useState('2026-06-30')
+  // Date range selectors (Page Header) - default to empty for all-time view
+  const [headerFromDate, setHeaderFromDate] = useState('')
+  const [headerToDate, setHeaderToDate] = useState('')
 
   // Form toggle state
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -43,10 +43,10 @@ export default function FinanceIncomeExpenses() {
   const [editId, setEditId] = useState(null)
   const [viewRecord, setViewRecord] = useState(null)
 
-  // Table filter states
+  // Table filter states - default to empty for all-time view
   const [searchQuery, setSearchQuery] = useState('')
-  const [tableFromDate, setTableFromDate] = useState('2026-06-01')
-  const [tableToDate, setTableToDate] = useState('2026-06-30')
+  const [tableFromDate, setTableFromDate] = useState('')
+  const [tableToDate, setTableToDate] = useState('')
   const [filterType, setFilterType] = useState('All')
 
   // Pagination states
@@ -81,7 +81,9 @@ export default function FinanceIncomeExpenses() {
     const list = transactions || []
     return list.filter(t => {
       const d = t.date || ''
-      return d >= headerFromDate && d <= headerToDate
+      if (headerFromDate && d < headerFromDate) return false
+      if (headerToDate && d > headerToDate) return false
+      return true
     })
   }, [transactions, headerFromDate, headerToDate])
 
@@ -125,7 +127,9 @@ export default function FinanceIncomeExpenses() {
   }, [baseBankBalance, transactions])
 
   const lastMonthStats = useMemo(() => {
-    const fromD = new Date(headerFromDate)
+    const fromD = headerFromDate ? new Date(headerFromDate) : new Date()
+    if (isNaN(fromD.getTime())) return { income: 0, expenses: 0, profit: 0 }
+
     const prevMonthFrom = new Date(fromD.getFullYear(), fromD.getMonth() - 1, 1)
     const prevMonthTo = new Date(fromD.getFullYear(), fromD.getMonth(), 0)
     
@@ -167,7 +171,9 @@ export default function FinanceIncomeExpenses() {
   const derivedRecordsList = useMemo(() => {
     return dateFilteredTransactions.filter(t => {
       const d = t.date || ''
-      const matchDates = d >= tableFromDate && d <= tableToDate
+      let matchDates = true
+      if (tableFromDate) matchDates = matchDates && d >= tableFromDate
+      if (tableToDate) matchDates = matchDates && d <= tableToDate
 
       const query = searchQuery.toLowerCase().trim()
       const matchSearch = !query ||
@@ -393,6 +399,7 @@ export default function FinanceIncomeExpenses() {
   const formatDateDisplay = (dateStr) => {
     if (!dateStr) return '-'
     const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return dateStr || '-'
     const options = { day: '2-digit', month: 'short', year: 'numeric' }
     return d.toLocaleDateString('en-GB', options)
   }
@@ -777,7 +784,7 @@ export default function FinanceIncomeExpenses() {
             </div>
           </div>
 
-          <div style={{ overflowX: 'auto', paddingBottom: 140 }}>
+          <div style={{ overflowX: 'auto' }}>
             <table className="data-table">
               <thead>
                 <tr>

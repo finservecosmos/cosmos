@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { step1Schema, step2Schema, step3Schema, clientSchema } from '../../../shared/lib/schemas';
-import { nextClientId } from '../../../context/AppStateContext';
+import { nextClientId } from '../../../shared/lib/idGenerator';
 
 export const emptyClient = {
   name: '', phone: '', loan_type: 'Housing', amount: 0,

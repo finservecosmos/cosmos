@@ -568,7 +568,7 @@ export default function FinanceOverview() {
               </button>
             </div>
 
-            <div style={{ overflowX: 'auto', paddingBottom: 160 }}>
+            <div style={{ overflowX: 'auto' }}>
               <table className="data-table">
                 <thead>
                   <tr>
