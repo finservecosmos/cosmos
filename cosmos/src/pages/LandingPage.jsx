@@ -118,7 +118,7 @@ export default function LandingPage() {
   const [calcRate, setCalcRate] = useState(8.5)
   const [calcTenure, setCalcTenure] = useState(20)
 
-  // Smooth scroll
+  // Smooth scroll helper
   const scrollToSection = (id) => {
     setMobileMenuOpen(false)
     const element = document.getElementById(id)
@@ -218,7 +218,7 @@ export default function LandingPage() {
   return (
     <div className="landing-layout selection:bg-red-900 selection:text-white">
       
-      {/* ── Top Bar ── */}
+      {/* ── Top Announcement Strip ── */}
       <div className="bg-[#800000] text-white py-1.5 px-4 text-[11px] font-semibold border-b border-red-900/60">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-1.5">
           
@@ -342,7 +342,7 @@ export default function LandingPage() {
         )}
       </header>
 
-      {/* ── Hero Section ── */}
+      {/* ── Section 1: Hero Section ── */}
       <section id="home" className="hero-section pt-24 lg:pt-28 pb-16 bg-gradient-to-b from-red-50/40 via-white to-slate-50 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
@@ -431,160 +431,99 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Section 2: Loans We Offer ── */}
-      <section id="loans" className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-1.5">
-            <span className="h-[2px] w-10 bg-gradient-to-r from-transparent to-[#C59B27]"></span>
-            <h2 className="text-xl sm:text-2xl font-black text-[#800000] uppercase tracking-wider">
-              LOANS WE OFFER
+      {/* ── Section 2: OUR BANKING & NBFC PARTNERS (PLACED HIGHER UP) ── */}
+      <section id="banks-nbfc" className="py-16 bg-slate-50 border-t border-b border-slate-200">
+        
+        {/* Maroon Banner Header */}
+        <div className="bg-[#800000] text-white py-8 px-4 mb-10 text-center shadow-md">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider mb-1 text-white">
+              OUR BANKING &amp; NBFC PARTNERS
             </h2>
-            <span className="h-[2px] w-10 bg-gradient-to-l from-transparent to-[#C59B27]"></span>
+            <p className="text-xs text-slate-200 font-medium">
+              We are tied up with 40+ leading Banks &amp; NBFCs to provide you the best loan solutions.
+            </p>
           </div>
-          <p className="text-xs text-slate-500 max-w-lg mx-auto">
-            Wide portfolio of loan products with competitive interest rates and hassle-free processing.
-          </p>
         </div>
 
-        {/* Loan Cards Grid (7 Cards Matching Image 2) */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3.5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Card 1: Home Loan */}
-          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
-            <div>
-              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
-                <HomeIcon size={22} />
-              </div>
-              <h3 className="text-xs font-black text-slate-900 mb-1">Home Loan</h3>
-              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
-              <div className="text-base font-black text-[#800000] mb-3">7.50%*</div>
+          {/* Search & Filter Toolbar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-1.5 p-1 bg-slate-200/80 rounded-lg w-full sm:w-auto">
+              <button
+                onClick={() => setPartnerFilter('all')}
+                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${
+                  partnerFilter === 'all'
+                    ? 'bg-[#800000] text-white shadow-sm'
+                    : 'text-slate-700 hover:bg-slate-300/50'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setPartnerFilter('bank')}
+                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${
+                  partnerFilter === 'bank'
+                    ? 'bg-[#800000] text-white shadow-sm'
+                    : 'text-slate-700 hover:bg-slate-300/50'
+                }`}
+              >
+                Banks
+              </button>
+              <button
+                onClick={() => setPartnerFilter('nbfc')}
+                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${
+                  partnerFilter === 'nbfc'
+                    ? 'bg-[#800000] text-white shadow-sm'
+                    : 'text-slate-700 hover:bg-slate-300/50'
+                }`}
+              >
+                NBFCs
+              </button>
             </div>
-            <button 
-              onClick={() => scrollToSection('eligibility-form')}
-              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
-            >
-              Apply Now
-            </button>
+
+            <div className="relative w-full sm:w-72">
+              <input 
+                type="text"
+                placeholder="Search Bank or NBFC"
+                value={searchPartner}
+                onChange={(e) => setSearchPartner(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#800000]/20 focus:border-[#800000] shadow-sm"
+              />
+              <Search size={15} className="absolute left-3 top-2.5 text-slate-400" />
+            </div>
           </div>
 
-          {/* Card 2: Loan Against Property */}
-          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
-            <div>
-              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
-                <Building2 size={22} />
+          {/* Grid of Bank Cards (Dense Layout Matching Image 1) */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+            {filteredPartners.map((partner) => (
+              <div 
+                key={partner.id}
+                className="bg-white border border-slate-200 rounded-xl p-3 h-[72px] flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group cursor-pointer"
+              >
+                <div 
+                  className="font-black text-xs sm:text-sm tracking-tight mb-0.5"
+                  style={{ color: partner.color }}
+                >
+                  {partner.name}
+                </div>
+                <div className="text-[9px] font-bold text-slate-400 truncate max-w-[120px]">
+                  {partner.fullName}
+                </div>
               </div>
-              <h3 className="text-xs font-black text-slate-900 mb-1">Loan Against Property</h3>
-              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
-              <div className="text-base font-black text-[#800000] mb-3">8.75%*</div>
+            ))}
+
+            <div className="bg-white border-2 border-dashed border-red-200 rounded-xl p-3 h-[72px] flex flex-col items-center justify-center text-center shadow-sm hover:bg-red-50/50 transition-all cursor-pointer">
+              <div className="font-extrabold text-xs text-[#800000] mb-0.5">
+                &amp; Many More...
+              </div>
+              <div className="text-[9px] font-bold text-slate-500">
+                Partners
+              </div>
             </div>
-            <button 
-              onClick={() => scrollToSection('eligibility-form')}
-              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
-            >
-              Apply Now
-            </button>
           </div>
 
-          {/* Card 3: Business Loan */}
-          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
-            <div>
-              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
-                <Briefcase size={22} />
-              </div>
-              <h3 className="text-xs font-black text-slate-900 mb-0.5">Business Loan</h3>
-              <div className="text-[9px] font-semibold text-slate-400 mb-1">(OD/CC/Term Loan)</div>
-              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
-              <div className="text-base font-black text-[#800000] mb-3">8.50%*</div>
-            </div>
-            <button 
-              onClick={() => scrollToSection('eligibility-form')}
-              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
-            >
-              Apply Now
-            </button>
-          </div>
-
-          {/* Card 4: Personal Loan */}
-          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
-            <div>
-              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
-                <UserCheck size={22} />
-              </div>
-              <h3 className="text-xs font-black text-slate-900 mb-1">Personal Loan</h3>
-              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
-              <div className="text-base font-black text-[#800000] mb-3">10.50%*</div>
-            </div>
-            <button 
-              onClick={() => scrollToSection('eligibility-form')}
-              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
-            >
-              Apply Now
-            </button>
-          </div>
-
-          {/* Card 5: Vehicle Loan */}
-          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
-            <div>
-              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
-                <Car size={22} />
-              </div>
-              <h3 className="text-xs font-black text-slate-900 mb-1">Vehicle Loan</h3>
-              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
-              <div className="text-base font-black text-[#800000] mb-3">10.50%*</div>
-            </div>
-            <button 
-              onClick={() => scrollToSection('eligibility-form')}
-              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
-            >
-              Apply Now
-            </button>
-          </div>
-
-          {/* Card 6: Working Capital Loan */}
-          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
-            <div>
-              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
-                <TrendingUp size={22} />
-              </div>
-              <h3 className="text-xs font-black text-slate-900 mb-1">Working Capital</h3>
-              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
-              <div className="text-base font-black text-[#800000] mb-3">8.75%*</div>
-            </div>
-            <button 
-              onClick={() => scrollToSection('eligibility-form')}
-              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
-            >
-              Apply Now
-            </button>
-          </div>
-
-          {/* Card 7: Balance Transfer & Top-up Loan */}
-          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group col-span-2 sm:col-span-1">
-            <div>
-              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
-                <ArrowRightLeft size={22} />
-              </div>
-              <h3 className="text-xs font-black text-slate-900 mb-1">BT &amp; Top-up Loan</h3>
-              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
-              <div className="text-base font-black text-[#800000] mb-3">8.75%*</div>
-            </div>
-            <button 
-              onClick={() => scrollToSection('eligibility-form')}
-              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
-            >
-              Apply Now
-            </button>
-          </div>
-
-        </div>
-
-        <div className="text-center mt-8">
-          <button 
-            onClick={() => scrollToSection('eligibility-form')}
-            className="px-6 py-2.5 rounded-lg text-xs font-bold text-white bg-[#800000] hover:bg-[#660000] shadow-md hover:shadow-lg transition-all uppercase tracking-wider cursor-pointer"
-          >
-            View All Loan Products
-          </button>
         </div>
       </section>
 
@@ -651,7 +590,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Section 4: Eligibility Form + Service Areas + Calculators (3 Equal Columns) ── */}
+      {/* ── Section 4: Eligibility Form + Service Areas + Calculators ── */}
       <section id="eligibility-form" className="py-16 bg-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
@@ -941,99 +880,160 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Section 5: Banking & NBFC Partners ── */}
-      <section id="banks-nbfc" className="py-16 bg-slate-50 border-t border-slate-200">
-        
-        {/* Maroon Banner Header */}
-        <div className="bg-[#800000] text-white py-8 px-4 mb-10 text-center shadow-md">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider mb-1 text-white">
-              OUR BANKING &amp; NBFC PARTNERS
+      {/* ── Section 5: LOANS WE OFFER (PLACED LOWER DOWN) ── */}
+      <section id="loans" className="py-16 bg-white border-t border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12">
+          <div className="flex items-center justify-center gap-3 mb-1.5">
+            <span className="h-[2px] w-10 bg-gradient-to-r from-transparent to-[#C59B27]"></span>
+            <h2 className="text-xl sm:text-2xl font-black text-[#800000] uppercase tracking-wider">
+              LOANS WE OFFER
             </h2>
-            <p className="text-xs text-slate-200 font-medium">
-              We are tied up with 40+ leading Banks &amp; NBFCs to provide you the best loan solutions.
-            </p>
+            <span className="h-[2px] w-10 bg-gradient-to-l from-transparent to-[#C59B27]"></span>
           </div>
+          <p className="text-xs text-slate-500 max-w-lg mx-auto">
+            Wide portfolio of loan products with competitive interest rates and hassle-free processing.
+          </p>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Loan Cards Grid (7 Cards Matching Image 2) */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3.5">
           
-          {/* Search & Filter Toolbar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-            <div className="flex items-center gap-1.5 p-1 bg-slate-200/80 rounded-lg w-full sm:w-auto">
-              <button
-                onClick={() => setPartnerFilter('all')}
-                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${
-                  partnerFilter === 'all'
-                    ? 'bg-[#800000] text-white shadow-sm'
-                    : 'text-slate-700 hover:bg-slate-300/50'
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setPartnerFilter('bank')}
-                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${
-                  partnerFilter === 'bank'
-                    ? 'bg-[#800000] text-white shadow-sm'
-                    : 'text-slate-700 hover:bg-slate-300/50'
-                }`}
-              >
-                Banks
-              </button>
-              <button
-                onClick={() => setPartnerFilter('nbfc')}
-                className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase transition-all cursor-pointer ${
-                  partnerFilter === 'nbfc'
-                    ? 'bg-[#800000] text-white shadow-sm'
-                    : 'text-slate-700 hover:bg-slate-300/50'
-                }`}
-              >
-                NBFCs
-              </button>
+          {/* Card 1: Home Loan */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
+            <div>
+              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
+                <HomeIcon size={22} />
+              </div>
+              <h3 className="text-xs font-black text-slate-900 mb-1">Home Loan</h3>
+              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
+              <div className="text-base font-black text-[#800000] mb-3">7.50%*</div>
             </div>
-
-            <div className="relative w-full sm:w-72">
-              <input 
-                type="text"
-                placeholder="Search Bank or NBFC"
-                value={searchPartner}
-                onChange={(e) => setSearchPartner(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#800000]/20 focus:border-[#800000] shadow-sm"
-              />
-              <Search size={15} className="absolute left-3 top-2.5 text-slate-400" />
-            </div>
+            <button 
+              onClick={() => scrollToSection('eligibility-form')}
+              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
+            >
+              Apply Now
+            </button>
           </div>
 
-          {/* Grid of Bank Cards (Matching Dense Layout in Image 1) */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
-            {filteredPartners.map((partner) => (
-              <div 
-                key={partner.id}
-                className="bg-white border border-slate-200 rounded-xl p-3 h-[72px] flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group cursor-pointer"
-              >
-                <div 
-                  className="font-black text-xs sm:text-sm tracking-tight mb-0.5"
-                  style={{ color: partner.color }}
-                >
-                  {partner.name}
-                </div>
-                <div className="text-[9px] font-bold text-slate-400 truncate max-w-[120px]">
-                  {partner.fullName}
-                </div>
+          {/* Card 2: Loan Against Property */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
+            <div>
+              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
+                <Building2 size={22} />
               </div>
-            ))}
-
-            <div className="bg-white border-2 border-dashed border-red-200 rounded-xl p-3 h-[72px] flex flex-col items-center justify-center text-center shadow-sm hover:bg-red-50/50 transition-all cursor-pointer">
-              <div className="font-extrabold text-xs text-[#800000] mb-0.5">
-                &amp; Many More...
-              </div>
-              <div className="text-[9px] font-bold text-slate-500">
-                Partners
-              </div>
+              <h3 className="text-xs font-black text-slate-900 mb-1">Loan Against Property</h3>
+              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
+              <div className="text-base font-black text-[#800000] mb-3">8.75%*</div>
             </div>
+            <button 
+              onClick={() => scrollToSection('eligibility-form')}
+              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
+            >
+              Apply Now
+            </button>
           </div>
 
+          {/* Card 3: Business Loan */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
+            <div>
+              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
+                <Briefcase size={22} />
+              </div>
+              <h3 className="text-xs font-black text-slate-900 mb-0.5">Business Loan</h3>
+              <div className="text-[9px] font-semibold text-slate-400 mb-1">(OD/CC/Term Loan)</div>
+              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
+              <div className="text-base font-black text-[#800000] mb-3">8.50%*</div>
+            </div>
+            <button 
+              onClick={() => scrollToSection('eligibility-form')}
+              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
+            >
+              Apply Now
+            </button>
+          </div>
+
+          {/* Card 4: Personal Loan */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
+            <div>
+              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
+                <UserCheck size={22} />
+              </div>
+              <h3 className="text-xs font-black text-slate-900 mb-1">Personal Loan</h3>
+              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
+              <div className="text-base font-black text-[#800000] mb-3">10.50%*</div>
+            </div>
+            <button 
+              onClick={() => scrollToSection('eligibility-form')}
+              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
+            >
+              Apply Now
+            </button>
+          </div>
+
+          {/* Card 5: Vehicle Loan */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
+            <div>
+              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
+                <Car size={22} />
+              </div>
+              <h3 className="text-xs font-black text-slate-900 mb-1">Vehicle Loan</h3>
+              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
+              <div className="text-base font-black text-[#800000] mb-3">10.50%*</div>
+            </div>
+            <button 
+              onClick={() => scrollToSection('eligibility-form')}
+              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
+            >
+              Apply Now
+            </button>
+          </div>
+
+          {/* Card 6: Working Capital Loan */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group">
+            <div>
+              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
+                <TrendingUp size={22} />
+              </div>
+              <h3 className="text-xs font-black text-slate-900 mb-1">Working Capital</h3>
+              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
+              <div className="text-base font-black text-[#800000] mb-3">8.75%*</div>
+            </div>
+            <button 
+              onClick={() => scrollToSection('eligibility-form')}
+              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
+            >
+              Apply Now
+            </button>
+          </div>
+
+          {/* Card 7: Balance Transfer & Top-up Loan */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all text-center flex flex-col justify-between group col-span-2 sm:col-span-1">
+            <div>
+              <div className="h-12 w-12 rounded-full bg-red-50 text-[#800000] mx-auto flex items-center justify-center mb-3 group-hover:bg-[#800000] group-hover:text-white transition-colors">
+                <ArrowRightLeft size={22} />
+              </div>
+              <h3 className="text-xs font-black text-slate-900 mb-1">BT &amp; Top-up Loan</h3>
+              <div className="text-[10px] text-slate-500 font-semibold mb-0.5">ROI Starting From</div>
+              <div className="text-base font-black text-[#800000] mb-3">8.75%*</div>
+            </div>
+            <button 
+              onClick={() => scrollToSection('eligibility-form')}
+              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
+            >
+              Apply Now
+            </button>
+          </div>
+
+        </div>
+
+        <div className="text-center mt-8">
+          <button 
+            onClick={() => scrollToSection('eligibility-form')}
+            className="px-6 py-2.5 rounded-lg text-xs font-bold text-white bg-[#800000] hover:bg-[#660000] shadow-md hover:shadow-lg transition-all uppercase tracking-wider cursor-pointer"
+          >
+            View All Loan Products
+          </button>
         </div>
       </section>
 
