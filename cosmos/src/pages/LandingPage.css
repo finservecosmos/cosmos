@@ -1,4 +1,4 @@
-/* ── CosmosFinance Landing Page Custom Styling ─────────────────────────────────────────── */
+/* ── CosmosFinserve Landing Page Custom Styling ─────────────────────────────────────────── */
 
 .landing-layout {
   font-family: 'Plus Jakarta Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -9,123 +9,68 @@
   overflow-x: hidden;
 }
 
+/* Top header announcement strip */
+.top-header-strip {
+  background-color: #800000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* Sticky Header styling */
 .landing-header {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
   z-index: 50;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(241, 245, 249, 0.9);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   transition: all 0.3s ease;
 }
 
-/* Quick contact buttons override */
+/* Hero Section */
+.hero-heading {
+  letter-spacing: -0.02em;
+}
+
+/* Floating bottom contacts */
 .fixed.bottom-6.right-6 {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Hide scrollbar utility for the tab headers */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+/* Bank partner card hover effects */
+.partner-card-glow {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Accent element utility classes */
-.text-accent {
-  color: var(--accent, #c0392b);
+.partner-card-glow:hover {
+  border-color: #800000;
+  box-shadow: 0 10px 25px -5px rgba(128, 0, 0, 0.15);
 }
 
-.bg-accent {
-  background-color: var(--accent, #c0392b);
-}
-
-.bg-accentHover {
-  background-color: var(--accent-hover, #a93226);
-}
-
-/* Premium Badge stylings */
-.badge-excellence {
-  box-shadow: 0 4px 12px rgba(192, 57, 43, 0.06);
-  animation: pulseLight 3s infinite alternate;
-}
-
-@keyframes pulseLight {
-  0% {
-    box-shadow: 0 4px 12px rgba(192, 57, 43, 0.06);
-    border-color: rgba(192, 57, 43, 0.15);
-  }
-  100% {
-    box-shadow: 0 4px 20px rgba(192, 57, 43, 0.12);
-    border-color: rgba(192, 57, 43, 0.3);
-  }
-}
-
-/* Service Card Lift up animation */
-.service-card {
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.service-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
-  border-color: rgba(192, 57, 43, 0.1);
-}
-
-.service-card:hover .icon-box {
-  background-color: var(--accent, #c0392b);
-  color: #ffffff;
-  transform: scale(1.05);
-}
-
-.icon-box {
-  transition: all 0.3s ease;
-}
-
-/* Smooth active state transitions for tab panels */
-.tab-content-panel {
-  animation: fadeInPanel 0.4s ease-out;
-}
-
-@keyframes fadeInPanel {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Form inputs hover effect */
+/* Form focus styles */
 input:focus, select:focus, textarea:focus {
-  box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.08);
-  border-color: var(--accent, #c0392b) !important;
+  box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1) !important;
+  border-color: #800000 !important;
 }
 
-/* Image zoom/shadow transitions */
-.zoom-effect-wrap img {
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.zoom-effect-wrap:hover img {
-  transform: scale(1.03);
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
 }
 
-/* Dashboard Login Button active highlight styles */
-.dashboard-login-btn {
-  box-shadow: 0 4px 12px rgba(192, 57, 43, 0.25);
-  transition: all 0.3s ease;
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 
-.dashboard-login-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(192, 57, 43, 0.35);
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
