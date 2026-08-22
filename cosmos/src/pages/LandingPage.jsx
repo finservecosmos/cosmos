@@ -45,31 +45,100 @@ import cosmosLogo from '../assets/cosmosLogo.webp'
 import heroAdvisorChart from '../assets/hero_advisor_chart.png'
 import './LandingPage.css'
 
+// Imported authentic partner logos uploaded in src/assets/logo
+import logoAbCapital from '../assets/logo/ABCAPITAL.NS_BIG.png'
+import logoAuBank from '../assets/logo/AUBANK.NS_BIG.png'
+import logoBajajFinserv from '../assets/logo/BAJAJFINSV.NS_BIG.png'
+import logoBob from '../assets/logo/Bank_of_Baroda_logo_orange_background.png'
+import logoBoi from '../assets/logo/Bank_of_India_logo_PNG2.png'
+import logoChola from '../assets/logo/CHOLAFIN.NS_BIG.png'
+import logoCanara from '../assets/logo/Canara_Bank_Logo.svg'
+import logoCbi from '../assets/logo/Central_Bank_of_India_Logo.svg'
+import logoDcb from '../assets/logo/Development_Credit_Bank.svg'
+import logoFederal from '../assets/logo/Federal_bank_India.svg'
+import logoHdb from '../assets/logo/HDB_Financial_Services_logo.svg'
+import logoIdbi from '../assets/logo/IDBI.NS_BIG.png'
+import logoIndianBank from '../assets/logo/INDIANB.NS_BIG.png'
+import logoIndusind from '../assets/logo/IndusInd_Bank_SVG_Logo.svg'
+import logoKotak from '../assets/logo/Kotak.png'
+import logoLt from '../assets/logo/L&T finacial.jpg'
+import logoIdfc from '../assets/logo/Logo_of_IDFC_First_Bank.svg'
+import logoMuthoot from '../assets/logo/MUTHOOTFIN.NS_BIG.png'
+import logoMahindra from '../assets/logo/Mahindra-finance-logo.png'
+import logoPnb from '../assets/logo/Punjab_National_Bank_new_logo.svg'
+import logoRbl from '../assets/logo/RBLBANK.NS_BIG.png'
+import logoShriram from '../assets/logo/SHRIRAMFIN.NS_BIG.png'
+import logoSundaram from '../assets/logo/Sundaram_Finance_Limited_Logo.jpg'
+import logoTata from '../assets/logo/Tata_Capital_Logo-01.jpg'
+import logoUnion from '../assets/logo/Union_Bank_of_India_Logo.svg'
+import logoPiramal from '../assets/logo/Piramal.svg'
+import logoIkf from '../assets/logo/ikf.png'
+import logoNiva from '../assets/logo/nivi.png'
+import logoEdelweiss from '../assets/logo/Edelweiss_Group_logo.svg'
+import logoMas from '../assets/logo/masfinancial.jpg'
+import logoVivriti from '../assets/logo/vivriti-65800cd2e6718.webp'
+import logoYes from '../assets/logo/Yes_Bank_Logo_in_2024.png'
+
+const LOCAL_PARTNER_LOGOS = {
+  aditya: logoAbCapital,
+  au: logoAuBank,
+  bajaj: logoBajajFinserv,
+  bob: logoBob,
+  boi: logoBoi,
+  chola: logoChola,
+  canara: logoCanara,
+  cbi: logoCbi,
+  dcb: logoDcb,
+  edelweiss: logoEdelweiss,
+  federal: logoFederal,
+  hdb: logoHdb,
+  idbi: logoIdbi,
+  ikf: logoIkf,
+  indian: logoIndianBank,
+  indusind: logoIndusind,
+  kotak: logoKotak,
+  lt: logoLt,
+  idfc: logoIdfc,
+  mas: logoMas,
+  muthoot: logoMuthoot,
+  mahindra: logoMahindra,
+  niva: logoNiva,
+  piramal: logoPiramal,
+  pnb: logoPnb,
+  rbl: logoRbl,
+  shriram: logoShriram,
+  sundaram: logoSundaram,
+  tata: logoTata,
+  union: logoUnion,
+  vivriti: logoVivriti,
+  yes: logoYes,
+}
+
 // Master list of 38 Banks & NBFCs with authentic brand metadata
 const PARTNERS_LIST = [
-  { id: 'sbi', name: 'SBI', fullName: 'State Bank of India', type: 'bank', color: '#0083CA' },
-  { id: 'hdfc', name: 'HDFC BANK', fullName: 'HDFC Bank', type: 'bank', color: '#004B8D' },
-  { id: 'icici', name: 'ICICI Bank', fullName: 'ICICI Bank', type: 'bank', color: '#F37021' },
-  { id: 'axis', name: 'AXIS BANK', fullName: 'Axis Bank', type: 'bank', color: '#97144D' },
-  { id: 'kotak', name: 'kotak', fullName: 'Kotak Mahindra Bank', type: 'bank', color: '#ED1C24' },
-  { id: 'yes', name: 'YES BANK', fullName: 'Yes Bank', type: 'bank', color: '#005A9C' },
-  { id: 'idfc', name: 'IDFC FIRST Bank', fullName: 'IDFC FIRST Bank', type: 'bank', color: '#9E1B32' },
-  { id: 'indusind', name: 'IndusInd Bank', fullName: 'IndusInd Bank', type: 'bank', color: '#941617' },
-  { id: 'boi', name: 'Bank of India', fullName: 'Bank of India', type: 'bank', color: '#E31837' },
-  { id: 'pnb', name: 'pnb', fullName: 'Punjab National Bank', type: 'bank', color: '#A00000' },
-  { id: 'union', name: 'Union Bank of India', fullName: 'Union Bank of India', type: 'bank', color: '#003B73' },
+  { id: 'sbi', name: 'SBI', fullName: 'State Bank of India', type: 'bank', color: '#00A5EC', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/State_Bank_of_India_logo.svg' },
+  { id: 'hdfc', name: 'HDFC BANK', fullName: 'HDFC Bank', type: 'bank', color: '#004B8D', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/28/HDFC_Bank_Logo.svg' },
+  { id: 'icici', name: 'ICICI Bank', fullName: 'ICICI Bank', type: 'bank', color: '#F37021', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg' },
+  { id: 'axis', name: 'AXIS BANK', fullName: 'Axis Bank', type: 'bank', color: '#97144D', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Axis_Bank_logo.svg' },
+  { id: 'kotak', name: 'kotak', fullName: 'Kotak Mahindra Bank', type: 'bank', color: '#ED1C24', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/af/Kotak_Mahindra_Bank_logo.svg' },
+  { id: 'yes', name: 'YES BANK', fullName: 'Yes Bank', type: 'bank', color: '#005A9C', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/YES_Bank_logo.svg' },
+  { id: 'idfc', name: 'IDFC FIRST Bank', fullName: 'IDFC FIRST Bank', type: 'bank', color: '#9E1B32', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/d/dc/IDFC_First_Bank_logo.svg' },
+  { id: 'indusind', name: 'IndusInd Bank', fullName: 'IndusInd Bank', type: 'bank', color: '#941617', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/IndusInd_Bank_logo.svg' },
+  { id: 'boi', name: 'Bank of India', fullName: 'Bank of India', type: 'bank', color: '#E31837', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/3/36/Bank_of_India_logo.svg' },
+  { id: 'pnb', name: 'pnb', fullName: 'Punjab National Bank', type: 'bank', color: '#A00000', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/f6/Punjab_National_Bank_Logo.svg' },
+  { id: 'union', name: 'Union Bank of India', fullName: 'Union Bank of India', type: 'bank', color: '#003B73', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/Union_Bank_of_India_Logo.svg' },
   { id: 'indian', name: 'Indian Bank', fullName: 'Indian Bank', type: 'bank', color: '#1F3A60' },
-  { id: 'canara', name: 'Canara Bank', fullName: 'Canara Bank', type: 'bank', color: '#0069B4' },
+  { id: 'canara', name: 'Canara Bank', fullName: 'Canara Bank', type: 'bank', color: '#0069B4', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/94/Canara_Bank_Logo.svg' },
   { id: 'cbi', name: 'Central Bank of India', fullName: 'Central Bank of India', type: 'bank', color: '#003399' },
-  { id: 'bob', name: 'Bank of Baroda', fullName: 'Bank of Baroda', type: 'bank', color: '#F26522' },
-  { id: 'federal', name: 'FEDERAL BANK', fullName: 'Federal Bank', type: 'bank', color: '#004A8F' },
+  { id: 'bob', name: 'Bank of Baroda', fullName: 'Bank of Baroda', type: 'bank', color: '#F26522', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Bank_of_Baroda_logo.svg' },
+  { id: 'federal', name: 'FEDERAL BANK', fullName: 'Federal Bank', type: 'bank', color: '#004A8F', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/52/Federal_Bank_Logo.svg' },
   { id: 'idbi', name: 'IDBI BANK', fullName: 'IDBI Bank', type: 'bank', color: '#008751' },
   { id: 'dcb', name: 'DCB BANK', fullName: 'DCB Bank', type: 'bank', color: '#00529B' },
   { id: 'rbl', name: 'RBL BANK', fullName: 'RBL Bank', type: 'bank', color: '#1A365D' },
   { id: 'au', name: 'AU SMALL FINANCE BANK', fullName: 'AU Small Finance Bank', type: 'nbfc', color: '#EE7203' },
-  { id: 'tata', name: 'TATA CAPITAL', fullName: 'Tata Capital', type: 'nbfc', color: '#005696' },
-  { id: 'lt', name: 'L&T Finance', fullName: 'L&T Finance', type: 'nbfc', color: '#005C9E' },
-  { id: 'bajaj', name: 'BAJAJ FINSERV', fullName: 'Bajaj Finserv', type: 'nbfc', color: '#0066B3' },
+  { id: 'tata', name: 'TATA CAPITAL', fullName: 'Tata Capital', type: 'nbfc', color: '#005696', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/Tata_Capital_logo.svg' },
+  { id: 'lt', name: 'L&T Finance', fullName: 'L&T Finance', type: 'nbfc', color: '#005C9E', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/L%26T_Finance_Holdings_logo.svg' },
+  { id: 'bajaj', name: 'BAJAJ FINSERV', fullName: 'Bajaj Finserv', type: 'nbfc', color: '#0066B3', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/99/Bajaj_Finserv_logo.svg' },
   { id: 'chola', name: 'Chola', fullName: 'Cholamandalam Finance', type: 'nbfc', color: '#E31B23' },
   { id: 'mahindra', name: 'Mahindra FINANCE', fullName: 'Mahindra Finance', type: 'nbfc', color: '#E31B23' },
   { id: 'aditya', name: 'ADITYA BIRLA CAPITAL', fullName: 'Aditya Birla Capital', type: 'nbfc', color: '#B91C1C' },
@@ -92,36 +161,47 @@ function renderPartnerBrandLogo(id) {
   switch (id) {
     case 'sbi':
       return (
-        <div className="flex items-center justify-center gap-1.5">
-          <svg className="w-6 h-6 shrink-0" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="45" fill="#0083CA" />
-            <circle cx="50" cy="35" r="15" fill="#FFFFFF" />
-            <rect x="44" y="35" width="12" height="40" fill="#FFFFFF" />
+        <div className="flex items-center justify-center gap-2">
+          <svg className="w-7 h-7 shrink-0" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="46" fill="#00A5EC" />
+            <circle cx="50" cy="50" r="14" fill="#FFFFFF" />
+            <rect x="44" y="50" width="12" height="46" fill="#FFFFFF" />
           </svg>
-          <span className="font-black text-sm tracking-tight text-[#0083CA]">SBI</span>
+          <span className="font-black text-base sm:text-lg tracking-tighter text-[#1C1765]">SBI</span>
         </div>
       )
     case 'hdfc':
       return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="w-5 h-5 bg-[#004B8D] relative shrink-0 p-0.5 flex items-center justify-center rounded-sm">
-            <div className="w-2.5 h-2.5 bg-[#E31B23]"></div>
-            <div className="absolute top-0 left-0 w-2 h-2 bg-white"></div>
-            <div className="absolute top-0 right-0 w-2 h-2 bg-white"></div>
-            <div className="absolute bottom-0 left-0 w-2 h-2 bg-white"></div>
-            <div className="absolute bottom-0 right-0 w-2 h-2 bg-white"></div>
+        <div className="flex items-center justify-center rounded overflow-hidden shadow-xs">
+          <div className="w-7 h-7 bg-[#E31B23] flex items-center justify-center shrink-0">
+            <svg className="w-full h-full" viewBox="0 0 100 100">
+              <rect width="100" height="100" fill="#E31B23" />
+              <rect x="15" y="15" width="70" height="70" fill="#FFFFFF" />
+              <rect x="42" y="0" width="16" height="100" fill="#FFFFFF" />
+              <rect x="0" y="42" width="100" height="16" fill="#FFFFFF" />
+              <rect x="30" y="30" width="40" height="40" fill="#004B8D" />
+            </svg>
           </div>
-          <span className="font-black text-xs sm:text-sm tracking-tighter text-[#004B8D]">HDFC BANK</span>
+          <div className="bg-[#004B8D] text-white font-black text-xs sm:text-sm tracking-tight px-2.5 py-1 flex items-center h-7">
+            HDFC BANK
+          </div>
         </div>
       )
     case 'icici':
       return (
         <div className="flex items-center justify-center gap-1.5">
-          <div className="w-5 h-5 rounded-full bg-[#F37021] text-white font-black text-[10px] flex items-center justify-center shrink-0 shadow-sm">
-            i
-          </div>
-          <span className="font-black text-xs sm:text-sm tracking-tight text-[#004B8D]">
-            ICICI <span className="text-[#F37021]">Bank</span>
+          <svg className="w-7 h-7 shrink-0" viewBox="0 0 100 100">
+            {/* Orange swoosh background */}
+            <ellipse cx="44" cy="54" rx="38" ry="44" fill="#F58220" transform="rotate(-22 44 54)" />
+            {/* Maroon main oval */}
+            <ellipse cx="50" cy="48" rx="36" ry="42" fill="#B02A1E" transform="rotate(-22 50 48)" />
+            {/* White 'i' dot */}
+            <circle cx="60" cy="24" r="7.5" fill="#FFFFFF" />
+            {/* White 'i' stem */}
+            <path d="M 28 72 C 32 58 45 42 54 36 C 50 34 44 38 40 42 C 32 54 24 64 22 68 Z" fill="#FFFFFF" />
+          </svg>
+          <span className="font-black text-sm sm:text-base italic tracking-tight text-[#024785]">
+            ICICI Bank
           </span>
         </div>
       )
@@ -435,9 +515,53 @@ function renderPartnerBrandLogo(id) {
           </div>
         </div>
       )
+    case 'lt':
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <svg className="w-6 h-6 shrink-0" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="44" fill="none" stroke="#000000" strokeWidth="8" />
+            <path d="M 28 28 L 38 28 L 32 64 L 54 64 L 52 72 L 22 72 Z" fill="#000000" />
+            <path d="M 36 36 L 76 36 L 73 44 L 58 44 L 51 72 L 42 72 L 49 44 L 33 44 Z" fill="#000000" />
+          </svg>
+          <span className="font-black text-xs sm:text-sm italic tracking-tight text-slate-900">
+            L&amp;T Financial Services
+          </span>
+        </div>
+      )
     default:
       return <span className="font-black text-xs text-slate-800">{id}</span>
   }
+}
+
+// Smart Partner Logo Renderer: Prioritizes local uploaded asset images, then logoUrl, then custom vector logo
+function PartnerBrandLogo({ partner }) {
+  const [imgError, setImgError] = useState(false)
+  const localLogo = LOCAL_PARTNER_LOGOS[partner.id]
+  const logoSrc = localLogo || partner.logoUrl
+
+  // Custom zoom scaling for logos with tight margins or padded image borders
+  let sizeClass = 'max-h-8 sm:max-h-9'
+  if (partner.id === 'cbi') {
+    sizeClass = 'scale-[1.25] max-h-9 sm:max-h-10'
+  } else if (partner.id === 'vivriti') {
+    sizeClass = 'scale-[1.4] max-h-9 sm:max-h-10'
+  } else if (partner.id === 'ikf') {
+    sizeClass = 'scale-[1.2] max-h-9'
+  }
+
+  if (logoSrc && !imgError) {
+    return (
+      <img
+        src={logoSrc}
+        alt={partner.fullName || partner.name}
+        className={`${sizeClass} max-w-[150px] w-auto object-contain transition-transform duration-200 group-hover:scale-[2.3]`}
+        loading="lazy"
+        onError={() => setImgError(true)}
+      />
+    )
+  }
+
+  return renderPartnerBrandLogo(partner.id)
 }
 
 export default function LandingPage() {
@@ -866,20 +990,23 @@ export default function LandingPage() {
               {filteredPartners.map((partner) => (
                 <div 
                   key={partner.id}
-                  className="bg-white border border-slate-200/90 rounded-xl px-3 py-2.5 h-[76px] sm:h-[80px] flex items-center justify-center text-center shadow-sm hover:shadow-lg hover:border-red-300 hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer overflow-hidden"
+                  className="bg-white border border-slate-200/90 rounded-xl p-2.5 h-[92px] sm:h-[98px] flex flex-col items-center justify-between text-center shadow-sm hover:shadow-lg hover:border-red-300 hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer overflow-hidden"
                   title={partner.fullName}
                 >
-                  <div className="w-full h-full flex items-center justify-center">
-                    {renderPartnerBrandLogo(partner.id)}
+                  <div className="w-full flex-1 flex items-center justify-center min-h-0">
+                    <PartnerBrandLogo partner={partner} />
+                  </div>
+                  <div className="w-full pt-1 border-t border-slate-100 text-[9.5px] sm:text-[10.5px] font-semibold text-slate-700 group-hover:text-[#800000] transition-colors leading-tight min-h-[22px] flex items-center justify-center text-center line-clamp-2 relative z-10 bg-white">
+                    {partner.fullName || partner.name}
                   </div>
                 </div>
               ))}
 
-              <div className="bg-white border-2 border-dashed border-red-200 rounded-xl px-3 py-2.5 h-[76px] sm:h-[80px] flex flex-col items-center justify-center text-center shadow-sm hover:bg-red-50/50 transition-all cursor-pointer">
+              <div className="bg-white border-2 border-dashed border-red-200 rounded-xl p-2.5 h-[92px] sm:h-[98px] flex flex-col items-center justify-center text-center shadow-sm hover:bg-red-50/50 transition-all cursor-pointer">
                 <div className="font-extrabold text-xs text-[#800000] mb-0.5">
                   &amp; Many More...
                 </div>
-                <div className="text-[9px] font-bold text-slate-500">
+                <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
                   Partners
                 </div>
               </div>
