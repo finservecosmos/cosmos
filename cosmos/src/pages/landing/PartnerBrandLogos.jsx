@@ -34,6 +34,7 @@ import logoEdelweiss from '../../assets/logo/Edelweiss_Group_logo.svg';
 import logoMas from '../../assets/logo/masfinancial.jpg';
 import logoVivriti from '../../assets/logo/vivriti-65800cd2e6718.webp';
 import logoYes from '../../assets/logo/Yes_Bank_Logo_in_2024.png';
+import logoIncred from '../../assets/logo/pngaaa.com-479884.png';
 
 export const LOCAL_PARTNER_LOGOS = {
   aditya: logoAbCapital,
@@ -50,6 +51,7 @@ export const LOCAL_PARTNER_LOGOS = {
   hdb: logoHdb,
   idbi: logoIdbi,
   ikf: logoIkf,
+  incred: logoIncred,
   indian: logoIndianBank,
   indusind: logoIndusind,
   kotak: logoKotak,
@@ -112,15 +114,17 @@ export const PARTNERS_LIST = [
   { id: 'niva', name: 'Niva Bupa Health Insurance', fullName: 'Niva Bupa Health Insurance', type: 'nbfc', color: '#0284C7' },
 ];
 
-export function renderPartnerBrandLogo(partner) {
+export function PartnerLogo({ partner }) {
   const id = typeof partner === 'string' ? partner : partner?.id;
   const name = typeof partner === 'string' ? partner : partner?.fullName || partner?.name;
+  const [imgFailed, setImgFailed] = useState(false);
 
-  if (LOCAL_PARTNER_LOGOS[id]) {
+  if (LOCAL_PARTNER_LOGOS[id] && !imgFailed) {
     return (
       <img 
         src={LOCAL_PARTNER_LOGOS[id]} 
         alt={`${name} logo`}
+        onError={() => setImgFailed(true)}
         className="max-h-11 sm:max-h-12 max-w-[110px] sm:max-w-[125px] w-auto h-auto object-contain transition-transform duration-200 group-hover:scale-105"
         loading="lazy"
       />
@@ -181,15 +185,13 @@ export function renderPartnerBrandLogo(partner) {
           <span className="font-black text-xs tracking-tighter text-[#DC2626]">JM FINANCIAL</span>
         </div>
       );
-    case 'incred':
-      return (
-        <div className="flex items-center justify-center gap-1">
-          <span className="font-black text-xs text-[#F97316]">InCred <span className="text-[8px] font-bold text-slate-500">finance</span></span>
-        </div>
-      );
     default:
       return <span className="font-black text-xs text-slate-800">{name || id}</span>;
   }
+}
+
+export function renderPartnerBrandLogo(partner) {
+  return <PartnerLogo partner={partner} />;
 }
 
 export default function PartnerBrandLogos({
@@ -287,7 +289,7 @@ export default function PartnerBrandLogos({
                 title={partner.fullName}
               >
                 <div className="w-full h-full flex items-center justify-center">
-                  {renderPartnerBrandLogo(partner)}
+                  <PartnerLogo partner={partner} />
                 </div>
               </div>
             ))}
