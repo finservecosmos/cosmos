@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react'
 import { supabase } from '../shared/api/supabaseClient'
 import { nextClientId, nextAssociateId, nextInvoiceId, nextFinanceInvoiceId } from '../shared/lib/idGenerator'
 
