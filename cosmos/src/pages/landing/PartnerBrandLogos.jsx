@@ -1,6 +1,75 @@
 import React, { useState } from 'react';
 import { Search, RotateCcw } from 'lucide-react';
 
+// Imported authentic partner logos uploaded in src/assets/logo
+import logoAbCapital from '../../assets/logo/ABCAPITAL.NS_BIG.png';
+import logoAuBank from '../../assets/logo/AUBANK.NS_BIG.png';
+import logoBajajFinserv from '../../assets/logo/BAJAJFINSV.NS_BIG.png';
+import logoBob from '../../assets/logo/Bank_of_Baroda_logo_orange_background.png';
+import logoBoi from '../../assets/logo/Bank_of_India_logo_PNG2.png';
+import logoChola from '../../assets/logo/CHOLAFIN.NS_BIG.png';
+import logoCanara from '../../assets/logo/Canara_Bank_Logo.svg';
+import logoCbi from '../../assets/logo/Central_Bank_of_India_Logo.svg';
+import logoDcb from '../../assets/logo/Development_Credit_Bank.svg';
+import logoFederal from '../../assets/logo/Federal_bank_India.svg';
+import logoHdb from '../../assets/logo/HDB_Financial_Services_logo.svg';
+import logoIdbi from '../../assets/logo/IDBI.NS_BIG.png';
+import logoIndianBank from '../../assets/logo/INDIANB.NS_BIG.png';
+import logoIndusind from '../../assets/logo/IndusInd_Bank_SVG_Logo.svg';
+import logoKotak from '../../assets/logo/Kotak.png';
+import logoLt from '../../assets/logo/L&T finacial.jpg';
+import logoIdfc from '../../assets/logo/Logo_of_IDFC_First_Bank.svg';
+import logoMuthoot from '../../assets/logo/MUTHOOTFIN.NS_BIG.png';
+import logoMahindra from '../../assets/logo/Mahindra-finance-logo.png';
+import logoPnb from '../../assets/logo/Punjab_National_Bank_new_logo.svg';
+import logoRbl from '../../assets/logo/RBLBANK.NS_BIG.png';
+import logoShriram from '../../assets/logo/SHRIRAMFIN.NS_BIG.png';
+import logoSundaram from '../../assets/logo/Sundaram_Finance_Limited_Logo.jpg';
+import logoTata from '../../assets/logo/Tata_Capital_Logo-01.jpg';
+import logoUnion from '../../assets/logo/Union_Bank_of_India_Logo.svg';
+import logoPiramal from '../../assets/logo/Piramal.svg';
+import logoIkf from '../../assets/logo/ikf.png';
+import logoNiva from '../../assets/logo/nivi.png';
+import logoEdelweiss from '../../assets/logo/Edelweiss_Group_logo.svg';
+import logoMas from '../../assets/logo/masfinancial.jpg';
+import logoVivriti from '../../assets/logo/vivriti-65800cd2e6718.webp';
+import logoYes from '../../assets/logo/Yes_Bank_Logo_in_2024.png';
+
+export const LOCAL_PARTNER_LOGOS = {
+  aditya: logoAbCapital,
+  au: logoAuBank,
+  bajaj: logoBajajFinserv,
+  bob: logoBob,
+  boi: logoBoi,
+  chola: logoChola,
+  canara: logoCanara,
+  cbi: logoCbi,
+  dcb: logoDcb,
+  edelweiss: logoEdelweiss,
+  federal: logoFederal,
+  hdb: logoHdb,
+  idbi: logoIdbi,
+  ikf: logoIkf,
+  indian: logoIndianBank,
+  indusind: logoIndusind,
+  kotak: logoKotak,
+  lt: logoLt,
+  idfc: logoIdfc,
+  mas: logoMas,
+  muthoot: logoMuthoot,
+  mahindra: logoMahindra,
+  niva: logoNiva,
+  piramal: logoPiramal,
+  pnb: logoPnb,
+  rbl: logoRbl,
+  shriram: logoShriram,
+  sundaram: logoSundaram,
+  tata: logoTata,
+  union: logoUnion,
+  vivriti: logoVivriti,
+  yes: logoYes
+};
+
 // Master list of 38 Banks & NBFCs with authentic brand metadata
 export const PARTNERS_LIST = [
   { id: 'sbi', name: 'SBI', fullName: 'State Bank of India', type: 'bank', color: '#0083CA' },
@@ -43,7 +112,21 @@ export const PARTNERS_LIST = [
   { id: 'niva', name: 'Niva Bupa Health Insurance', fullName: 'Niva Bupa Health Insurance', type: 'nbfc', color: '#0284C7' },
 ];
 
-export function renderPartnerBrandLogo(id) {
+export function renderPartnerBrandLogo(partner) {
+  const id = typeof partner === 'string' ? partner : partner?.id;
+  const name = typeof partner === 'string' ? partner : partner?.fullName || partner?.name;
+
+  if (LOCAL_PARTNER_LOGOS[id]) {
+    return (
+      <img 
+        src={LOCAL_PARTNER_LOGOS[id]} 
+        alt={`${name} logo`}
+        className="max-h-11 sm:max-h-12 max-w-[110px] sm:max-w-[125px] w-auto h-auto object-contain transition-transform duration-200 group-hover:scale-105"
+        loading="lazy"
+      />
+    );
+  }
+
   switch (id) {
     case 'sbi':
       return (
@@ -89,252 +172,6 @@ export function renderPartnerBrandLogo(id) {
           <span className="font-black text-xs sm:text-sm tracking-tighter text-[#97144D]">AXIS BANK</span>
         </div>
       );
-    case 'kotak':
-      return (
-        <div className="flex items-center justify-center gap-1">
-          <div className="h-5 w-5 rounded bg-[#ED1C24] text-white font-extrabold text-[11px] flex items-center justify-center shrink-0">
-            k
-          </div>
-          <div className="flex flex-col text-left leading-none">
-            <span className="font-black text-xs text-[#ED1C24] lowercase">kotak</span>
-            <span className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter">Kotak Mahindra Bank</span>
-          </div>
-        </div>
-      );
-    case 'yes':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="h-5 w-5 bg-[#005A9C] rounded shrink-0 flex items-center justify-center relative">
-            <div className="text-white font-black text-[10px] stroke-red-600">✓</div>
-          </div>
-          <span className="font-black text-xs sm:text-sm tracking-tight text-[#005A9C]">
-            YES <span className="text-[#E31B23]">BANK</span>
-          </span>
-        </div>
-      );
-    case 'idfc':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="px-1.5 py-0.5 bg-[#9E1B32] text-white font-black text-[9px] rounded shrink-0 uppercase tracking-tighter">
-            FIRST
-          </div>
-          <span className="font-black text-xs sm:text-sm tracking-tighter text-[#9E1B32]">IDFC FIRST Bank</span>
-        </div>
-      );
-    case 'indusind':
-      return (
-        <div className="flex items-center justify-center gap-1">
-          <span className="font-black text-xs sm:text-sm tracking-tight text-[#941617]">IndusInd Bank</span>
-        </div>
-      );
-    case 'boi':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <svg className="w-5 h-5 shrink-0" viewBox="0 0 100 100">
-            <polygon points="50,5 64,36 98,36 70,57 81,91 50,70 19,91 30,57 2,36 36,36" fill="#E31837" />
-          </svg>
-          <span className="font-black text-xs text-[#E31837]">Bank of India</span>
-        </div>
-      );
-    case 'pnb':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="w-5 h-5 rounded-full bg-[#A00000] text-amber-300 font-black text-[9px] flex items-center justify-center shrink-0">
-            pnb
-          </div>
-          <div className="flex flex-col text-left leading-none">
-            <span className="font-black text-xs text-[#A00000] lowercase">pnb</span>
-            <span className="text-[7px] font-bold text-slate-400 uppercase">punjab national bank</span>
-          </div>
-        </div>
-      );
-    case 'union':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="flex items-center shrink-0">
-            <span className="text-[#003B73] font-black text-xs">U</span>
-            <span className="text-[#E31B23] font-black text-xs -ml-1">B</span>
-          </div>
-          <span className="font-black text-xs tracking-tight text-[#003B73]">Union Bank <span className="text-slate-500 text-[9px] font-bold">of India</span></span>
-        </div>
-      );
-    case 'indian':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="w-5 h-5 rounded-full bg-[#1F3A60] text-white font-black text-[9px] flex items-center justify-center shrink-0">
-            IB
-          </div>
-          <span className="font-black text-xs text-[#1F3A60]">Indian Bank</span>
-        </div>
-      );
-    case 'canara':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <svg className="w-5 h-5 shrink-0" viewBox="0 0 100 100">
-            <polygon points="20,80 50,20 80,80" fill="#0069B4" />
-            <polygon points="35,80 50,45 65,80" fill="#F59E0B" />
-          </svg>
-          <span className="font-black text-xs text-[#0069B4]">Canara Bank</span>
-        </div>
-      );
-    case 'cbi':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="w-5 h-5 bg-[#003399] text-white font-black text-[9px] rounded-full flex items-center justify-center shrink-0">
-            C
-          </div>
-          <span className="font-black text-xs text-[#003399]">Central Bank <span className="text-[8px] font-semibold text-slate-500">of India</span></span>
-        </div>
-      );
-    case 'bob':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <svg className="w-5 h-5 shrink-0" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="45" fill="#F26522" />
-            <path d="M30 65 L50 25 L70 65 Z" fill="#FFFFFF" />
-          </svg>
-          <span className="font-black text-xs text-[#F26522]">Bank of Baroda</span>
-        </div>
-      );
-    case 'federal':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="px-1 py-0.5 bg-[#004A8F] text-amber-400 font-black text-[8px] rounded shrink-0">
-            FED
-          </div>
-          <span className="font-black text-xs tracking-tighter text-[#004A8F]">FEDERAL BANK</span>
-        </div>
-      );
-    case 'idbi':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="w-5 h-5 rounded-full bg-[#008751] text-white font-black text-[9px] flex items-center justify-center shrink-0">
-            i
-          </div>
-          <span className="font-black text-xs tracking-tighter text-[#008751]">IDBI BANK</span>
-        </div>
-      );
-    case 'dcb':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <span className="font-black text-xs tracking-tighter text-[#00529B]">DCB BANK</span>
-        </div>
-      );
-    case 'rbl':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="w-4 h-4 rounded-full bg-[#1A365D] shrink-0 border border-red-500"></div>
-          <span className="font-black text-xs tracking-tighter text-[#1A365D]">RBLBANK</span>
-        </div>
-      );
-    case 'au':
-      return (
-        <div className="flex items-center justify-center gap-1">
-          <div className="px-1 py-0.5 bg-[#EE7203] text-white font-black text-[9px] rounded shrink-0">
-            AU
-          </div>
-          <div className="flex flex-col text-left leading-none">
-            <span className="font-black text-[10px] text-[#EE7203]">AU SMALL</span>
-            <span className="text-[7px] font-bold text-slate-400">FINANCE BANK</span>
-          </div>
-        </div>
-      );
-    case 'tata':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <svg className="w-5 h-5 shrink-0" viewBox="0 0 100 100">
-            <polygon points="50,10 90,50 50,90 10,50" fill="#005696" />
-          </svg>
-          <span className="font-black text-xs tracking-tighter text-[#005696]">TATA CAPITAL</span>
-        </div>
-      );
-    case 'lt':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="px-1 py-0.5 bg-[#005C9E] text-white font-black text-[9px] rounded shrink-0">
-            L&amp;T
-          </div>
-          <span className="font-black text-xs text-[#005C9E]">L&amp;T Finance</span>
-        </div>
-      );
-    case 'bajaj':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="w-5 h-5 bg-[#0066B3] text-white font-black text-[11px] rounded flex items-center justify-center shrink-0">
-            B
-          </div>
-          <span className="font-black text-xs tracking-tighter text-[#0066B3]">BAJAJ FINSERV</span>
-        </div>
-      );
-    case 'chola':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="w-4 h-4 rounded-full bg-[#E31B23] border border-green-600 shrink-0"></div>
-          <div className="flex flex-col text-left leading-none">
-            <span className="font-black text-xs text-[#E31B23]">Chola</span>
-            <span className="text-[6px] font-bold text-slate-400">Enter a better life</span>
-          </div>
-        </div>
-      );
-    case 'mahindra':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <span className="font-black text-xs text-[#E31B23]">Mahindra</span>
-          <span className="text-[9px] font-bold text-slate-500 uppercase">FINANCE</span>
-        </div>
-      );
-    case 'aditya':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <svg className="w-4 h-4 shrink-0" viewBox="0 0 100 100">
-            <polygon points="50,10 90,90 10,90" fill="#B91C1C" />
-          </svg>
-          <span className="font-black text-[10px] tracking-tighter text-[#B91C1C]">ADITYA BIRLA CAPITAL</span>
-        </div>
-      );
-    case 'muthoot':
-      return (
-        <div className="flex items-center justify-center gap-1">
-          <div className="w-5 h-5 rounded bg-[#D97706] text-white font-black text-[10px] flex items-center justify-center shrink-0">
-            M
-          </div>
-          <span className="font-black text-xs text-[#D97706]">Muthoot <span className="text-[9px] font-bold text-slate-600">FINCORP</span></span>
-        </div>
-      );
-    case 'shriram':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="px-1 py-0.5 bg-[#B45309] text-white font-black text-[8px] rounded shrink-0">
-            SHRIRAM
-          </div>
-          <span className="font-black text-xs text-[#B45309]">Shriram <span className="text-[8px] font-bold text-slate-400">Finance</span></span>
-        </div>
-      );
-    case 'mas':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="px-1.5 py-0.5 bg-[#1D4ED8] text-white font-black text-[9px] rounded shrink-0">
-            MAS
-          </div>
-          <span className="font-black text-[9px] tracking-tighter text-[#1D4ED8]">FINANCIAL SERVICES</span>
-        </div>
-      );
-    case 'edelweiss':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <svg className="w-5 h-5 shrink-0" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="40" fill="#2563EB" />
-          </svg>
-          <span className="font-black text-xs text-[#2563EB]">Edelweiss</span>
-        </div>
-      );
-    case 'piramal':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="w-4 h-4 rounded-full bg-[#EA580C] shrink-0"></div>
-          <span className="font-black text-xs text-[#EA580C]">Piramal <span className="text-[8px] font-semibold text-slate-500">Capital</span></span>
-        </div>
-      );
     case 'jm':
       return (
         <div className="flex items-center justify-center gap-1.5">
@@ -344,54 +181,14 @@ export function renderPartnerBrandLogo(id) {
           <span className="font-black text-xs tracking-tighter text-[#DC2626]">JM FINANCIAL</span>
         </div>
       );
-    case 'hdb':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="px-1.5 py-0.5 bg-[#1E40AF] text-white font-black text-[9px] rounded shrink-0">
-            HDB
-          </div>
-          <span className="font-black text-[9px] tracking-tighter text-[#1E40AF]">FINANCIAL SERVICES</span>
-        </div>
-      );
-    case 'sundaram':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <div className="w-4 h-4 rounded-full bg-[#1E3A8A] text-white font-black text-[8px] flex items-center justify-center shrink-0">
-            S
-          </div>
-          <span className="font-black text-[9px] tracking-tighter text-[#1E3A8A]">SUNDARAM FINANCE</span>
-        </div>
-      );
-    case 'ikf':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <span className="font-black text-xs tracking-tighter text-[#991B1B]">IKF FINANCE</span>
-        </div>
-      );
     case 'incred':
       return (
         <div className="flex items-center justify-center gap-1">
           <span className="font-black text-xs text-[#F97316]">InCred <span className="text-[8px] font-bold text-slate-500">finance</span></span>
         </div>
       );
-    case 'vivriti':
-      return (
-        <div className="flex items-center justify-center gap-1.5">
-          <span className="font-black text-xs tracking-tighter text-[#374151]">VIVRITI CAPITAL</span>
-        </div>
-      );
-    case 'niva':
-      return (
-        <div className="flex items-center justify-center gap-1">
-          <div className="w-4 h-4 rounded-full bg-[#0284C7] shrink-0"></div>
-          <div className="flex flex-col text-left leading-none">
-            <span className="font-black text-xs text-[#0284C7]">niva</span>
-            <span className="text-[6px] font-bold text-slate-500">Health Insurance</span>
-          </div>
-        </div>
-      );
     default:
-      return <span className="font-black text-xs text-slate-800">{id}</span>;
+      return <span className="font-black text-xs text-slate-800">{name || id}</span>;
   }
 }
 
@@ -486,16 +283,16 @@ export default function PartnerBrandLogos({
             {filteredPartners.map((partner) => (
               <div 
                 key={partner.id}
-                className="bg-white border border-slate-200/90 rounded-xl px-3 py-2.5 h-[76px] sm:h-[80px] flex items-center justify-center text-center shadow-sm hover:shadow-lg hover:border-red-300 hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer overflow-hidden"
+                className="bg-white border border-slate-200/90 rounded-xl px-3 py-2.5 h-[84px] sm:h-[90px] flex flex-col items-center justify-center text-center shadow-sm hover:shadow-lg hover:border-red-300 hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer overflow-hidden"
                 title={partner.fullName}
               >
                 <div className="w-full h-full flex items-center justify-center">
-                  {renderPartnerBrandLogo(partner.id)}
+                  {renderPartnerBrandLogo(partner)}
                 </div>
               </div>
             ))}
 
-            <div className="bg-white border-2 border-dashed border-red-200 rounded-xl px-3 py-2.5 h-[76px] sm:h-[80px] flex flex-col items-center justify-center text-center shadow-sm hover:bg-red-50/50 transition-all cursor-pointer">
+            <div className="bg-white border-2 border-dashed border-red-200 rounded-xl px-3 py-2.5 h-[84px] sm:h-[90px] flex flex-col items-center justify-center text-center shadow-sm hover:bg-red-50/50 transition-all cursor-pointer">
               <div className="font-extrabold text-xs text-[#800000] mb-0.5">
                 &amp; Many More...
               </div>
