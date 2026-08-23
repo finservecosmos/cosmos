@@ -794,25 +794,44 @@ export function AppStateProvider({ children }) {
     else console.error('removeFinanceEntry error:', error.message)
   }
 
+  const contextValue = useMemo(() => ({
+    clients, addClient, updateClient, removeClient,
+    associates: computedAssociates, addAssociate, updateAssociate, deleteAssociate,
+    payments, addPayment, updatePayment, removePayment,
+    invoices, addInvoice, removeInvoice,
+    financeInvoices, addFinanceInvoice, updateFinanceInvoice, removeFinanceInvoice,
+    products, addProduct, updateProduct,
+    reminders, addReminder, updateReminder, deleteReminder,
+    notifications, markNotifRead, markAllNotifsRead,
+    enquiries, addEnquiry, updateEnquiry, removeEnquiry,
+    loginFiles, addLoginFile, updateLoginFile, removeLoginFile,
+    backups, addBackup,
+    users, addUser, updateUser, removeUser,
+    investments, addInvestment, updateInvestment, removeInvestment,
+    transactions, addTransaction, updateTransaction, removeTransaction,
+    financeEntries, addFinanceEntry, updateFinanceEntry, removeFinanceEntry,
+    loading
+  }), [
+    clients, addClient, updateClient, removeClient,
+    computedAssociates, addAssociate, updateAssociate, deleteAssociate,
+    payments, addPayment, updatePayment, removePayment,
+    invoices, addInvoice, removeInvoice,
+    financeInvoices, addFinanceInvoice, updateFinanceInvoice, removeFinanceInvoice,
+    products, addProduct, updateProduct,
+    reminders, addReminder, updateReminder, deleteReminder,
+    notifications, markNotifRead, markAllNotifsRead,
+    enquiries, addEnquiry, updateEnquiry, removeEnquiry,
+    loginFiles, addLoginFile, updateLoginFile, removeLoginFile,
+    backups, addBackup,
+    users, addUser, updateUser, removeUser,
+    investments, addInvestment, updateInvestment, removeInvestment,
+    transactions, addTransaction, updateTransaction, removeTransaction,
+    financeEntries, addFinanceEntry, updateFinanceEntry, removeFinanceEntry,
+    loading
+  ])
+
   return (
-    <AppStateContext.Provider value={{
-      clients, addClient, updateClient, removeClient,
-      associates: computedAssociates, addAssociate, updateAssociate, deleteAssociate,
-      payments, addPayment, updatePayment, removePayment,
-      invoices, addInvoice, removeInvoice,
-      financeInvoices, addFinanceInvoice, updateFinanceInvoice, removeFinanceInvoice,
-      products, addProduct, updateProduct,
-      reminders, addReminder, updateReminder, deleteReminder,
-      notifications, markNotifRead, markAllNotifsRead,
-      enquiries, addEnquiry, updateEnquiry, removeEnquiry,
-      loginFiles, addLoginFile, updateLoginFile, removeLoginFile,
-      backups, addBackup,
-      users, addUser, updateUser, removeUser,
-      investments, addInvestment, updateInvestment, removeInvestment,
-      transactions, addTransaction, updateTransaction, removeTransaction,
-      financeEntries, addFinanceEntry, updateFinanceEntry, removeFinanceEntry,
-      loading
-    }}>
+    <AppStateContext.Provider value={contextValue}>
       {children}
     </AppStateContext.Provider>
   )

@@ -80,11 +80,13 @@ function ProtectedRoute({ children, allowedRoles }) {
       }
     })
 
+    const rolesKey = Array.isArray(allowedRoles) ? allowedRoles.slice().sort().join(',') : (allowedRoles || '')
+
     return () => {
       active = false
       subscription?.unsubscribe()
     }
-  }, [allowedRoles])
+  }, [rolesKey])
 
   if (status === 'loading') {
     return (
