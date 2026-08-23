@@ -740,7 +740,7 @@ export default function LandingPage() {
             </div>
             <button 
               onClick={() => scrollToSection('eligibility-form')}
-              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-white border border-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
+              className="w-full py-2 rounded-md text-[11px] font-bold text-[#800000] bg-[#800000] hover:bg-[#800000] hover:text-white transition-all uppercase tracking-wider cursor-pointer"
             >
               Apply Now
             </button>

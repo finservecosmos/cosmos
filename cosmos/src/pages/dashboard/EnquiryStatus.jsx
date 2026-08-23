@@ -73,9 +73,9 @@ function HybridLocationPicker({ value, onChange, disabled }) {
 }
 
 /* ─── Sub-components ─────────────────────────────────────────── */
-function StatCard({ label, value, sub, icon, iconBg, subColor }) {
+function StatCard({ label, value, sub, icon, iconBg, subColor, onClick }) {
   return (
-    <div className="kpi-card" style={{ flex: '1 1 0', minWidth: 0 }}>
+    <div className="kpi-card" onClick={onClick} style={{ flex: '1 1 0', minWidth: 0, cursor: onClick ? 'pointer' : 'default' }}>
       <div className="kpi-header">
         <div className="kpi-icon-wrap" style={{ background: iconBg }}>
           {icon}
@@ -213,7 +213,10 @@ export default function EnquiryStatus() {
     const matchSearch = !q
       || (e.client_name && e.client_name.toLowerCase().includes(q))
       || (e.client_mobile_number && String(e.client_mobile_number).includes(q))
-    const matchStatus = statusFilter === 'All' || e.status === statusFilter
+    const isRejected = (e.status || '').toLowerCase() === 'rejected'
+    const matchStatus = statusFilter === 'Rejected'
+      ? isRejected
+      : (statusFilter === 'All' ? !isRejected : e.status === statusFilter)
     const matchLoan = loanFilter === 'All Loan Types' || e.loan_type === loanFilter
     let matchDate = true
     if (fromDate && e.created_at) matchDate = matchDate && e.created_at.slice(0, 10) >= fromDate
@@ -240,10 +243,10 @@ export default function EnquiryStatus() {
   /* ── Stat counts ── */
   const countBy = (s) => enquiries.filter(e => e.status === s).length
   const stats = [
-    { label: 'New Enquiries', value: enquiries.length, sub: 'Total Enquiries', subColor: '#16a34a', icon: <ClipboardList size={20} color="#3b82f6" />, iconBg: 'var(--bg-hover)' },
-    { label: 'Accepted', value: countBy('Accepted'), sub: 'Qualified Conversion', subColor: '#16a34a', icon: <CheckCircle size={20} color="#16a34a" />, iconBg: 'var(--bg-hover)' },
-    { label: 'Callback', value: countBy('Callback'), sub: 'Follow-up Required', subColor: '#d97706', icon: <Phone size={16} />, iconBg: 'var(--bg-hover)' },
-    { label: 'Rejected', value: countBy('Rejected'), sub: 'Not Approved', subColor: '#dc2626', icon: <Ban size={20} color="#dc2626" />, iconBg: 'var(--bg-hover)' },
+    { label: 'New Enquiries', value: enquiries.length, sub: 'Total Enquiries', subColor: '#16a34a', icon: <ClipboardList size={20} color="#3b82f6" />, iconBg: 'var(--bg-hover)', onClick: () => setStatus('All') },
+    { label: 'Accepted', value: countBy('Accepted'), sub: 'Qualified Conversion', subColor: '#16a34a', icon: <CheckCircle size={20} color="#16a34a" />, iconBg: 'var(--bg-hover)', onClick: () => setStatus('Accepted') },
+    { label: 'Callback', value: countBy('Callback'), sub: 'Follow-up Required', subColor: '#d97706', icon: <Phone size={16} />, iconBg: 'var(--bg-hover)', onClick: () => setStatus('Callback') },
+    { label: 'Rejected', value: countBy('Rejected'), sub: 'Not Approved', subColor: '#dc2626', icon: <Ban size={20} color="#dc2626" />, iconBg: 'var(--bg-hover)', onClick: () => setStatus('Rejected') },
   ]
 
   /* ── Inline status update ── */
