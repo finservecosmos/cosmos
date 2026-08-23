@@ -52,7 +52,7 @@ export function AppStateProvider({ children }) {
   const fetchInitialData = useCallback(async () => {
     setLoading(true)
     try {
-      const fetchWithTimeout = (promise, ms = 1500) =>
+      const fetchWithTimeout = (promise, ms = 6000) =>
         Promise.race([
           promise,
           new Promise(resolve => setTimeout(() => resolve({ data: null, error: new Error('Timeout') }), ms))
@@ -125,20 +125,22 @@ export function AppStateProvider({ children }) {
 
 
   /* ─── Sync 1: Dynamic Associate Performance metrics ───────── */
-  const computedAssociates = associates.map(a => {
-    const assocClients = clients.filter(c => c.associate === a.name && c.loan_type !== 'Finance Entry')
-    const clientCount = assocClients.length
-    const disbursed = assocClients
-      .filter(c => ['Disbursed', 'Approved'].includes(c.status))
-      .reduce((sum, c) => sum + Number(c.amount || 0), 0)
-    const commission = Math.round(disbursed * 0.005) // standard 0.5% dynamic calculation
-    return {
-      ...a,
-      clients: clientCount, // Note: returning property 'clients' because components use a.clients
-      disbursed,
-      commission
-    }
-  })
+  const computedAssociates = useMemo(() => {
+    return associates.map(a => {
+      const assocClients = clients.filter(c => c.associate === a.name && c.loan_type !== 'Finance Entry')
+      const clientCount = assocClients.length
+      const disbursed = assocClients
+        .filter(c => ['Disbursed', 'Approved'].includes(c.status))
+        .reduce((sum, c) => sum + Number(c.amount || 0), 0)
+      const commission = Math.round(disbursed * 0.005) // standard 0.5% dynamic calculation
+      return {
+        ...a,
+        clients: clientCount, // Note: returning property 'clients' because components use a.clients
+        disbursed,
+        commission
+      }
+    })
+  }, [associates, clients])
 
   /* ─── Clients ── */
   const unpackClient = (c) => {

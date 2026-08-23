@@ -8,11 +8,7 @@ import { useConfirm } from '../context/ConfirmContext'
 import '../shared/ui/DataPage.css'
 import { Users, TrendingUp, Search, Eye, Edit, Banknote, Coins, Trash2 } from 'lucide-react'
 
-function formatAmount(n) {
-  if (n >= 10000000) return `₹${(n/10000000).toFixed(2)}Cr`
-  if (n >= 100000)   return `₹${(n/100000).toFixed(1)}L`
-  return `₹${n.toLocaleString('en-IN')}`
-}
+import { formatAmount } from '../shared/lib/formatters'
 
 
 
