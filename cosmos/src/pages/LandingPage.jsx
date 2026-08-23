@@ -932,7 +932,7 @@ export default function LandingPage() {
             
             <div className="flex flex-col items-center p-2">
               <div className="flex items-center gap-2 mb-1">
-                <Building size={28} className="text-amber-300" />
+                <Building2 size={28} className="text-amber-300" />
                 <span className="text-2xl sm:text-3xl font-black text-white">40+</span>
               </div>
               <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-200">Banks &amp; NBFCs</div>
