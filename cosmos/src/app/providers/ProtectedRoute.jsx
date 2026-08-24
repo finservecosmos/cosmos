@@ -5,6 +5,8 @@ import { supabase } from '../../shared/api/supabaseClient'
 function ProtectedRoute({ children, allowedRoles }) {
   const [status, setStatus] = useState('loading') // 'loading' | 'authorized' | 'unauthorized' | 'forbidden'
 
+  const rolesKey = Array.isArray(allowedRoles) ? allowedRoles.slice().sort().join(',') : (allowedRoles || '')
+
   useEffect(() => {
     let active = true
 
@@ -79,8 +81,6 @@ function ProtectedRoute({ children, allowedRoles }) {
         checkAuth()
       }
     })
-
-    const rolesKey = Array.isArray(allowedRoles) ? allowedRoles.slice().sort().join(',') : (allowedRoles || '')
 
     return () => {
       active = false
