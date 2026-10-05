@@ -91,7 +91,7 @@ export async function getPendingFollowUps() {
     .select('id, client_name, loan_type, created_at, associate_name, status')
     .in('status', ['New', 'Contacted'])
     .order('created_at', { ascending: true })
-    .limit(10)
+    .limit(5)
 
   if (error || !data) return []
 

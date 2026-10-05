@@ -82,7 +82,7 @@ function Dashboard() {
     return `₹${amount.toLocaleString('en-IN')}`
   }
 
-  const viewFollowUps = () => navigate('/dashboard/reminders')
+  const viewFollowUps = () => navigate('/dashboard/enquiries')
   const addSchedule = () => navigate('/dashboard/reminders')
   const viewChartMenu = () => addToast('Chart options will be available in the next release.', 'info')
 

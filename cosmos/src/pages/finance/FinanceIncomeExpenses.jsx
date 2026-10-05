@@ -56,6 +56,9 @@ export default function FinanceIncomeExpenses() {
   // Action Menu active row ID
   const [activeMenuId, setActiveMenuId] = useState(null)
 
+  // Chart View State
+  const [chartView, setChartView] = useState('Overall')
+
   useEffect(() => {
     document.title = 'Income & Expenses | Cosmos'
   }, [])
@@ -104,6 +107,49 @@ export default function FinanceIncomeExpenses() {
     return totalIncome - totalExpenses
   }, [totalIncome, totalExpenses])
 
+  // Chart-specific calculations
+  const chartData = useMemo(() => {
+    const list = transactions || [];
+    let filteredList = list;
+    
+    if (chartView === 'This Month') {
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      filteredList = list.filter(t => {
+        if (!t.date) return false;
+        const d = new Date(t.date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      });
+    } else if (chartView !== 'Overall') {
+      const now = new Date();
+      let limitDate = new Date();
+      
+      if (chartView === 'Last Month') {
+        limitDate.setMonth(now.getMonth() - 1);
+      } else if (chartView === 'Last 3 Months') {
+        limitDate.setMonth(now.getMonth() - 3);
+      } else if (chartView === 'Last 6 Months') {
+        limitDate.setMonth(now.getMonth() - 6);
+      } else if (chartView === 'Last Year') {
+        limitDate.setFullYear(now.getFullYear() - 1);
+      }
+
+      const limitStr = limitDate.toISOString().slice(0, 10);
+      
+      filteredList = list.filter(t => {
+        if (!t.date) return false;
+        return t.date >= limitStr;
+      });
+    }
+
+    const income = filteredList.filter(t => t.type === 'Income').reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const expenses = filteredList.filter(t => t.type === 'Expense').reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const profit = income - expenses;
+    
+    return { income, expenses, profit };
+  }, [transactions, chartView]);
+
   const baseBankBalance = useMemo(() => {
     const totalInv = (investments || [])
       .filter(inv => inv.status !== 'Inactive')
@@ -148,14 +194,40 @@ export default function FinanceIncomeExpenses() {
     return { income, expenses, profit }
   }, [transactions, headerFromDate])
 
+  const thisMonthStats = useMemo(() => {
+    const fromD = headerFromDate ? new Date(headerFromDate) : new Date()
+    if (isNaN(fromD.getTime())) return { income: 0, expenses: 0, profit: 0 }
+
+    const thisMonthFrom = new Date(fromD.getFullYear(), fromD.getMonth(), 1)
+    const thisMonthTo = new Date(fromD.getFullYear(), fromD.getMonth() + 1, 0)
+    
+    const thisFromStr = thisMonthFrom.toISOString().slice(0, 10)
+    const thisToStr = thisMonthTo.toISOString().slice(0, 10)
+
+    const thisTx = (transactions || []).filter(t => {
+      const d = t.date || ''
+      return d >= thisFromStr && d <= thisToStr
+    })
+
+    const income = thisTx.filter(t => t.type === 'Income').reduce((sum, t) => sum + Number(t.amount || 0), 0)
+    const expenses = thisTx.filter(t => t.type === 'Expense').reduce((sum, t) => sum + Number(t.amount || 0), 0)
+    const profit = income - expenses
+
+    return { income, expenses, profit }
+  }, [transactions, headerFromDate])
+
   const calcPct = (current, prev) => {
-    if (prev === 0) return 0
+    if (prev === 0) {
+      if (current > 0) return 100;
+      if (current < 0) return -100;
+      return 0;
+    }
     return ((current - prev) / prev) * 100
   }
 
-  const incomePct = calcPct(totalIncome, lastMonthStats.income)
-  const expensePct = calcPct(totalExpenses, lastMonthStats.expenses)
-  const profitPct = calcPct(netProfit, lastMonthStats.profit)
+  const incomePct = calcPct(thisMonthStats.income, lastMonthStats.income)
+  const expensePct = calcPct(thisMonthStats.expenses, lastMonthStats.expenses)
+  const profitPct = calcPct(thisMonthStats.profit, lastMonthStats.profit)
 
   const renderKpiTag = (pct) => {
     if (pct === 0) {
@@ -501,7 +573,7 @@ export default function FinanceIncomeExpenses() {
                   <line x1="2" y1="10" x2="22" y2="10" />
                 </svg>
               </div>
-              <span className="kpi-tag muted">As on {headerToDate ? formatDateDisplay(headerToDate) : '20 Jun 2026'}</span>
+              <span className="kpi-tag muted">As on {headerToDate ? formatDateDisplay(headerToDate) : formatDateDisplay(new Date())}</span>
             </div>
             <div className="kpi-body">
               <div className="kpi-title">BANK ACCOUNT BALANCE</div>
@@ -625,9 +697,18 @@ export default function FinanceIncomeExpenses() {
               </div>
               <div className="view-selector">
                 <span className="view-label">VIEW:</span>
-                <select className="view-select-dropdown" style={{ border: 'none', background: 'transparent', fontWeight: 700, color: 'var(--accent)', cursor: 'pointer', outline: 'none' }}>
-                  <option>This Month</option>
-                  <option>All Time</option>
+                <select 
+                  className="view-select-dropdown" 
+                  style={{ border: 'none', background: 'transparent', fontWeight: 700, color: 'var(--accent)', cursor: 'pointer', outline: 'none' }}
+                  value={chartView}
+                  onChange={(e) => setChartView(e.target.value)}
+                >
+                  <option value="This Month">This Month</option>
+                  <option value="Last Month">Last Month</option>
+                  <option value="Last 3 Months">Last 3 Months</option>
+                  <option value="Last 6 Months">Last 6 Months</option>
+                  <option value="Last Year">Last Year</option>
+                  <option value="Overall">Overall</option>
                 </select>
               </div>
             </div>
@@ -649,9 +730,9 @@ export default function FinanceIncomeExpenses() {
                   <div className="chart-bar-fill-wrapper">
                     <div
                       className="chart-bar-rect income-bar"
-                      style={{ height: `${Math.min(100, (totalIncome / 500000) * 100)}%` }}
+                      style={{ height: `${Math.min(100, (chartData.income / 500000) * 100)}%` }}
                     >
-                      <span className="bar-hover-badge">₹{totalIncome.toLocaleString('en-IN')}</span>
+                      <span className="bar-hover-badge">₹{chartData.income.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                   <span className="bar-column-axis-label">INCOME</span>
@@ -661,9 +742,9 @@ export default function FinanceIncomeExpenses() {
                   <div className="chart-bar-fill-wrapper">
                     <div
                       className="chart-bar-rect expense-bar"
-                      style={{ height: `${Math.min(100, (totalExpenses / 500000) * 100)}%` }}
+                      style={{ height: `${Math.min(100, (chartData.expenses / 500000) * 100)}%` }}
                     >
-                      <span className="bar-hover-badge">₹{totalExpenses.toLocaleString('en-IN')}</span>
+                      <span className="bar-hover-badge">₹{chartData.expenses.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                   <span className="bar-column-axis-label">EXPENSE</span>
@@ -673,9 +754,9 @@ export default function FinanceIncomeExpenses() {
                   <div className="chart-bar-fill-wrapper">
                     <div
                       className="chart-bar-rect profit-bar"
-                      style={{ height: `${Math.max(0, Math.min(100, (netProfit / 500000) * 100))}%` }}
+                      style={{ height: `${Math.max(0, Math.min(100, (chartData.profit / 500000) * 100))}%` }}
                     >
-                      <span className="bar-hover-badge">₹{netProfit.toLocaleString('en-IN')}</span>
+                      <span className="bar-hover-badge">₹{chartData.profit.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                   <span className="bar-column-axis-label">PROFIT</span>
