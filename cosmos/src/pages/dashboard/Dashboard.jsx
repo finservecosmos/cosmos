@@ -55,23 +55,53 @@ function Dashboard() {
     fetchWidgets()
   }, [])
 
-  // Compute loan breakdown from context enquiries (same source as Enquiry Status page)
+  const filterByDateRange = (item) => {
+    const dateStr = item.date || item.submitted || item.created_at
+    if (!dateStr) return false
+
+    const date = new Date(dateStr)
+    const now = new Date()
+    
+    // Reset times to start of day for accurate comparison
+    const itemDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+    if (dateRange === 'Today') {
+      return itemDate.getTime() === today.getTime()
+    } else if (dateRange === 'This Week') {
+      const startOfWeek = new Date(today)
+      startOfWeek.setDate(today.getDate() - today.getDay()) // Sunday as start of week
+      const endOfWeek = new Date(startOfWeek)
+      endOfWeek.setDate(startOfWeek.getDate() + 7)
+      return itemDate >= startOfWeek && itemDate < endOfWeek
+    } else if (dateRange === 'This Month') {
+      return itemDate.getFullYear() === today.getFullYear() && 
+             itemDate.getMonth() === today.getMonth()
+    }
+    return true
+  }
+
+  const filteredEnquiries = enquiries.filter(filterByDateRange)
+  const filteredLoginFiles = loginFiles.filter(filterByDateRange)
+  const filteredPayments = payments.filter(filterByDateRange)
+
+  // Compute loan breakdown from filtered enquiries
   const loanBreakdown = (() => {
-    if (!enquiries.length) return []
+    if (!filteredEnquiries.length) return []
     const counts = {}
-    enquiries.forEach(({ loan_type }) => {
+    filteredEnquiries.forEach(({ loan_type }) => {
       if (loan_type) counts[loan_type] = (counts[loan_type] || 0) + 1
     })
-    const total = enquiries.length
+    const total = filteredEnquiries.length
     return Object.entries(counts).map(([type, count]) => ({
       type, count, percent: Math.round((count / total) * 100),
     }))
   })()
 
   // Compute stats directly from AppStateContext (always in sync with DB)
-  const newEnquiriesCount = enquiries.length
-  const activeLoginFiles = loginFiles.filter(f => !f.done).length
-  const totalCollections = payments
+  const newEnquiriesCount = filteredEnquiries.length
+  const activeLoginFiles = filteredLoginFiles.filter(f => !f.done).length
+  const totalCollections = filteredPayments
     .filter(p => p.status === 'Completed')
     .reduce((sum, p) => sum + Number(p.amount || 0), 0)
 
