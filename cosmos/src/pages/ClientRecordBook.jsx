@@ -12,28 +12,7 @@ import ClientOnboardingForm from '../features/client-onboarding/components/Clien
 import '../shared/ui/DataPage.css';
 import { Users, RefreshCw, CheckCircle, Banknote, Folder, Hourglass, FileText } from 'lucide-react';
 import useDebounce from '../shared/lib/useDebounce';
-
-function maskAadhaar(num) {
-  if (!num) return '';
-  const clean = num.toString().replace(/\s+/g, '');
-  if (clean.length < 12) return num;
-  return `XXXX-XXXX-${clean.slice(-4)}`;
-}
-
-function maskPAN(pan) {
-  if (!pan) return '';
-  const clean = pan.toString().toUpperCase().trim();
-  if (clean.length < 10) return pan;
-  return `${clean.slice(0, 5)}••••${clean.slice(-1)}`;
-}
-
-const statusClass = (s) => 'status-badge status-' + String(s || '').toLowerCase().replace(' ', '-');
-
-function formatAmount(n) {
-  if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)}Cr`;
-  if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
-  return `₹${n.toLocaleString('en-IN')}`;
-}
+import { maskAadhaar, maskPAN, formatAmount, statusClass } from '../shared/lib/formatters';
 
 const LOAN_TYPES = ['All', 'Housing', 'Business OD/CC', 'Loan Against Property', 'Others'];
 const STATUSES = ['All', 'Enquiry', 'Processing', 'Approved', 'Disbursed', 'Closed'];

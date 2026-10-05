@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useMemo } from 'react'
 import { supabase } from '../shared/api/supabaseClient'
 
 const dummyUser = {
@@ -76,8 +76,10 @@ export function UserProvider({ children }) {
     }
   }, [])
 
+  const value = useMemo(() => ({ user, setUser }), [user])
+
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={value}>
       {children}
     </UserContext.Provider>
   )
